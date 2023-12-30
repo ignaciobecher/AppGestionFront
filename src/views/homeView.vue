@@ -58,26 +58,7 @@
   <script>
 
   export default {
-    data() {
-      return {
-        business: null,
-      };
-    },
- 
-    methods: {
-      async getBusiness() {
-        try {
-          const res = await fetch("http://localhost:3000/business");
-          const data = await res.json();
-          this.business = data;
-        } catch (error) {
-          console.error("Error al obtener los datos del negocio:", error);
-        }
-      },
-    },
-    mounted() {
-      this.getBusiness();
-    },
+  
   };
   </script>
   
