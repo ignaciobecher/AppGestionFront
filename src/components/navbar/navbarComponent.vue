@@ -16,11 +16,13 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+            <router-link to="/" class="nav-link">Inicio</router-link>
           </li>
+
           <li class="nav-item">
-            <a class="nav-link" href="#">Resumen</a>
+            <router-link to="/resume" class="nav-link">Resumen</router-link>
           </li>
+
           <li class="nav-item">
             <a class="nav-link" href="#">Ventas</a>
           </li>
@@ -48,5 +50,3 @@
 <script>
 export default {};
 </script>
-
-

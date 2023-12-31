@@ -14,6 +14,10 @@ const router = createRouter({
     {
       path:'/stock',
       component:()=>import('../pages/stockView.vue')
+    },
+    {
+      path:'/resume',
+      component:()=>import ('../pages/resumePage.vue')
     }
     
   ]

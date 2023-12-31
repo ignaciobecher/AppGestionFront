@@ -1,10 +1,10 @@
 <template>
   <div class="methods">
     <select id="metodosPago">
-      <option value="tarjeta">Efectivo</option>
-      <option value="paypal">Transferencia</option>
-      <option value="transferencia">Debito/Credito</option>
-      <option value="efectivo">Cuenta corriente</option>
+      <option value="efectivo">Efectivo</option>
+      <option value="transferencia">Transferencia</option>
+      <option value="cheque">Debito/Crédito</option>
+      <option value="cuenta_corriente">Cuenta corriente</option>
     </select>
   </div>
 </template>
