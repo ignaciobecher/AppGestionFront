@@ -107,18 +107,20 @@ export default {
 
           return;
         }
-        this.carrito = [];
-        this.total = 0;
-        this.productsIds = [];
-
         const sale = await axios.post("http://localhost:3000/sales", {
           total: this.total,
           businessId: "658d8588178988d3ebf2db86",
           productIds: arrayOfIds,
         });
+
+        console.log(sale);
         if (sale) {
           console.log("Venta exitosa");
         }
+
+        this.total=0
+        this.productsIds=[]
+        this.carrito=[]
       } catch (error) {
         console.log("Error:", error);
       }
