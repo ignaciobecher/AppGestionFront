@@ -18,6 +18,22 @@ const router = createRouter({
     {
       path:'/resume',
       component:()=>import ('../pages/resumePage.vue')
+    },
+    {
+      path:'/buys',
+      component:()=> import ('../pages/buysPage.vue')
+    },
+    {
+      path:'/expenses',
+      component:()=>import ('../pages/expensesPage.vue')
+    },
+    {
+      path:'/sales/resume',
+      component:()=>import ('../pages/salesResume.vue')
+    },
+    {
+      path:'/dashboard',
+      component:()=> import ('../views/dashboardView.vue')
     }
     
   ]

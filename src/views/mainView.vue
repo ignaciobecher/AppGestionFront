@@ -6,10 +6,11 @@
       </mainCategoryComponent>
     </router-link>
 
-    <mainCategoryComponent class="categoryComponent">
-      <template v-slot:main>Compras</template>
-    </mainCategoryComponent>
-
+    <router-link to="/buys">
+      <mainCategoryComponent class="categoryComponent">
+        <template v-slot:main>Compras</template>
+      </mainCategoryComponent>
+    </router-link>
     <mainCategoryComponent class="categoryComponent">
       <template v-slot:main>Gastos</template>
     </mainCategoryComponent>

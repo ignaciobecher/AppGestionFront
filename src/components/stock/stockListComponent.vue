@@ -1,5 +1,8 @@
 <template>
-  <backBtn></backBtn>
+  <div class="top-container">
+    <backBtn></backBtn>
+    <button @click="showFormFunction">Registrar nuevo producto</button>
+  </div>
   <div class="input-class">
     <input
       @input="checkInput"
@@ -40,7 +43,9 @@
           <td>{{ product.sellPrice }}</td>
           <td>{{ product.barCode }}</td>
           <td>
-            <a @click="getProductUpdateInfo(product._id)" ><i class="bi bi-pencil"></i></a>
+            <a @click="getProductUpdateInfo(product._id)"
+              ><i class="bi bi-pencil"></i
+            ></a>
           </td>
           <td>
             <a @click="deleteProduct(product._id)"
@@ -55,7 +60,9 @@
           <td>{{ selectedProduct.sellPrice }}</td>
           <td>{{ selectedProduct.barCode }}</td>
           <td>
-            <a @click="getProductUpdateInfo(selectedProduct._id)" ><i class="bi bi-pencil"></i></a>
+            <a @click="getProductUpdateInfo(selectedProduct._id)"
+              ><i class="bi bi-pencil"></i
+            ></a>
           </td>
           <td>
             <a @click="deleteProduct(selectedProduct._id)"
@@ -67,24 +74,42 @@
     </table>
   </div>
   <updateProduct v-if="showForm">
-    <template v-slot:productName><input v-model="productName" type="text"></template>
-    <template v-slot:productDescription><input v-model="productDescription" type="text"></template>
-    <template v-slot:productQuantity><input v-model="productQuantity" type="text"></template>
-    <template v-slot:productPrice><input v-model="productPrice" type="text"></template>
-    <template v-slot:productBarcode><input v-model="productBarcode" type="text"></template>
-    <template v-slot:cancelBtn><button @click="showFormFunction" class="btn-cancel" type="button">Cancelar</button></template>
-    <template v-slot:confirmBtn><button @click="updateProduct(product_Id)" class="btn-cancel" type="button">Confirmar</button></template>
+    <template v-slot:productName
+      ><input v-model="productName" type="text"
+    /></template>
+    <template v-slot:productDescription
+      ><input v-model="productDescription" type="text"
+    /></template>
+    <template v-slot:productQuantity
+      ><input v-model="productQuantity" type="text"
+    /></template>
+    <template v-slot:productPrice
+      ><input v-model="productPrice" type="text"
+    /></template>
+    <template v-slot:productBarcode
+      ><input v-model="productBarcode" type="text"
+    /></template>
+    <template v-slot:cancelBtn
+      ><button @click="showFormFunction" class="btn-cancel" type="button">
+        Cancelar
+      </button></template
+    >
+    <template v-slot:confirmBtn
+      ><button @click="createProduct" class="btn-cancel" type="button">
+        Confirmar
+      </button></template
+    >
   </updateProduct>
 </template>
 
 <script>
 import axios from "axios";
 import backBtn from "../../components/buttons/backBtnComponent.vue";
-import updateProduct from '../forms/updateProductComponent.vue'
+import updateProduct from "../forms/updateProductComponent.vue";
 export default {
   components: {
     backBtn,
-    updateProduct
+    updateProduct,
   },
   data() {
     return {
@@ -93,25 +118,25 @@ export default {
       selectedProduct: {},
       foundProduct: true,
       product_Id: null,
-      showForm:false,
-      productName:'',
-      productDescription:'',
-      productQuantity:'',
-      productPrice:'',
-      productBarcode:''
+      showForm: false,
+      productName: "",
+      productDescription: "",
+      productQuantity: "",
+      productPrice: "",
+      productBarcode: "",
     };
   },
   methods: {
     // ---------------------------------------PEDIDOS A LA API--------------------------------------------------
     async getAllProducts() {
       const response = await axios.get(
-        "http://localhost:3000/business/products/658d8588178988d3ebf2db86"
+        "http://localhost:3000/business/products/65931333d7c90d26950f7332"
       );
       this.products = response.data;
     },
     async getProductBybarCode(barCode) {
       const response = await axios.get(
-        `http://localhost:3000/products/barcode/${barCode}/search/658d8588178988d3ebf2db86`
+        `http://localhost:3000/products/barcode/${barCode}/search/65931333d7c90d26950f7332`
       );
       const productoEncontrado = response.data;
 
@@ -140,36 +165,56 @@ export default {
         console.log(error);
       }
     },
-    async updateProduct(id){
+    async updateProduct(id) {
       try {
-        const updateProduct=await axios.put(`http://localhost:3000/products/${id}`,{
-          name:this.productName,
-          description:this.productDescription,
-          sellPrice:this.productPrice,
-          quantity:this.productQuantity,
-          barCode:this.productBarcode
-        })
-        this.showFormFunction()
-        this.getAllProducts()
+        const updateProduct = await axios.put(
+          `http://localhost:3000/products/${id}`,
+          {
+            name: this.productName,
+            description: this.productDescription,
+            sellPrice: this.productPrice,
+            quantity: this.productQuantity,
+            barCode: this.productBarcode,
+          }
+        );
+        this.showFormFunction();
+        this.getAllProducts();
       } catch (error) {
         console.log(error);
       }
     },
-    async getProductUpdateInfo(id){
+    async createProduct() {
       try {
-        this.showFormFunction()
-        const response=await axios.get(`http://localhost:3000/products/${id}`)
-        const product = response.data;
-        
-        this.productName=product.name
-        this.productDescription=product.description
-        this.productQuantity=product.quantity
-        this.productPrice=product.sellPrice
-        this.productBarcode=product.barCode
+        await axios.post(`http://localhost:3000/products`, {
+          name: this.productName,
+          description: this.productDescription,
+          sellPrice: this.productPrice,
+          quantity: this.productQuantity,
+          barCode: this.productBarcode,
+          businessId:"65931333d7c90d26950f7332"
+        });
+        this.showFormFunction();
+        this.getAllProducts();
       } catch (error) {
         console.log(error);
       }
-     
+    },
+    async getProductUpdateInfo(id) {
+      try {
+        this.showFormFunction();
+        const response = await axios.get(
+          `http://localhost:3000/products/${id}`
+        );
+        const product = response.data;
+
+        this.productName = product.name;
+        this.productDescription = product.description;
+        this.productQuantity = product.quantity;
+        this.productPrice = product.sellPrice;
+        this.productBarcode = product.barCode;
+      } catch (error) {
+        console.log(error);
+      }
     },
     // ----------------------------------------------------------------------------------------------------------
     checkInput() {
@@ -181,14 +226,13 @@ export default {
       this.product_Id = id;
       console.log(this.product_Id);
     },
-    showFormFunction(){
-      if(this.showForm===false){
-        this.showForm=true
-      }else{
-        this.showForm=false
+    showFormFunction() {
+      if (this.showForm === false) {
+        this.showForm = true;
+      } else {
+        this.showForm = false;
       }
-    }
-   
+    },
   },
   created() {
     this.getAllProducts();
@@ -197,6 +241,21 @@ export default {
 </script>
 
 <style scoped>
+.top-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.top-container button {
+  grid-column: 6;
+  margin: 15px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 15px;
+  color: white;
+  font-size: 20px;
+}
+
 h1 {
   color: black;
   margin: 15px;

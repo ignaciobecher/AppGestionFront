@@ -12,12 +12,19 @@
         />
       </div>
       <backBtn style="position: absolute; top: 40px"></backBtn>
-      <productComponent v-for="(product, index) in carrito" :key="index">
+      <productComponent  v-for="(product, index) in carrito" :key="index">
         <template v-slot:name>{{ product.name }}</template>
         <template v-slot:quantity>{{ product.description }}</template>
         <template v-slot:price>{{ product.sellPrice }}</template>
       </productComponent>
-      <methodsComponent></methodsComponent>
+      <div class="methods">
+        <select v-model="paymentMethod" id="metodosPago">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Debito/credito">Debito/Crédito</option>
+          <option value="Cuenta_corriente">Cuenta corriente</option>
+        </select>
+      </div>
 
       <div class="total">
         <h3>Total:{{ total }}</h3>
@@ -60,13 +67,14 @@ export default {
       barcode: "",
       carrito: [],
       total: 0,
+      paymentMethod: "",
     };
   },
   methods: {
     async getProductBybarCode(barCode) {
       try {
         const response = await axios.get(
-          `http://localhost:3000/products/barcode/${barCode}/search/658d8588178988d3ebf2db86`
+          `http://localhost:3000/products/barcode/${barCode}/search/65931333d7c90d26950f7332`
         );
         this.barcode = "";
 
@@ -107,22 +115,37 @@ export default {
 
           return;
         }
+        
         const sale = await axios.post("http://localhost:3000/sales", {
           total: this.total,
-          businessId: "658d8588178988d3ebf2db86",
+          businessId: "65931333d7c90d26950f7332",
           productIds: arrayOfIds,
+          paymentMethod: this.paymentMethod,
         });
 
-        console.log(sale);
+        for (const product of this.carrito) {
+          await this.updateStock(product._id)
+        }
+
         if (sale) {
           console.log("Venta exitosa");
         }
 
-        this.total=0
-        this.productsIds=[]
-        this.carrito=[]
+        this.total = 0;
+        this.productsIds = [];
+        this.carrito = [];
       } catch (error) {
         console.log("Error:", error);
+      }
+    },
+    async updateStock(productId) {
+      try {
+        const cantidad=1
+        await axios.put(`http://localhost:3000/products/${productId}`,{
+          quantity:quantity-cantidad
+        })
+      } catch (error) {
+        console.log(error);
       }
     },
     cancelSale() {
@@ -166,5 +189,15 @@ export default {
 .saleBtn input {
   border-radius: 15px;
   padding: 10px;
+}
+
+.methods {
+  margin: 15px;
+}
+
+.methods select {
+  padding: 15px;
+  border-radius: 10px;
+  width: 80%;
 }
 </style>
