@@ -3,9 +3,8 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'main',
-      component: ()=> import('../views/mainView.vue')
+      path:'/',
+      component:()=> import ('../views/dashboardView.vue')
     },
     {
       path:'/sales',
@@ -31,10 +30,7 @@ const router = createRouter({
       path:'/sales/resume',
       component:()=>import ('../pages/salesResume.vue')
     },
-    {
-      path:'/dashboard',
-      component:()=> import ('../views/dashboardView.vue')
-    }
+   
     
   ]
 })
