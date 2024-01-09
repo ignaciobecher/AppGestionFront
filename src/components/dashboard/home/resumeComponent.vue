@@ -25,7 +25,7 @@
     <h1 style="color: white; font-size: 25px; font-weight: 400">
       <i style="color: green" class="bi bi-bag"></i>Ventas de hoy
     </h1>
-    <h1 style="color: white">{{todaySales}} ventas</h1>
+    <h1 style="color: white">{{todaySales}}</h1>
     <div class="button-container">
       <button>Asistente virtual</button>
       <br />
