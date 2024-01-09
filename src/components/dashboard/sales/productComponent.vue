@@ -1,33 +1,36 @@
 <template>
-  <div class="product-container">
-    <p>Agua Eco de los andes</p>
-    <div class="btn">
+  <div class="product-container" v-for="(product,index) in carrito" :key="index">
+    <p>{{ product.name }}</p>
+    <div class="btn" >
       <button @click="decreaseQuantity">-</button>
       <p>{{ totalQuantity }}</p>
       <button @click="increaseQuantity">+</button>
     </div>
-    <p>$800</p>
+    <p>${{ product.sellPrice }}</p>
     <p>$1600</p>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
       totalQuantity: 0,
       barcode:"",
-      productsIds:[]
+      productsIds:[],
+      carrito:[]
     };
   },
   methods: {
-    async getProductBybarCode(barCode) {
+    async getProductBybarCode() {
       try {
         const response = await axios.get(
-          `http://localhost:3000/products/barcode/${barCode}/search/65931333d7c90d26950f7332`
+          `http://localhost:3000/products/barcode/4005900036759/search/65931333d7c90d26950f7332`
         );
         this.barcode = "";
 
+        console.log(response.data);
         if (response && response.data) {
           const productoEncontrado = response.data;
 
@@ -61,6 +64,10 @@ export default {
       if (this.totalQuantity > 1) this.totalQuantity -= 1;
     },
   },
+  mounted(){
+    this.getProductBybarCode()
+  }
+
 };
 </script>
 

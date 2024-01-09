@@ -40,12 +40,13 @@ export default {
   data() {
     return {
       homePage: true,
-      salesPage:true
+      salesPage:false
     };
   },
   methods: {
     showHomePage() {
       this.homePage =true
+      this.salesPage=false
     },
     showSalesPage(){
       this.homePage=false
