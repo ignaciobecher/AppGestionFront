@@ -12,47 +12,75 @@
     <div class="date"></div>
   </div>
 
-  <div class="products-titles">
-    <p>Productos</p>
-    <p>Cantidad</p>
-    <p>Precio unitario</p>
-    <p>Precio total</p>
+  <div class="inputsTitle">
+    <p>Cliente:</p>
+    <p>Vendedor:</p>
+    <p>Fecha de emision:</p>
   </div>
 
-  <div v-if="carrito.length > 0">
-    <div
-      class="product-container"
-      v-for="(product, index) in carrito"
-      :key="index"
-    >
-      <p>{{ product.name }}</p>
-      <div class="btn">
-        <button @click="decreaseQuantity(product)">-</button>
-        <p>{{ product.sellQuantity }}</p>
-        <button @click="increaseQuantity(product)">+</button>
+  <div class="inputs">
+    <select name="" id="">
+      <option value="General">General</option>
+      <option value="Pedro Gomez">Pedro Gomez</option>
+      <option value="Julio Lopez">Julio Lopez</option>
+    </select>
+
+    <select name="" id="">
+      <option value="Ninguno">Ninguno</option>
+      <option value="Julian">Julian</option>
+      <option value="Carla">Carla</option>
+    </select>
+
+    <input type="date" name="" id="" />
+  </div>
+
+  <div class="productSale">
+    <div v-if="carrito.length > 0">
+      <div class="products-titles">
+        <p>Productos</p>
+        <p>Cantidad</p>
+        <p>Precio unitario</p>
+        <p>Precio total</p>
       </div>
-      <p>${{ product.sellPrice }}</p>
-      <p>${{ getTotalProductPrice(product) }}</p>
+      <div
+        class="product-container"
+        v-for="(product, index) in carrito"
+        :key="index"
+      >
+        <p>{{ product.name }}</p>
+        <div class="btn">
+          <button @click="decreaseQuantity(product)">-</button>
+          <p>{{ product.sellQuantity }}</p>
+          <button @click="increaseQuantity(product)">+</button>
+        </div>
+        <p>${{ product.sellPrice }}</p>
+        <p>${{ getTotalProductPrice(product) }}</p>
+        <p>
+          <i @click="removeFromCart(index)" class="bi bi-x-circle-fill"></i>
+        </p>
+      </div>
+    </div>
+
+    <div v-if="carrito.length > 0" class="total">
+      <h2>Total:</h2>
+      <h1>${{ total }}</h1>
+    </div>
+
+    <div v-if="carrito.length > 0" class="buttons">
+      <button class="btnCancel">Cancelar</button>
+      <input
+        class="btnConfirm"
+        @click="createSale"
+        type="submit"
+        value="Vender"
+      />
     </div>
   </div>
 
-  <div class="total">
-    <h2>Total:</h2>
-    <h1>${{ total }}</h1>
-  </div>
-
-  <div class="buttons">
-    <button class="btnCancel">Cancelar</button>
-    <input
-      class="btnConfirm"
-      @click="createSale"
-      type="submit"
-      value="Vender"
-    />
-  </div>
- 
   <div v-if="succesMessageVisible" class="alert alert-success" role="alert">
-    <h4 class="alert-heading">VENTA EXITOSA <i class="bi bi-check-circle-fill"></i></h4>
+    <h4 class="alert-heading">
+      VENTA EXITOSA <i class="bi bi-check-circle-fill"></i>
+    </h4>
     <p>Hiciste una venta, podes ver sus estadisticas en el sitio de resumen</p>
   </div>
 </template>
@@ -109,9 +137,9 @@ export default {
       }
     },
     async createSale() {
-      if(this.carrito.length===0){
-        window.alert('No se puede registrar una venta vacia')
-        return
+      if (this.carrito.length === 0) {
+        window.alert("No se puede registrar una venta vacia");
+        return;
       }
       let arrayOfIds = [];
       for (const product of this.productsIds) {
@@ -134,6 +162,11 @@ export default {
       } else {
         console.log("Error al realizar la venta");
       }
+    },
+    removeFromCart(index) {
+      const removedProduct = this.carrito[index];
+      this.total -= this.getTotalProductPrice(removedProduct); // Restar el precio total del producto eliminado del total
+      this.carrito.splice(index, 1); // Eliminar el producto del carrito por su índice
     },
     showSuccesMessage() {
       this.succesMessageVisible = true;
@@ -159,7 +192,26 @@ export default {
 </script>
 
 <style scoped>
-.alert{
+.productSale{
+  background-color:#1a1a1a ;
+  margin: 10px;
+  width: 70%;
+}
+.inputsTitle {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 20px;
+  margin: 10px;
+
+}
+.inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 20px;
+  margin: 10px;
+
+}
+.alert {
   width: 50%;
   position: absolute;
   top: 30%;
@@ -179,7 +231,7 @@ export default {
   margin-bottom: 5px;
   display: flex;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
 .product-container {
   margin-left: 10px;
@@ -189,11 +241,9 @@ export default {
   background-color: #1a1a1a;
   padding: 5px;
   border-radius: 5px;
-  /* display: flex;
-  flex-direction: row;
-  justify-content: space-between; */
+
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
 
 .btn {
@@ -232,10 +282,11 @@ export default {
 
 .buttons {
   margin: 10px;
+  width: 100%;
+  display: flex;
 }
 
 .btnCancel {
-  width: 40%;
   border-radius: 15px;
   background-color: #d02941;
   border: none;
@@ -244,10 +295,11 @@ export default {
   font-size: 20px;
   font-weight: bold;
   transition: transform 0.3s ease;
+  width: 100%;
 }
 
 .btnConfirm {
-  width: 40%;
+  width: 100%;
   border-radius: 15px;
   background-color: #149c68;
   border: none;

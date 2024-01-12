@@ -8,14 +8,19 @@
         </div>
 
         <div class="nav-links">
-          <a href="#" @click="showHomePage"
+          <a href="#" @click="togglePage('home')"
             ><i class="bi bi-house"></i> Inicio
           </a>
-          <a href="#" @click="showSalesPage"><i class="bi bi-cart"></i> Ventas</a>
-          <a href="#" ><i class="bi bi-bag-dash"></i> Compras</a>
-          <a href=""><i class="bi bi-person-arms-up"></i> Asistente inteligente</a>
-          <a href=""><i class="bi bi-bar-chart"></i> Resumen</a>
-          <a href=""><i class="bi bi-box-seam"></i> Stock</a>
+          <a href="#" @click="togglePage('sales')"
+            ><i class="bi bi-cart"></i> Ventas</a
+          >
+          <a href="#" @click="togglePage('buys')"><i class="bi bi-bag-dash"></i> Compras</a>
+          <a href="#" @click="togglePage('stock')" ><i class="bi bi-box-seam"></i> Stock</a>
+
+          <a href=""><i class="bi bi-bar-chart"></i> Informe</a>
+          <a href=""
+            ><i class="bi bi-person-arms-up"></i> Asistente inteligente</a
+          >
         </div>
       </div>
     </div>
@@ -23,35 +28,43 @@
     <div class="pages-container">
       <home-page v-if="homePage"></home-page>
       <sale-page v-if="salesPage"></sale-page>
+      <buy-page v-if="buysPage"></buy-page>
+      <stock-page v-if="stockPage"></stock-page>
     </div>
   </div>
 </template>
 
 <script>
+import buyPage from "@/pages/buyPage.vue";
 import homePage from "../pages/homePage.vue";
-import salePage from '../pages/salePage.vue'
+import salePage from "../pages/salePage.vue";
+import stockPage from '../pages/stockPage.vue'
 import sidebar from "../components/dashboard/sidebarComponent.vue";
+
 export default {
   components: {
     sidebar,
     homePage,
-    salePage
+    salePage,
+    buyPage,
+    stockPage
   },
   data() {
     return {
       homePage: true,
-      salesPage:false
+      salesPage: false,
+      buysPage:false,
+      stockPage:false
     };
   },
   methods: {
-    showHomePage() {
-      this.homePage =true
-      this.salesPage=false
+  
+    togglePage(page) {
+      this.homePage = page === "home";
+      this.salesPage = page === "sales";
+      this.buysPage= page === 'buys'
+      this.stockPage= page=== 'stock'
     },
-    showSalesPage(){
-      this.homePage=false
-      this.salesPage=true
-    }
   },
 };
 </script>
