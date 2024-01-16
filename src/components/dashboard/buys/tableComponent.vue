@@ -6,7 +6,7 @@
       <div class="date"></div>
     </div>
     <div class="top-container">
-      <button @click.prevent="changeFormStatus">Registrar nueva compra</button>
+      <button @click.prevent="changeFormStatus">Registrar nueva egreso</button>
     </div>
 
     <div class="table-responsive">
@@ -18,7 +18,7 @@
             <th scope="col">Descripcion</th>
             <th scope="col">Cantidad</th>
             <th scope="col">Precio</th>
-            <th scope="col">Fecha de Vencimiento</th>
+            <!-- <th scope="col">Fecha de Vencimiento</th> -->
           </tr>
         </thead>
         <tbody class="table-body">
@@ -45,15 +45,15 @@
               <input v-else v-model="buy.quantity" type="text" />
             </td>
             <td>
-              <span v-if="!editStatus">{{ buy.price }}</span>
-              <input v-else v-model="buy.price" type="text" />
+              <span v-if="!editStatus">{{ formatPrice(buy.price) }}</span>
+              <input v-else v-model="buy.price" type="text"/>
             </td>
-            <td>
+            <!-- <td>
               <span v-if="!editStatus">{{
                 formatDate(buy.expirationDate)
               }}</span>
               <input v-else v-model="buy.expirationDate" type="date" />
-            </td>
+            </td> -->
             <td v-if="!editStatus">
               <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
             </td>
@@ -101,11 +101,11 @@
             type="text"
             placeholder="Ingrese un precio"
           />
-          <input
+          <!-- <input
             v-model="data.expirationDate"
             type="date"
             placeholder="Ingrese una fecha de vencimiento"
-          />
+          /> -->
           <button @click.prevent="changeFormStatus" class="btn-cancel">
             Cancelar
           </button>
@@ -121,6 +121,7 @@
 <script>
 import axios from "axios";
 import moment from "moment";
+import numeral from 'numeral'
 
 export default {
   data() {
@@ -211,12 +212,15 @@ export default {
         console.log(error);
       }
     },
-    // ********************************************LLAMADAS A LA API**************************************
+    // ********************************************----------------**************************************
     setId(id) {
       this.buy_id = id;
     },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
+    },
+    formatPrice(price) {
+      return numeral(price).format("$0,0.00");
     },
     changeEditStatus() {
       this.editStatus = !this.editStatus;

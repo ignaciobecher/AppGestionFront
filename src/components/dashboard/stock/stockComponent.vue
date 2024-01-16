@@ -2,7 +2,15 @@
   <div class="stock-container">
     <div class="searchbar-container">
       <p>Buscar producto:</p>
-      <input type="search" name="" placeholder="Buscar producto..." id="" />
+      <input
+        @input="checkInput"
+        v-model="productName"
+        type="search"
+        @keyup.enter="searchProduct(productName)"
+        name=""
+        placeholder="Buscar producto..."
+        id=""
+      />
       <div class="date"></div>
     </div>
 
@@ -22,10 +30,86 @@
           </tr>
         </thead>
         <tbody class="table-body">
+          <tr v-if="!foundProduct">
+            <td>
+              <span v-if="!editorStatus">{{ selectedProduct[0].name }}</span>
+              <input
+                name="name"
+                v-else
+                type="text"
+                v-model="selectedProduct[0].name"
+              />
+            </td>
+            <td>
+              <span v-if="!editorStatus">{{
+                selectedProduct[0].description
+              }}</span>
+              <input
+                name="name"
+                v-else
+                type="text"
+                v-model="selectedProduct[0].description"
+              />
+            </td>
+            <td>
+              <span v-if="!editorStatus">{{
+                selectedProduct[0].sellPrice
+              }}</span>
+              <input
+                name="name"
+                v-else
+                type="text"
+                v-model="selectedProduct[0].sellPrice"
+              />
+            </td>
+            <td>
+              <span v-if="!editorStatus">{{
+                selectedProduct[0].quantity
+              }}</span>
+              <input
+                name="name"
+                v-else
+                type="text"
+                v-model="selectedProduct[0].quantity"
+              />
+            </td>
+            <td>
+              <span v-if="!editorStatus">{{ selectedProduct[0].barCode }}</span>
+              <input
+                name="name"
+                v-else
+                type="text"
+                v-model="selectedProduct[0].barCode"
+              />
+            </td>
+            <td v-if="!editorStatus">
+              <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
+            </td>
+            <td v-else>
+              <a
+                @click.prevent="
+                  updateProduct(selectedProduct, selectedProduct[0]._id)
+                "
+                href="#"
+              >
+                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
+              </a>
+              <a href="#" @click="changeStatusOfEditor">
+                <i style="color: #d02941" class="bi bi-x-circle"></i>
+              </a>
+            </td>
+            <td>
+              <a @click.prevent="deleteProduct(selectedProduct[0]._id)">
+                <i class="bi bi-trash"></i
+              ></a>
+            </td>
+          </tr>
+
           <tr
             @click="setId(product._id)"
             v-for="(product, index) in products"
             :key="index"
+            v-if="foundProduct"
           >
             <td>
               <span v-if="!editorStatus">{{ product.name }}</span>
@@ -90,22 +174,47 @@
     </div>
 
     <div v-if="formStatus" class="register-component">
-      <form action="" class="expenses-form">
-        <div class="form-group">
-          <h3 style="text-align: center">Nuevo producto</h3>
-          <input v-model="data.name" type="text" placeholder="Ingrese un producto" />
-          <input v-model="data.description" type="text" placeholder="Ingrese una descripcion" />
-          <input v-model="data.quantity" type="text" placeholder="Ingrese una cantidad" />
-          <input v-model="data.sellPrice"  type="text" placeholder="Ingrese un precio" />
-          <input v-model="data.expirationDate" type="date" placeholder="Ingrese una fecha de vencimiento" />
-          <button @click="changeStatusOfForm" class="btn-cancel">
-            Cancelar
-          </button>
-          <button @click.prevent="createNewProduct" class="btn-confirm">
-            Confirmar
-          </button>
+        <div class="expenses-form">
+          <div class="form-group">
+            <h3 style="text-align: center">Nuevo producto</h3>
+            <input
+              v-model="data.name"
+              type="text"
+              placeholder="Ingrese un producto"
+            />
+            <input
+              v-model="data.description"
+              type="text"
+              placeholder="Ingrese una descripcion"
+            />
+            <input
+              v-model="data.quantity"
+              type="text"
+              placeholder="Ingrese una cantidad"
+            />
+            <input
+              v-model="data.sellPrice"
+              type="text"
+              placeholder="Ingrese un precio"
+            />
+            <input
+              v-model="data.barCode"
+              type="text"
+              placeholder="Ingrese codigo de barras"
+            />
+            <!-- <input
+            v-model="data.expirationDate"
+            type="date"
+            placeholder="Ingrese una fecha de vencimiento"
+          /> -->
+            <button @click="changeStatusOfForm" class="btn-cancel">
+              Cancelar
+            </button>
+            <button @click.prevent="createNewProduct" class="btn-confirm">
+              Confirmar
+            </button>
+          </div>
         </div>
-      </form>
     </div>
   </div>
 </template>
@@ -126,8 +235,12 @@ export default {
         description: "",
         sellPrice: "",
         quantity: "",
-        expirationDate:new Date()
+        barCode: "",
+        expirationDate: new Date(),
       },
+      productName: "",
+      selectedProduct: {},
+      foundProduct: true,
     };
   },
   methods: {
@@ -186,8 +299,6 @@ export default {
           !this.data.quantity
         ) {
           window.alert("Los campos no deben estar vacíos");
-          this.changeStatusOfForm();
-
         } else {
           const newProduct = await axios.post(
             "http://localhost:3000/products",
@@ -200,16 +311,47 @@ export default {
               businessId: "65931333d7c90d26950f7332",
             }
           );
-          this.changeStatusOfForm()
-          this.getAllProducts()
+          this.data.name = "";
+          this.data.description = "";
+          this.data.sellPrice = "";
+          this.data.quantity = "";
+          this.data.barCode = "";
+          this.getAllProducts();
+
+          setTimeout(() => {
+            this.changeStatusOfForm();
+          }, 0);
         }
       } catch (error) {
         console.log("Error: ", error);
       }
     },
-    // *****************************************LLAMADAS A LA API*******************************
+    async searchProduct(productName) {
+      try {
+        const product = await axios.get(
+          `http://localhost:3000/products/65931333d7c90d26950f7332/search/${productName}`
+        );
+        const productoEncontrado = product.data;
+        if (productoEncontrado) {
+          this.selectedProduct = productoEncontrado;
+          this.foundProduct = false;
+        } else {
+          this.selectedProduct = {};
+          this.foundProduct = false;
+        }
+      } catch (error) {
+        console.log("Error: ", error);
+      }
+    },
+
+    // *****************************************************************************************
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
+    },
+    checkInput() {
+      if (this.productName === "") {
+        this.foundProduct = true;
+      }
     },
     setId(id) {
       this.product_id = id;
@@ -220,6 +362,7 @@ export default {
     },
     changeStatusOfForm() {
       this.formStatus = !this.formStatus;
+      console.log("Formulario abierto/cerrado");
     },
   },
   mounted() {

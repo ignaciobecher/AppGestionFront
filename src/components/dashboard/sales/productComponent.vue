@@ -9,73 +9,79 @@
       placeholder="Buscar por codigo"
       id=""
     />
-    <div class="date"></div>
+    <div class="sales-btn">
+      <button class="salesBtn">{{ turnBtn }}</button>
+    </div>
   </div>
 
-  <div class="inputsTitle">
-    <p>Cliente:</p>
-    <p>Vendedor:</p>
-    <p>Fecha de emision:</p>
-  </div>
+  <div v-if="!salesTable">
+    <div class="inputsTitle">
+      <p>Cliente:</p>
+      <p>Vendedor:</p>
+      <p>Fecha de emision:</p>
+    </div>
 
-  <div class="inputs">
-    <select name="" id="">
-      <option value="General">General</option>
-      <option value="Pedro Gomez">Pedro Gomez</option>
-      <option value="Julio Lopez">Julio Lopez</option>
-    </select>
+    <div class="inputs">
+      <select name="" id="">
+        <option value="General">General</option>
+        <option value="Pedro Gomez">Pedro Gomez</option>
+        <option value="Julio Lopez">Julio Lopez</option>
+      </select>
 
-    <select name="" id="">
-      <option value="Ninguno">Ninguno</option>
-      <option value="Julian">Julian</option>
-      <option value="Carla">Carla</option>
-    </select>
+      <select name="" id="">
+        <option value="Ninguno">Ninguno</option>
+        <option value="Julian">Julian</option>
+        <option value="Carla">Carla</option>
+      </select>
 
-    <input type="date" name="" id="" />
-  </div>
+      <input type="date" name="" id="" />
+    </div>
 
-  <div class="productSale">
-    <div v-if="carrito.length > 0">
-      <div class="products-titles">
-        <p>Productos</p>
-        <p>Cantidad</p>
-        <p>Precio unitario</p>
-        <p>Precio total</p>
-      </div>
-      <div
-        class="product-container"
-        v-for="(product, index) in carrito"
-        :key="index"
-      >
-        <p>{{ product.name }}</p>
-        <div class="btn">
-          <button @click="decreaseQuantity(product)">-</button>
-          <p>{{ product.sellQuantity }}</p>
-          <button @click="increaseQuantity(product)">+</button>
+    <div class="productSale">
+      <div v-if="carrito.length > 0">
+        <div class="products-titles">
+          <p>Productos</p>
+          <p>Cantidad</p>
+          <p>Precio unitario</p>
+          <p>Precio total</p>
         </div>
-        <p>${{ product.sellPrice }}</p>
-        <p>${{ getTotalProductPrice(product) }}</p>
-        <p>
-          <i @click="removeFromCart(index)" class="bi bi-x-circle-fill"></i>
-        </p>
+        <div
+          class="product-container"
+          v-for="(product, index) in carrito"
+          :key="index"
+        >
+          <p>{{ product.name }}</p>
+          <div class="btn">
+            <button @click="decreaseQuantity(product)">-</button>
+            <p>{{ product.sellQuantity }}</p>
+            <button @click="increaseQuantity(product)">+</button>
+          </div>
+          <p>${{ product.sellPrice }}</p>
+          <p>${{ getTotalProductPrice(product) }}</p>
+          <p>
+            <i @click="removeFromCart(index)" class="bi bi-x-circle-fill"></i>
+          </p>
+        </div>
+      </div>
+
+      <div v-if="carrito.length > 0" class="total">
+        <h2>Total:</h2>
+        <h1>${{ total }}</h1>
+      </div>
+
+      <div v-if="carrito.length > 0" class="buttons">
+        <button class="btnCancel">Cancelar</button>
+        <input
+          class="btnConfirm"
+          @click="createSale"
+          type="submit"
+          value="Vender"
+        />
       </div>
     </div>
-
-    <div v-if="carrito.length > 0" class="total">
-      <h2>Total:</h2>
-      <h1>${{ total }}</h1>
-    </div>
-
-    <div v-if="carrito.length > 0" class="buttons">
-      <button class="btnCancel">Cancelar</button>
-      <input
-        class="btnConfirm"
-        @click="createSale"
-        type="submit"
-        value="Vender"
-      />
-    </div>
   </div>
+
+ 
 
   <div v-if="succesMessageVisible" class="alert alert-success" role="alert">
     <h4 class="alert-heading">
@@ -97,6 +103,7 @@ export default {
       carrito: [],
       total: 0,
       succesMessageVisible: false,
+      turnBtn:'Iniciar turno'
     };
   },
   methods: {
@@ -176,12 +183,17 @@ export default {
     },
 
     increaseQuantity(product) {
-      product.sellQuantity += 1; // Incrementar la cantidad de un producto específico
+      product.sellQuantity += 1;
+      this.total += product.sellPrice; // Incrementar la cantidad de un producto específico
     },
 
     decreaseQuantity(product) {
-      if (product.sellQuantity > 1) product.sellQuantity -= 1; // Decrementar la cantidad de un producto específico
+      if (product.sellQuantity > 1) {
+        product.sellQuantity -= 1;
+        this.total -= product.sellPrice;
+      } // Decrementar la cantidad de un producto específico
     },
+   
   },
   computed: {
     getTotalProductPrice() {
@@ -192,8 +204,8 @@ export default {
 </script>
 
 <style scoped>
-.productSale{
-  background-color:#1a1a1a ;
+.productSale {
+  background-color: #1a1a1a;
   margin: 10px;
   width: 70%;
 }
@@ -202,14 +214,12 @@ export default {
   grid-template-columns: 1fr 1fr 1fr;
   column-gap: 20px;
   margin: 10px;
-
 }
 .inputs {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   column-gap: 20px;
   margin: 10px;
-
 }
 .alert {
   width: 50%;
@@ -280,6 +290,21 @@ export default {
   padding: 10px;
 }
 
+.salesBtn {
+  margin-left: 190px; /* Ajustar márgenes si es necesario */
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 15px;
+  border: 1px solid white;
+  padding: 10px;
+  background-color: #574f7a;
+  transition: transform 0.3s ease;
+}
+
+.salesBtn:hover {
+  transform: scale(1.1); /* Agrandar el botón al 110% de su tamaño original */
+}
 .buttons {
   margin: 10px;
   width: 100%;
