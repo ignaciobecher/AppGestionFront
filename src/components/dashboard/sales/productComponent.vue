@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <div v-if="!salesTable">
+  <div>
     <div class="inputsTitle">
       <p>Cliente:</p>
       <p>Vendedor:</p>
@@ -22,23 +22,33 @@
     </div>
 
     <div class="inputs">
-      <select name="" id="">
-        <option value="General">General</option>
-        <option value="Pedro Gomez">Pedro Gomez</option>
-        <option value="Julio Lopez">Julio Lopez</option>
+      <select v-model="clientId" name="" id="">
+        <option value="">General</option>
+        <option
+          v-for="(client, index) in clients"
+          :key="index"
+          :value="client._id"
+        >
+          {{ client.name }}
+        </option>
       </select>
 
-      <select name="" id="">
-        <option value="Ninguno">Ninguno</option>
-        <option value="Julian">Julian</option>
-        <option value="Carla">Carla</option>
+      <select v-model="employeeId" name="" id="">
+        <option value="">General</option>
+        <option
+          v-for="(employee, index) in employees"
+          :key="index"
+          :value="employee._id"
+        >
+          {{ employee.name }}
+        </option>
       </select>
 
       <input type="date" name="" id="" />
     </div>
 
     <div class="productSale">
-      <div v-if="carrito.length > 0">
+      <div>
         <div class="products-titles">
           <p>Productos</p>
           <p>Cantidad</p>
@@ -64,13 +74,25 @@
         </div>
       </div>
 
-      <div v-if="carrito.length > 0" class="total">
+      <select
+        v-model="paymentMethod"
+        style="margin-left: 10px; width: 40%; border-radius: 15px; padding: 5px"
+        name=""
+        id=""
+      >
+        <option value="Efectivo">Efectivo</option>
+        <option value="Cheque">Cheque</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Credito">Credito</option>
+      </select>
+
+      <div class="total">
         <h2>Total:</h2>
         <h1>${{ total }}</h1>
       </div>
 
-      <div v-if="carrito.length > 0" class="buttons">
-        <button class="btnCancel">Cancelar</button>
+      <div class="buttons">
+        <button @click="cancelSale" class="btnCancel">Cancelar</button>
         <input
           class="btnConfirm"
           @click="createSale"
@@ -80,8 +102,6 @@
       </div>
     </div>
   </div>
-
- 
 
   <div v-if="succesMessageVisible" class="alert alert-success" role="alert">
     <h4 class="alert-heading">
@@ -103,7 +123,12 @@ export default {
       carrito: [],
       total: 0,
       succesMessageVisible: false,
-      turnBtn:'Iniciar turno'
+      turnBtn: "Iniciar turno",
+      clients: [],
+      employees: [],
+      paymentMethod: "Efectivo",
+      clientId: "",
+      employeeId: "",
     };
   },
   methods: {
@@ -145,29 +170,57 @@ export default {
     },
     async createSale() {
       if (this.carrito.length === 0) {
-        window.alert("No se puede registrar una venta vacia");
+        window.alert("No se puede registrar una venta vacía");
         return;
       }
+
       let arrayOfIds = [];
       for (const product of this.productsIds) {
         arrayOfIds.push(product);
       }
 
-      const sale = await axios.post("http://localhost:3000/sales", {
+      const saleData = {
         total: this.total,
         businessId: "65931333d7c90d26950f7332",
         productIds: arrayOfIds,
         paymentMethod: this.paymentMethod,
-      });
+      };
 
-      if (sale) {
-        console.log("Venta exitosa", sale);
-        this.carrito = [];
-        this.arrayOfIds = [];
-        this.total = 0;
-        this.showSuccesMessage();
-      } else {
-        console.log("Error al realizar la venta");
+      if (this.clientId && this.clientId !== "General") {
+        saleData.clientId = this.clientId;
+      }
+
+      if (this.employeeId && this.employeeId !== "General") {
+        saleData.employeeId = this.employeeId;
+      }
+
+      try {
+        const sale = await axios.post("http://localhost:3000/sales", saleData);
+
+        if (sale) {
+          console.log("Venta exitosa", sale);
+          this.carrito = [];
+          this.arrayOfIds = [];
+          this.total = 0;
+          this.showSuccesMessage();
+        } else {
+          console.log("Error al realizar la venta");
+        }
+      } catch (error) {
+        console.error("Error al realizar la venta:", error);
+      }
+    },
+
+    async getBusinessData() {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/business/65931333d7c90d26950f7332"
+        );
+        const business = res.data;
+        this.clients = business.clients;
+        this.employees = business.employees;
+      } catch (error) {
+        throw error;
       }
     },
     removeFromCart(index) {
@@ -193,12 +246,34 @@ export default {
         this.total -= product.sellPrice;
       } // Decrementar la cantidad de un producto específico
     },
-   
+    cancelSale() {
+      this.barcode = "";
+      this.productsIds = [];
+      this.carrito = [];
+      this.total = 0;
+      this.paymentMethod = "Efectivo";
+      this.clientId = "";
+      this.employeeId = "";
+    },
+    handleKeyDown(event) {
+      if (event.key === "F2") {
+        this.createSale();
+      } else if (event.key === "Escape") {
+        this.cancelSale();
+      }
+    },
   },
   computed: {
     getTotalProductPrice() {
       return (product) => product.sellPrice * product.sellQuantity; // Calcular el precio total del producto
     },
+  },
+  mounted() {
+    this.getBusinessData(),
+      window.addEventListener("keydown", this.handleKeyDown);
+  },
+  beforeDestroy() {
+    window.removeEventListener("keydown", this.handleKeyDown);
   },
 };
 </script>
@@ -221,6 +296,12 @@ export default {
   column-gap: 20px;
   margin: 10px;
 }
+
+.inputs select {
+  border-radius: 15px;
+  padding: 5px;
+}
+
 .alert {
   width: 50%;
   position: absolute;
@@ -251,7 +332,6 @@ export default {
   background-color: #1a1a1a;
   padding: 5px;
   border-radius: 5px;
-
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }

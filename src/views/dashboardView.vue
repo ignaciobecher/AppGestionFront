@@ -14,7 +14,10 @@
           <a href="#" @click="togglePage('sales')"
             ><i class="bi bi-cart"></i> Ventas</a
           >
-          <a href="#" @click="togglePage('buys')"><i class="bi bi-bag-dash"></i> Compras</a>
+          <a href="#" @click="togglePage('inputs')"
+            ><i class="bi bi-arrow-down-left-circle"></i> Ingresos</a
+          >
+          <a href="#" @click="togglePage('buys')"><i class="bi bi-arrow-up-right-circle"></i> Gastos</a>
           <a href="#" @click="togglePage('stock')" ><i class="bi bi-box-seam"></i> Stock</a>
 
           <a href=""><i class="bi bi-bar-chart"></i> Informe</a>
@@ -28,33 +31,35 @@
     <div class="pages-container">
       <home-page v-if="homePage"></home-page>
       <sale-page v-if="salesPage"></sale-page>
-      <buy-page v-if="buysPage"></buy-page>
+      <inputs-page v-if="inputPage"></inputs-page>
+      <out-puts-page v-if="outPage"></out-puts-page>
       <stock-page v-if="stockPage"></stock-page>
     </div>
   </div>
 </template>
 
 <script>
-import buyPage from "@/pages/buyPage.vue";
+import inputsPage from "@/pages/inputsPage.vue";
+import outPutsPage from "@/pages/outPutsPage.vue";
 import homePage from "../pages/homePage.vue";
 import salePage from "../pages/salePage.vue";
 import stockPage from '../pages/stockPage.vue'
-import sidebar from "../components/dashboard/sidebarComponent.vue";
 
 export default {
   components: {
-    sidebar,
     homePage,
     salePage,
-    buyPage,
-    stockPage
+    outPutsPage,
+    stockPage,
+    inputsPage
   },
   data() {
     return {
       homePage: true,
       salesPage: false,
-      buysPage:false,
-      stockPage:false
+      outPage:false,
+      stockPage:false,
+      inputPage:false
     };
   },
   methods: {
@@ -62,8 +67,9 @@ export default {
     togglePage(page) {
       this.homePage = page === "home";
       this.salesPage = page === "sales";
-      this.buysPage= page === 'buys'
+      this.outPage= page === 'buys'
       this.stockPage= page=== 'stock'
+      this.inputPage=page==='inputs'
     },
   },
 };

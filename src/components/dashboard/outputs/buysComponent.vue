@@ -1,12 +1,16 @@
 <template>
-  <div class="buys-container">
+  <div class="buysContainer">
+    <h1>Compras</h1>
+
     <div class="searchbar-container">
       <p>Buscar compra:</p>
       <input type="search" name="" placeholder="Buscar por nombre" id="" />
+      <div class="top-container">
+        <button @click.prevent="changeFormStatus">
+          Registrar nueva compra
+        </button>
+      </div>
       <div class="date"></div>
-    </div>
-    <div class="top-container">
-      <button @click.prevent="changeFormStatus">Registrar nueva egreso</button>
     </div>
 
     <div class="table-responsive">
@@ -18,7 +22,6 @@
             <th scope="col">Descripcion</th>
             <th scope="col">Cantidad</th>
             <th scope="col">Precio</th>
-            <!-- <th scope="col">Fecha de Vencimiento</th> -->
           </tr>
         </thead>
         <tbody class="table-body">
@@ -46,7 +49,7 @@
             </td>
             <td>
               <span v-if="!editStatus">{{ formatPrice(buy.price) }}</span>
-              <input v-else v-model="buy.price" type="text"/>
+              <input v-else v-model="buy.price" type="text" />
             </td>
             <!-- <td>
               <span v-if="!editStatus">{{
@@ -121,7 +124,7 @@
 <script>
 import axios from "axios";
 import moment from "moment";
-import numeral from 'numeral'
+import numeral from "numeral";
 
 export default {
   data() {
@@ -135,7 +138,7 @@ export default {
         description: "",
         quantity: "",
         price: "",
-        expirationDate: "",
+        // expirationDate: "",
       },
     };
   },
@@ -148,6 +151,7 @@ export default {
         );
         const buys = response.data;
         this.buysArray = buys;
+        console.log(buys);
       } catch (error) {
         console.log(error);
       }
@@ -163,7 +167,7 @@ export default {
           description: buy.description,
           quantity: buy.quantity,
           price: buy.price,
-          expirationDate: formattedExpirationDate,
+          // expirationDate: formattedExpirationDate,
         });
 
         this.getAllBuys();
@@ -204,7 +208,7 @@ export default {
         ) {
           await axios.delete(`http://localhost:3000/buys/${id}`);
           window.alert("Compra eliminada");
-          this.getAllBuys()
+          this.getAllBuys();
         } else {
           window.alert("Accion cancelada");
         }
@@ -236,6 +240,9 @@ export default {
 </script>
 
 <style scoped>
+.buysContainer {
+  margin-left: 10px;
+}
 .table-body input {
   width: 100%;
 }
