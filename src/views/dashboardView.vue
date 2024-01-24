@@ -17,10 +17,16 @@
           <a href="#" @click="togglePage('inputs')"
             ><i class="bi bi-arrow-down-left-circle"></i> Ingresos</a
           >
-          <a href="#" @click="togglePage('buys')"><i class="bi bi-arrow-up-right-circle"></i> Gastos</a>
-          <a href="#" @click="togglePage('stock')" ><i class="bi bi-box-seam"></i> Stock</a>
+          <a href="#" @click="togglePage('buys')"
+            ><i class="bi bi-arrow-up-right-circle"></i> Gastos</a
+          >
+          <a href="#" @click="togglePage('stock')"
+            ><i class="bi bi-box-seam"></i> Stock</a
+          >
 
-          <a href=""><i class="bi bi-bar-chart"></i> Informe</a>
+          <a href="#" @click="togglePage('inform')"
+            ><i class="bi bi-bar-chart"></i> Informe</a
+          >
           <a href=""
             ><i class="bi bi-person-arms-up"></i> Asistente inteligente</a
           >
@@ -34,16 +40,18 @@
       <inputs-page v-if="inputPage"></inputs-page>
       <out-puts-page v-if="outPage"></out-puts-page>
       <stock-page v-if="stockPage"></stock-page>
+      <inform-page v-if="informPage"></inform-page>
     </div>
   </div>
 </template>
 
 <script>
+import informPage from "../pages/informPage.vue";
 import inputsPage from "@/pages/inputsPage.vue";
 import outPutsPage from "@/pages/outPutsPage.vue";
 import homePage from "../pages/homePage.vue";
 import salePage from "../pages/salePage.vue";
-import stockPage from '../pages/stockPage.vue'
+import stockPage from "../pages/stockPage.vue";
 
 export default {
   components: {
@@ -51,25 +59,27 @@ export default {
     salePage,
     outPutsPage,
     stockPage,
-    inputsPage
+    inputsPage,
+    informPage,
   },
   data() {
     return {
       homePage: true,
       salesPage: false,
-      outPage:false,
-      stockPage:false,
-      inputPage:false
+      outPage: false,
+      stockPage: false,
+      inputPage: false,
+      informPage: false,
     };
   },
   methods: {
-  
     togglePage(page) {
       this.homePage = page === "home";
       this.salesPage = page === "sales";
-      this.outPage= page === 'buys'
-      this.stockPage= page=== 'stock'
-      this.inputPage=page==='inputs'
+      this.outPage = page === "buys";
+      this.stockPage = page === "stock";
+      this.inputPage = page === "inputs";
+      this.informPage = page === "inform";
     },
   },
 };

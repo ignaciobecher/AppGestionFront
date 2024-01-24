@@ -97,7 +97,7 @@
             placeholder="Ingrese una cantidad"
           />
           <input
-            v-model="data.price"
+            v-model="data.value"
             type="text"
             placeholder="Ingrese un precio"
           />

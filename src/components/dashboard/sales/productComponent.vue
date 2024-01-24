@@ -18,7 +18,6 @@
     <div class="inputsTitle">
       <p>Cliente:</p>
       <p>Vendedor:</p>
-      <p>Fecha de emision:</p>
     </div>
 
     <div class="inputs">
@@ -43,8 +42,6 @@
           {{ employee.name }}
         </option>
       </select>
-
-      <input type="date" name="" id="" />
     </div>
 
     <div class="productSale">
@@ -74,23 +71,12 @@
         </div>
       </div>
 
-      <select
-        v-model="paymentMethod"
-        style="margin-left: 10px; width: 40%; border-radius: 15px; padding: 5px"
-        name=""
-        id=""
-      >
-        <option value="Efectivo">Efectivo</option>
-        <option value="Cheque">Cheque</option>
-        <option value="Transferencia">Transferencia</option>
-        <option value="Credito">Credito</option>
-      </select>
-
-      <div class="total">
-        <h2>Total:</h2>
-        <h1>${{ total }}</h1>
+      <div class="totalClass">
+        <div class="total">
+          <h2>Total:</h2>
+          <h1>${{ total }}</h1>
+        </div>
       </div>
-
       <div class="buttons">
         <button @click="cancelSale" class="btnCancel">Cancelar</button>
         <input
@@ -103,6 +89,50 @@
     </div>
   </div>
 
+  <div v-if="formStatus" class="register-component">
+        <div class="expenses-form">
+          <div class="form-group">
+            <h3 style="text-align: center">Nuevo producto</h3>
+            <input
+              v-model="data.name"
+              type="text"
+              placeholder="Ingrese un producto"
+            />
+            <input
+              v-model="data.description"
+              type="text"
+              placeholder="Ingrese una descripcion"
+            />
+            <input
+              v-model="data.quantity"
+              type="text"
+              placeholder="Ingrese una cantidad"
+            />
+            <input
+              v-model="data.sellPrice"
+              type="text"
+              placeholder="Ingrese un precio"
+            />
+            <input
+              v-model="data.barCode"
+              type="text"
+              placeholder="Ingrese codigo de barras"
+            />
+            <!-- <input
+            v-model="data.expirationDate"
+            type="date"
+            placeholder="Ingrese una fecha de vencimiento"
+          /> -->
+            <button @click="changeStatusOfForm" class="btn-cancel">
+              Cancelar
+            </button>
+            <button @click="createNewProduct"  class="btn-confirm">
+              Confirmar
+            </button>
+          </div>
+        </div>
+    </div>
+
   <div v-if="succesMessageVisible" class="alert alert-success" role="alert">
     <h4 class="alert-heading">
       VENTA EXITOSA <i class="bi bi-check-circle-fill"></i>
@@ -113,6 +143,7 @@
 
 <script>
 import axios from "axios";
+import stockComponent from '../stock/stockComponent.vue'
 
 export default {
   data() {
@@ -129,6 +160,15 @@ export default {
       paymentMethod: "Efectivo",
       clientId: "",
       employeeId: "",
+      formStatus:false,
+      data: {
+        name: "",
+        description: "",
+        sellPrice: "",
+        quantity: "",
+        barCode: "",
+        expirationDate: new Date(),
+      },
     };
   },
   methods: {
@@ -156,10 +196,13 @@ export default {
             } else {
               productoEncontrado.sellQuantity = 1; // Establecer la cantidad en 1 para un nuevo producto
               this.carrito.push(productoEncontrado); // Agregar el nuevo producto al carrito
+              console.log('Producto agregado');
               this.productsIds.push(productoEncontrado._id);
             }
           } else {
-            console.log("El producto no fue encontrado.");
+            if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
+              this.changeStatusOfForm()
+            }
           }
         } else {
           console.log("La respuesta no contiene datos válidos.");
@@ -168,14 +211,56 @@ export default {
         console.error("Error al obtener el producto:", error);
       }
     },
-    async createSale() {
-      if (this.carrito.length === 0) {
-        window.alert("No se puede registrar una venta vacía");
-        return;
+    async createNewProduct() {
+      try {
+        if (
+          !this.data.name ||
+          !this.data.description ||
+          !this.data.sellPrice ||
+          !this.data.quantity
+        ) {
+          window.alert("Los campos no deben estar vacíos");
+        } else {
+          const newProduct = await axios.post(
+            "http://localhost:3000/products",
+            {
+              name: this.data.name,
+              description: this.data.description,
+              sellPrice: this.data.sellPrice,
+              quantity: this.data.quantity,
+              barCode: this.data.barCode,
+              businessId: "65931333d7c90d26950f7332",
+            }
+          );
+          this.data.name = "";
+          this.data.description = "";
+          this.data.sellPrice = "";
+          this.data.quantity = "";
+          this.data.barCode = "";
+          
+          //CODIGO PARA AÑADIR AL CARRITO AL CREAR, TIENE ERROR EN DATA QUE SE MUESTRA
+          // console.log('Carrito previo',this.carrito);
+          // this.carrito.push(newProduct.data)
+          // console.log('Carrito post:',this.carrito);
+
+
+          setTimeout(() => {
+            this.changeStatusOfForm();
+          }, 0);
+        }
+      } catch (error) {
+        console.log("Error: ", error);
       }
+    },
+    async createSale() {
+      // if (this.carrito.length === 0) {
+      //   window.alert("No se puede registrar una venta vacía");
+      //   return;
+      // }
 
       let arrayOfIds = [];
       for (const product of this.productsIds) {
+      console.log('Producto agreago al array de productsIds');
         arrayOfIds.push(product);
       }
 
@@ -210,7 +295,6 @@ export default {
         console.error("Error al realizar la venta:", error);
       }
     },
-
     async getBusinessData() {
       try {
         const res = await axios.get(
@@ -232,7 +316,7 @@ export default {
       this.succesMessageVisible = true;
       setTimeout(() => {
         this.succesMessageVisible = false;
-      }, 1000);
+      }, 500);
     },
 
     increaseQuantity(product) {
@@ -256,11 +340,14 @@ export default {
       this.employeeId = "";
     },
     handleKeyDown(event) {
-      if (event.key === "F2") {
+      if (event.key === "F3") {
         this.createSale();
       } else if (event.key === "Escape") {
         this.cancelSale();
       }
+    },
+    changeStatusOfForm() {
+      this.formStatus = !this.formStatus;
     },
   },
   computed: {
@@ -283,6 +370,9 @@ export default {
   background-color: #1a1a1a;
   margin: 10px;
   width: 70%;
+  height: 520px;
+  display: grid;
+  grid-template-rows: 10vh auto 20vh 15vh;
 }
 .inputsTitle {
   display: grid;
@@ -313,6 +403,9 @@ export default {
   margin-top: 30px;
   display: grid;
   grid-template-columns: 20% 80%;
+}
+.totalClass {
+  grid-row: 3;
 }
 
 .products-titles {
@@ -389,6 +482,7 @@ export default {
   margin: 10px;
   width: 100%;
   display: flex;
+  grid-row: 4;
 }
 
 .btnCancel {
@@ -418,5 +512,71 @@ export default {
 .btnCancel:hover,
 .btnConfirm:hover {
   transform: scale(1.1); /* Agrandar el botón al 110% de su tamaño original */
+}
+
+.expenses-form {
+  width: 40%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: black;
+  position: absolute;
+  top: 10%;
+  right: 30%;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.expenses-form {
+  h3 {
+    color: white;
+  }
+}
+
+label {
+  font-size: 18px;
+}
+
+input {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  margin-bottom: 5px;
+
+  width: 100%;
+}
+
+.btn-cancel,
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  color: black;
+  margin-bottom: 5px;
+  background-color: #d02941;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.btn-confirm {
+  background-color: #149c68;
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
 }
 </style>
