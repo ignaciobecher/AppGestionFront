@@ -1,8 +1,8 @@
 <template>
       <div class="resume-container">
-        <div class="title">
+        <!-- <div class="title">
           <searchbar></searchbar>
-        </div>
+        </div> -->
   
         <div class="resume">
           <resume></resume>
@@ -15,13 +15,13 @@
   </template>
   
   <script>
-  import searchbar from '../components/dashboard/home/searchBarComponent.vue'
+  // import searchbar from '../components/dashboard/home/searchBarComponent.vue'
   import resume from "../components/dashboard/home/resumeComponent.vue";
   import chart from '../components/dashboard/home/chartComponent.vue'
   export default {
     components: {
       resume,
-      searchbar,
+      // searchbar,
       chart,
     },
   };

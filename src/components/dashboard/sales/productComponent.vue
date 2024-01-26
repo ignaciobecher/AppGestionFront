@@ -9,10 +9,10 @@
       placeholder="Buscar por codigo"
       id=""
     />
-    <div class="sales-btn">
-      <button class="salesBtn">{{ turnBtn }}</button>
-    </div>
   </div>
+
+  
+
 
   <div>
     <div class="inputsTitle">
@@ -154,7 +154,6 @@ export default {
       carrito: [],
       total: 0,
       succesMessageVisible: false,
-      turnBtn: "Iniciar turno",
       clients: [],
       employees: [],
       paymentMethod: "Efectivo",
@@ -340,7 +339,7 @@ export default {
       this.employeeId = "";
     },
     handleKeyDown(event) {
-      if (event.key === "F3") {
+      if (event.key === "F4") {
         this.createSale();
       } else if (event.key === "Escape") {
         this.cancelSale();
@@ -369,7 +368,7 @@ export default {
 .productSale {
   background-color: #1a1a1a;
   margin: 10px;
-  width: 70%;
+  width: 100%;
   height: 520px;
   display: grid;
   grid-template-rows: 10vh auto 20vh 15vh;
