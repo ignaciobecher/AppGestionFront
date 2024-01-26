@@ -87,7 +87,7 @@ export default {
         labels: labels,
         datasets: [
           {
-            label: "Ventas por dias",
+            label: "Ventas",
             backgroundColor: "#5c39f5",
             data: salesData,
           },

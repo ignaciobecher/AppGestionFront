@@ -30,56 +30,58 @@
           </tr>
         </thead>
         <tbody class="table-body">
-          <tr v-if="!foundProduct">
+
+          <!-- *************************SI SE BUSCA UN PRODUCTO****************************** -->
+          <tr v-if="!foundProduct" v-for="(product,index) in searchedProducts" :key="index">
             <td>
-              <span v-if="!editorStatus">{{ selectedProduct[0].name }}</span>
+              <span v-if="!editorStatus">{{ product.name }}</span>
               <input
                 name="name"
                 v-else
                 type="text"
-                v-model="selectedProduct[0].name"
+                v-model="product.name"
               />
             </td>
             <td>
               <span v-if="!editorStatus">{{
-                selectedProduct[0].description
+                product.description
               }}</span>
               <input
                 name="name"
                 v-else
                 type="text"
-                v-model="selectedProduct[0].description"
+                v-model="product.description"
               />
             </td>
             <td>
               <span v-if="!editorStatus">{{
-                selectedProduct[0].sellPrice
+                product.sellPrice
               }}</span>
               <input
                 name="name"
                 v-else
                 type="text"
-                v-model="selectedProduct[0].sellPrice"
+                v-model="product.sellPrice"
               />
             </td>
             <td>
               <span v-if="!editorStatus">{{
-                selectedProduct[0].quantity
+                product.quantity
               }}</span>
               <input
                 name="name"
                 v-else
                 type="text"
-                v-model="selectedProduct[0].quantity"
+                v-model="product.quantity"
               />
             </td>
             <td>
-              <span v-if="!editorStatus">{{ selectedProduct[0].barCode }}</span>
+              <span v-if="!editorStatus">{{ product.barCode }}</span>
               <input
                 name="name"
                 v-else
                 type="text"
-                v-model="selectedProduct[0].barCode"
+                v-model="product.barCode"
               />
             </td>
             <td v-if="!editorStatus">
@@ -88,7 +90,7 @@
             <td v-else>
               <a
                 @click.prevent="
-                  updateProduct(selectedProduct, selectedProduct[0]._id)
+                  updateProduct(product, product._id)
                 "
                 href="#"
               >
@@ -99,12 +101,14 @@
               </a>
             </td>
             <td>
-              <a @click.prevent="deleteProduct(selectedProduct[0]._id)">
+              <a @click.prevent="deleteProduct(product._id)">
                 <i class="bi bi-trash"></i
               ></a>
             </td>
           </tr>
 
+
+          <!--****************************** TODOS LOS PRODUCTOS************************************ -->
           <tr
             @click="setId(product._id)"
             v-for="(product, index) in products"
@@ -241,6 +245,7 @@ export default {
       productName: "",
       selectedProduct: {},
       foundProduct: true,
+      searchedProducts:[]
     };
   },
   methods: {
@@ -252,6 +257,7 @@ export default {
         );
         const data = result.data;
         this.products = data;
+        console.log('Todos los productos:',this.foundProduct);
       } catch (error) {
         console.log(error);
       }
@@ -266,7 +272,7 @@ export default {
           name: product.name,
           description: product.description,
           quantity: product.quantity,
-          price: product.sellPrice,
+          sellPrice: product.sellPrice,
         });
 
         this.getAllProducts();
@@ -328,15 +334,22 @@ export default {
     },
     async searchProduct(productName) {
       try {
+       
         const product = await axios.get(
           `http://localhost:3000/products/65931333d7c90d26950f7332/search/${productName}`
         );
         const productoEncontrado = product.data;
+
+
+        this.searchedProducts=productoEncontrado
+        console.log('Producto encontrado',this.searchedProducts);
+
         if (productoEncontrado) {
-          this.selectedProduct = productoEncontrado;
+          this.searchedProducts = productoEncontrado;
           this.foundProduct = false;
+          console.log('Un solo producto: ',this.foundProduct);
         } else {
-          this.selectedProduct = {};
+          this.searchedProducts = [];
           this.foundProduct = false;
         }
       } catch (error) {

@@ -150,6 +150,13 @@ export default {
         );
         const inputs = response.data;
         this.inputsArray = inputs;
+        for (let index = 0; index < inputs.length; index++) {
+          const element = inputs[index];
+          const date = new Date(element.createdAt);
+          const month = date.getMonth() + 1;
+          const formattedDate = date.toLocaleDateString();
+          console.log("Fecha:", formattedDate,'////','Mes: ',month);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -181,7 +188,7 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-          const newSale = await axios.post("http://localhost:3000/inputs", {
+        const newSale = await axios.post("http://localhost:3000/inputs", {
           name: this.data.product,
           description: this.data.description,
           value: this.data.value,
@@ -230,6 +237,8 @@ export default {
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
     },
+  
+    
   },
   created() {
     this.getAllInputs();
