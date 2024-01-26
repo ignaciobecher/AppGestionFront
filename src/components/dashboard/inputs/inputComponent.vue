@@ -82,7 +82,7 @@
     <div v-if="editFormStatus" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
-          <h3 style="text-align: center">Nuevo gasto</h3>
+          <h3 style="text-align: center">Nuevo ingreso</h3>
           <input
             v-model="data.product"
             type="text"
@@ -101,7 +101,7 @@
           <input
             v-model="data.value"
             type="text"
-            placeholder="Ingrese un precio"
+            placeholder="Ingrese un monto"
           />
           <!-- <input
             v-model="data.expirationDate"

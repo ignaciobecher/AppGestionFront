@@ -16,8 +16,8 @@
             <th scope="col">Fecha de egreso</th>
             <th scope="col">Referencia</th>
             <th scope="col">Descripcion</th>
-            <th scope="col">Cantidad</th>
-            <th scope="col">Precio</th>
+            <!-- <th scope="col">Cantidad</th> -->
+            <th scope="col">Monto</th>
             <!-- <th scope="col">Fecha de Vencimiento</th> -->
           </tr>
         </thead>
@@ -40,10 +40,10 @@
               <span v-if="!editStatus">{{ buy.description }}</span>
               <input v-else v-model="buy.description" type="text" />
             </td>
-            <td>
+            <!-- <td>
               <span v-if="!editStatus">{{ buy.quantity }}</span>
               <input v-else v-model="buy.quantity" type="text" />
-            </td>
+            </td> -->
             <td>
               <span v-if="!editStatus">{{ formatPrice(buy.value) }}</span>
               <input v-else v-model="buy.value" type="text" />
@@ -80,26 +80,26 @@
     <div v-if="editFormStatus" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
-          <h3 style="text-align: center">Nuevo gasto</h3>
+          <h3 style="text-align: center">Nuevo egreso</h3>
           <input
             v-model="data.product"
-            type="text"
-            placeholder="Ingrese una referencia"
-          />
-          <input
-            v-model="data.description"
             type="text"
             placeholder="Ingrese una descripcion"
           />
           <input
+            v-model="data.description"
+            type="text"
+            placeholder="Ingrese una observacion (opcional)"
+          />
+          <!-- <input
             v-model="data.quantity"
             type="text"
             placeholder="Ingrese una cantidad"
-          />
+          /> -->
           <input
             v-model="data.value"
             type="text"
-            placeholder="Ingrese un precio"
+            placeholder="Ingrese un monto"
           />
           <!-- <input
             v-model="data.expirationDate"

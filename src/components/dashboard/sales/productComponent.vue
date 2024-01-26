@@ -9,9 +9,7 @@
       placeholder="Buscar por codigo"
       id=""
     />
-    <div class="sales-btn">
-      <button class="salesBtn">{{ turnBtn }}</button>
-    </div>
+   
   </div>
 
   <div>
@@ -179,15 +177,17 @@ export default {
             );
 
             if (existingProduct) {
-              existingProduct.sellQuantity += 1; // Aumentar la cantidad si el producto ya está en el carrito
+              existingProduct.sellQuantity += 1;
             } else {
-              productoEncontrado.sellQuantity = 1; // Establecer la cantidad en 1 para un nuevo producto
-              this.carrito.push(productoEncontrado); // Agregar el nuevo producto al carrito
+              productoEncontrado.sellQuantity = 1;
+              this.carrito.push(productoEncontrado);
               console.log("Producto agregado");
               this.productsIds.push(productoEncontrado._id);
             }
           } else {
             if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
+              // Actualizar el valor de data.barCode antes de cambiar el estado del formulario
+              this.data.barCode = barcode;
               this.changeStatusOfForm();
             }
           }
@@ -203,33 +203,28 @@ export default {
         if (!this.data.name || !this.data.sellPrice) {
           window.alert("Los campos no deben estar vacíos");
         } else {
+          // Utilizar el valor de data.barCode para el nuevo producto
           const newProduct = await axios.post(
             "http://localhost:3000/products",
             {
               name: this.data.name,
-
               sellPrice: this.data.sellPrice,
-
               barCode: this.data.barCode,
               businessId: "65931333d7c90d26950f7332",
             }
           );
+          newProduct.data.sellQuantity = 1;
+          this.total +=newProduct.data.sellPrice
+          this.carrito.push(newProduct.data);
           this.data.name = "";
-
           this.data.sellPrice = "";
-
           this.data.barCode = "";
-
-          //CODIGO PARA AÑADIR AL CARRITO AL CREAR, TIENE ERROR EN DATA QUE SE MUESTRA
-          // console.log('Carrito previo',this.carrito);
-          // this.carrito.push(newProduct.data)
-          // console.log('Carrito post:',this.carrito);
 
           setTimeout(() => {
             this.changeStatusOfForm();
           }, 0);
         }
-      } catch (error) {
+      } catch (error) { 
         console.log("Error: ", error);
       }
     },
@@ -321,7 +316,7 @@ export default {
       this.employeeId = "";
     },
     handleKeyDown(event) {
-      if (event.key === "F3") {
+      if (event.key === "F4") {
         this.createSale();
       } else if (event.key === "Escape") {
         this.cancelSale();
@@ -350,7 +345,7 @@ export default {
 .productSale {
   background-color: #1a1a1a;
   margin: 10px;
-  width: 70%;
+  width: 100%;
   height: 520px;
   display: grid;
   grid-template-rows: 10vh auto 20vh 15vh;
