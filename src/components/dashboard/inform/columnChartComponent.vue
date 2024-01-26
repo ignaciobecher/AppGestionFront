@@ -5,16 +5,16 @@
       <input v-model="startDate" type="date" name="" id="" />
       <input v-model="endDate" type="date" name="" id="" />
       <button
-        style="background-color:#149c68 ;"
+        style="background-color: #149c68"
         @click="filterDates"
-        :class="{ 'blink': isFilterClicked }"
+        :class="{ blink: isFilterClicked }"
       >
         Filtrar <i class="bi bi-filter-circle"></i>
       </button>
       <button
-        style="background-color: #d02941;"
+        style="background-color: #d02941"
         @click="removeFilters"
-        :class="{ 'blink': isRemoveFiltersClicked }"
+        :class="{ blink: isRemoveFiltersClicked }"
       >
         Quitar filtros <i class="bi bi-x-circle"></i>
       </button>
@@ -80,14 +80,20 @@ export default {
 
       for (const date in sales) {
         labels.push(date);
-        salesData.push(sales[date].length);
+
+        // Calcular el total en dinero para cada fecha
+        const totalMoney = sales[date].reduce(
+          (acc, sale) => acc + sale.total,
+          0
+        );
+        salesData.push(totalMoney);
       }
 
       this.chartData = {
         labels: labels,
         datasets: [
           {
-            label: "Ventas por dias",
+            label: "Ventas diarias",
             backgroundColor: "#5c39f5",
             data: salesData,
           },
@@ -147,7 +153,7 @@ export default {
 }
 
 .blink {
-  animation: blinkAnimation 0.2s  alternate;
+  animation: blinkAnimation 0.2s alternate;
 }
 
 @keyframes blinkAnimation {

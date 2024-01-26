@@ -90,48 +90,35 @@
   </div>
 
   <div v-if="formStatus" class="register-component">
-        <div class="expenses-form">
-          <div class="form-group">
-            <h3 style="text-align: center">Nuevo producto</h3>
-            <input
-              v-model="data.name"
-              type="text"
-              placeholder="Ingrese un producto"
-            />
-            <input
-              v-model="data.description"
-              type="text"
-              placeholder="Ingrese una descripcion"
-            />
-            <input
-              v-model="data.quantity"
-              type="text"
-              placeholder="Ingrese una cantidad"
-            />
-            <input
-              v-model="data.sellPrice"
-              type="text"
-              placeholder="Ingrese un precio"
-            />
-            <input
-              v-model="data.barCode"
-              type="text"
-              placeholder="Ingrese codigo de barras"
-            />
-            <!-- <input
+    <div class="expenses-form">
+      <div class="form-group">
+        <h3 style="text-align: center">Nuevo producto</h3>
+        <input
+          v-model="data.name"
+          type="text"
+          placeholder="Ingrese un producto"
+        />
+
+        <input
+          v-model="data.sellPrice"
+          type="text"
+          placeholder="Ingrese un precio"
+        />
+        <input
+          v-model="data.barCode"
+          type="text"
+          placeholder="Ingrese codigo de barras"
+        />
+        <!-- <input
             v-model="data.expirationDate"
             type="date"
             placeholder="Ingrese una fecha de vencimiento"
           /> -->
-            <button @click="changeStatusOfForm" class="btn-cancel">
-              Cancelar
-            </button>
-            <button @click="createNewProduct"  class="btn-confirm">
-              Confirmar
-            </button>
-          </div>
-        </div>
+        <button @click="changeStatusOfForm" class="btn-cancel">Cancelar</button>
+        <button @click="createNewProduct" class="btn-confirm">Confirmar</button>
+      </div>
     </div>
+  </div>
 
   <div v-if="succesMessageVisible" class="alert alert-success" role="alert">
     <h4 class="alert-heading">
@@ -143,7 +130,7 @@
 
 <script>
 import axios from "axios";
-import stockComponent from '../stock/stockComponent.vue'
+import stockComponent from "../stock/stockComponent.vue";
 
 export default {
   data() {
@@ -160,12 +147,12 @@ export default {
       paymentMethod: "Efectivo",
       clientId: "",
       employeeId: "",
-      formStatus:false,
+      formStatus: false,
       data: {
         name: "",
-        description: "",
+
         sellPrice: "",
-        quantity: "",
+
         barCode: "",
         expirationDate: new Date(),
       },
@@ -196,12 +183,12 @@ export default {
             } else {
               productoEncontrado.sellQuantity = 1; // Establecer la cantidad en 1 para un nuevo producto
               this.carrito.push(productoEncontrado); // Agregar el nuevo producto al carrito
-              console.log('Producto agregado');
+              console.log("Producto agregado");
               this.productsIds.push(productoEncontrado._id);
             }
           } else {
             if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
-              this.changeStatusOfForm()
+              this.changeStatusOfForm();
             }
           }
         } else {
@@ -213,36 +200,30 @@ export default {
     },
     async createNewProduct() {
       try {
-        if (
-          !this.data.name ||
-          !this.data.description ||
-          !this.data.sellPrice ||
-          !this.data.quantity
-        ) {
+        if (!this.data.name || !this.data.sellPrice) {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
             "http://localhost:3000/products",
             {
               name: this.data.name,
-              description: this.data.description,
+
               sellPrice: this.data.sellPrice,
-              quantity: this.data.quantity,
+
               barCode: this.data.barCode,
               businessId: "65931333d7c90d26950f7332",
             }
           );
           this.data.name = "";
-          this.data.description = "";
+
           this.data.sellPrice = "";
-          this.data.quantity = "";
+
           this.data.barCode = "";
-          
+
           //CODIGO PARA AÑADIR AL CARRITO AL CREAR, TIENE ERROR EN DATA QUE SE MUESTRA
           // console.log('Carrito previo',this.carrito);
           // this.carrito.push(newProduct.data)
           // console.log('Carrito post:',this.carrito);
-
 
           setTimeout(() => {
             this.changeStatusOfForm();
@@ -260,7 +241,7 @@ export default {
 
       let arrayOfIds = [];
       for (const product of this.productsIds) {
-      console.log('Producto agreago al array de productsIds');
+        console.log("Producto agreago al array de productsIds");
         arrayOfIds.push(product);
       }
 
