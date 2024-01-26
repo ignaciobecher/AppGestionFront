@@ -174,7 +174,7 @@ export default {
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
-          `http://localhost:3000/products/barcode/${barcode}/search/65931333d7c90d26950f7332`
+          `https://api-gestion-ahil.onrender.com/products/barcode/${barcode}/search/65931333d7c90d26950f7332`
         );
         this.barcode = "";
 
@@ -221,7 +221,7 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
-            "http://localhost:3000/products",
+            "https://api-gestion-ahil.onrender.com/products",
             {
               name: this.data.name,
               description: this.data.description,
@@ -279,7 +279,7 @@ export default {
       }
 
       try {
-        const sale = await axios.post("http://localhost:3000/sales", saleData);
+        const sale = await axios.post("https://api-gestion-ahil.onrender.com/sales", saleData);
 
         if (sale) {
           console.log("Venta exitosa", sale);
@@ -297,7 +297,7 @@ export default {
     async getBusinessData() {
       try {
         const res = await axios.get(
-          "http://localhost:3000/business/65931333d7c90d26950f7332"
+          "https://api-gestion-ahil.onrender.com/business/65931333d7c90d26950f7332"
         );
         const business = res.data;
         this.clients = business.clients;
