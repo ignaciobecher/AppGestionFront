@@ -79,7 +79,8 @@ export default {
       const salesData = [];
 
       for (const date in sales) {
-        labels.push(date);
+        const formateDate=this.formatDate(date)
+        labels.push(formateDate);
 
         // Calcular el total en dinero para cada fecha
         const totalMoney = sales[date].reduce(
@@ -116,6 +117,9 @@ export default {
         this.isRemoveFiltersClicked = false;
       }, 500);
     },
+    formatDate(date){
+      return moment(date).format('DD-MM-YYYY');
+    }
   },
   mounted() {
     this.getAllSales();
