@@ -1,8 +1,27 @@
 <template>
   <div>
     <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
+    <div class="inputsContainer">
+      <input v-model="startMonth" type="month" />
+      <input v-model="endMonth" type="month" />
+      <button
+        style="background-color:#149c68 ;"
+        @click="filterSalesByMonthRange"
+        :class="{ 'blink': isFilterClicked }"
+      >
+        Filtrar <i class="bi bi-filter-circle"></i>
+      </button>
+      <button
+        style="background-color: #d02941;"
+        @click="removeFilters"
+        :class="{ 'blink': isRemoveFiltersClicked }"
+      >
+        Quitar filtros <i class="bi bi-x-circle"></i>
+      </button>
+    </div>
   </div>
 </template>
+
 
 <script>
 import { Bar } from "vue-chartjs";
@@ -28,7 +47,7 @@ export default {
   methods: {
     async getAllSalesByMonthRange(startMonth, endMonth) {
       let url =
-        "https://api-gestion-ahil.onrender.com/business/salesBySelectedMonths/65931333d7c90d26950f7332";
+        "http://localhost:3000/business/salesBySelectedMonths/65931333d7c90d26950f7332";
 
       if (startMonth && endMonth) {
         url += `?startMonth=${startMonth}&endMonth=${endMonth}`;

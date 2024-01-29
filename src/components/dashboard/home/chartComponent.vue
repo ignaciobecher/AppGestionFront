@@ -40,7 +40,7 @@ export default {
     async getSalesDay() {
       try {
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65931333d7c90d26950f7332"
+          "http://localhost:3000/business/salesByDay/65931333d7c90d26950f7332"
         );
         const data = sales.data;
 
@@ -65,9 +65,6 @@ export default {
       } catch (error) {
         console.error("Error al obtener los datos de ventas:", error);
       }
-    },
-    chartOptions: {
-      responsive: true,
     },
   },
   mounted() {

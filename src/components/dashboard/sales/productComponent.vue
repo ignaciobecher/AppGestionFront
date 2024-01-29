@@ -158,7 +158,7 @@ export default {
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
-          `https://api-gestion-ahil.onrender.com/products/barcode/${barcode}/search/65931333d7c90d26950f7332`
+          `http://localhost:3000/products/barcode/${barcode}/search/65931333d7c90d26950f7332`
         );
         this.barcode = "";
 
@@ -202,7 +202,7 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
-            "https://api-gestion-ahil.onrender.com/products",
+            "http://localhost:3000/products",
             {
               name: this.data.name,
               sellPrice: this.data.sellPrice,
@@ -249,7 +249,7 @@ export default {
 
       try {
         const sale = await axios.post(
-          "https://api-gestion-ahil.onrender.com/sales",
+          "http://localhost:3000/sales",
           saleData
         );
 
@@ -269,7 +269,7 @@ export default {
     async getBusinessData() {
       try {
         const res = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/65931333d7c90d26950f7332"
+          "http://localhost:3000/business/65931333d7c90d26950f7332"
         );
         const business = res.data;
         this.clients = business.clients;
