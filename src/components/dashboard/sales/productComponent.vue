@@ -9,7 +9,6 @@
       placeholder="Buscar por codigo"
       id=""
     />
-
   </div>
 
   <div>
@@ -126,7 +125,6 @@
   </div>
 </template>
 
-
 <script>
 import axios from "axios";
 import stockComponent from "../stock/stockComponent.vue";
@@ -139,6 +137,7 @@ export default {
       productsIds: [],
       carrito: [],
       total: 0,
+      quantity: 0,
       succesMessageVisible: false,
       clients: [],
       employees: [],
@@ -179,9 +178,11 @@ export default {
             } else {
               productoEncontrado.sellQuantity = 1;
               this.carrito.push(productoEncontrado);
-
-              console.log("Producto agregado");
               this.productsIds.push(productoEncontrado._id);
+              // for (const product of this.carrito) {
+              //   product.quantity=this.sellQuantity
+              //   console.log(product.quantity);
+              // }
             }
           } else {
             if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
@@ -227,8 +228,8 @@ export default {
     },
     async createSale() {
       let arrayOfIds = [];
+
       for (const product of this.productsIds) {
-        console.log("Producto agregado al array de productsIds");
         arrayOfIds.push(product);
       }
 
@@ -248,12 +249,14 @@ export default {
       }
 
       try {
-        const sale = await axios.post(
-          "http://localhost:3000/sales",
-          saleData
-        );
+        const sale = await axios.post("http://localhost:3000/sales", saleData);
 
         if (sale) {
+          for (const product of this.carrito) {
+            await axios.patch(`http://localhost:3000/products/${product._id}`, {
+              quantity: product.quantity - product.sellQuantity, // Resta la cantidad vendida del inventario actual
+            });
+          }
           console.log("Venta exitosa", sale);
           this.carrito = [];
           this.arrayOfIds = [];
@@ -333,7 +336,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .productSale {
