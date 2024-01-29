@@ -15,6 +15,10 @@ const router = createRouter({
       component: () =>
         import("../components/testComponents/chartByMonthTest.vue"),
     },
+    {
+      path:"/optiic",
+      component:()=> import('../components/testComponents/optiicAPITest.vue')
+    }
   ],
 });
 
