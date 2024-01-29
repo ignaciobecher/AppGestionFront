@@ -19,6 +19,7 @@
         Quitar filtros <i class="bi bi-x-circle"></i>
       </button>
     </div>
+
   </div>
 </template>
 
@@ -34,6 +35,63 @@ export default {
       chartData: {
         labels: [],
         datasets: [{ data: [] }],
+
+  </template>
+  
+  <script>
+  import { Bar } from "vue-chartjs";
+  import axios from "axios";
+  
+  export default {
+    name: "MonthlySalesChart",
+    components: { Bar },
+    data() {
+      return {
+        chartData: {
+          labels: [],
+          datasets: [{ data: [] }],
+        },
+        chartOptions: {
+          responsive: true,
+        },
+        startMonth: "",
+        endMonth: "",
+        isFilterClicked: false,
+        isRemoveFiltersClicked: false,
+      };
+    },
+    methods: {
+      async getAllSalesByMonthRange(startMonth, endMonth) {
+        let url = "https://api-gestion-ahil.onrender.com/business/salesBySelectedMonths/65931333d7c90d26950f7332";
+  
+        if (startMonth && endMonth) {
+          url += `?startMonth=${startMonth}&endMonth=${endMonth}`;
+        }
+  
+        const response = await axios.get(url);
+        const salesByMonthRange = response.data;
+  
+        const labels = Object.keys(salesByMonthRange);
+        const salesData = Object.values(salesByMonthRange);
+  
+        this.chartData = {
+          labels: labels,
+          datasets: [
+            {
+              label: "Ventas por mes",
+              backgroundColor: "#5c39f5",
+              data: salesData,
+            },
+          ],
+        };
+      },
+      filterSalesByMonthRange() {
+        this.isFilterClicked = true;
+        this.getAllSalesByMonthRange(this.startMonth, this.endMonth);
+        setTimeout(() => {
+          this.isFilterClicked = false;
+        }, 500);
+
       },
       chartOptions: {
         responsive: true,

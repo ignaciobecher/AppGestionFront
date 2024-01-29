@@ -9,7 +9,7 @@
       placeholder="Buscar por codigo"
       id=""
     />
-   
+
   </div>
 
   <div>
@@ -139,7 +139,6 @@ export default {
       carrito: [],
       total: 0,
       succesMessageVisible: false,
-      turnBtn: "Iniciar turno",
       clients: [],
       employees: [],
       paymentMethod: "Efectivo",
@@ -157,10 +156,12 @@ export default {
     };
   },
   methods: {
+    //*********************************LLAMDAS A LA API***/************************************ *** */
+
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
-          `http://localhost:3000/products/barcode/${barcode}/search/65931333d7c90d26950f7332`
+          `https://api-gestion-ahil.onrender.com/products/barcode/${barcode}/search/65931333d7c90d26950f7332`
         );
         this.barcode = "";
 
@@ -179,15 +180,22 @@ export default {
             if (existingProduct) {
               existingProduct.sellQuantity += 1;
             } else {
+
               productoEncontrado.sellQuantity = 1;
               this.carrito.push(productoEncontrado);
+
+              productoEncontrado.sellQuantity = 1; // Establecer la cantidad en 1 para un nuevo producto
+              this.carrito.push(productoEncontrado); // Agregar el nuevo producto al carrito
+
               console.log("Producto agregado");
               this.productsIds.push(productoEncontrado._id);
             }
           } else {
             if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
+
               // Actualizar el valor de data.barCode antes de cambiar el estado del formulario
               this.data.barCode = barcode;
+
               this.changeStatusOfForm();
             }
           }
@@ -200,12 +208,19 @@ export default {
     },
     async createNewProduct() {
       try {
+
         if (!this.data.name || !this.data.sellPrice) {
+
+        if (
+          !this.data.name ||
+          !this.data.sellPrice 
+        ) {
+
           window.alert("Los campos no deben estar vacíos");
         } else {
           // Utilizar el valor de data.barCode para el nuevo producto
           const newProduct = await axios.post(
-            "http://localhost:3000/products",
+            "https://api-gestion-ahil.onrender.com/products",
             {
               name: this.data.name,
               sellPrice: this.data.sellPrice,
@@ -219,6 +234,12 @@ export default {
           this.data.name = "";
           this.data.sellPrice = "";
           this.data.barCode = "";
+
+          //CODIGO PARA AÑADIR AL CARRITO AL CREAR, TIENE ERROR EN DATA QUE SE MUESTRA
+          // console.log('Carrito previo',this.carrito);
+          // this.carrito.push(newProduct.data)
+          // console.log('Carrito post:',this.carrito);
+
 
           setTimeout(() => {
             this.changeStatusOfForm();
@@ -256,7 +277,10 @@ export default {
       }
 
       try {
-        const sale = await axios.post("http://localhost:3000/sales", saleData);
+        const sale = await axios.post(
+          "https://api-gestion-ahil.onrender.com/sales",
+          saleData
+        );
 
         if (sale) {
           console.log("Venta exitosa", sale);
@@ -274,7 +298,7 @@ export default {
     async getBusinessData() {
       try {
         const res = await axios.get(
-          "http://localhost:3000/business/65931333d7c90d26950f7332"
+          "https://api-gestion-ahil.onrender.com/business/65931333d7c90d26950f7332"
         );
         const business = res.data;
         this.clients = business.clients;
@@ -283,6 +307,8 @@ export default {
         throw error;
       }
     },
+
+    //*********************************LLAMDAS A LA API***/************************************ *** */
     removeFromCart(index) {
       const removedProduct = this.carrito[index];
       this.total -= this.getTotalProductPrice(removedProduct); // Restar el precio total del producto eliminado del total
