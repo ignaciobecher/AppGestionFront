@@ -126,6 +126,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from "axios";
 import stockComponent from "../stock/stockComponent.vue";
@@ -147,17 +148,13 @@ export default {
       formStatus: false,
       data: {
         name: "",
-
         sellPrice: "",
-
         barCode: "",
         expirationDate: new Date(),
       },
     };
   },
   methods: {
-    //*********************************LLAMDAS A LA API***/************************************ *** */
-
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
@@ -180,22 +177,15 @@ export default {
             if (existingProduct) {
               existingProduct.sellQuantity += 1;
             } else {
-
               productoEncontrado.sellQuantity = 1;
               this.carrito.push(productoEncontrado);
-
-              productoEncontrado.sellQuantity = 1; // Establecer la cantidad en 1 para un nuevo producto
-              this.carrito.push(productoEncontrado); // Agregar el nuevo producto al carrito
 
               console.log("Producto agregado");
               this.productsIds.push(productoEncontrado._id);
             }
           } else {
             if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
-
-              // Actualizar el valor de data.barCode antes de cambiar el estado del formulario
               this.data.barCode = barcode;
-
               this.changeStatusOfForm();
             }
           }
@@ -208,17 +198,9 @@ export default {
     },
     async createNewProduct() {
       try {
-
         if (!this.data.name || !this.data.sellPrice) {
-
-        if (
-          !this.data.name ||
-          !this.data.sellPrice 
-        ) {
-
           window.alert("Los campos no deben estar vacíos");
         } else {
-          // Utilizar el valor de data.barCode para el nuevo producto
           const newProduct = await axios.post(
             "https://api-gestion-ahil.onrender.com/products",
             {
@@ -229,35 +211,24 @@ export default {
             }
           );
           newProduct.data.sellQuantity = 1;
-          this.total +=newProduct.data.sellPrice
+          this.total += newProduct.data.sellPrice;
           this.carrito.push(newProduct.data);
           this.data.name = "";
           this.data.sellPrice = "";
           this.data.barCode = "";
 
-          //CODIGO PARA AÑADIR AL CARRITO AL CREAR, TIENE ERROR EN DATA QUE SE MUESTRA
-          // console.log('Carrito previo',this.carrito);
-          // this.carrito.push(newProduct.data)
-          // console.log('Carrito post:',this.carrito);
-
-
           setTimeout(() => {
             this.changeStatusOfForm();
           }, 0);
         }
-      } catch (error) { 
+      } catch (error) {
         console.log("Error: ", error);
       }
     },
     async createSale() {
-      // if (this.carrito.length === 0) {
-      //   window.alert("No se puede registrar una venta vacía");
-      //   return;
-      // }
-
       let arrayOfIds = [];
       for (const product of this.productsIds) {
-        console.log("Producto agreago al array de productsIds");
+        console.log("Producto agregado al array de productsIds");
         arrayOfIds.push(product);
       }
 
@@ -307,12 +278,10 @@ export default {
         throw error;
       }
     },
-
-    //*********************************LLAMDAS A LA API***/************************************ *** */
     removeFromCart(index) {
       const removedProduct = this.carrito[index];
-      this.total -= this.getTotalProductPrice(removedProduct); // Restar el precio total del producto eliminado del total
-      this.carrito.splice(index, 1); // Eliminar el producto del carrito por su índice
+      this.total -= this.getTotalProductPrice(removedProduct);
+      this.carrito.splice(index, 1);
     },
     showSuccesMessage() {
       this.succesMessageVisible = true;
@@ -320,17 +289,15 @@ export default {
         this.succesMessageVisible = false;
       }, 500);
     },
-
     increaseQuantity(product) {
       product.sellQuantity += 1;
-      this.total += product.sellPrice; // Incrementar la cantidad de un producto específico
+      this.total += product.sellPrice;
     },
-
     decreaseQuantity(product) {
       if (product.sellQuantity > 1) {
         product.sellQuantity -= 1;
         this.total -= product.sellPrice;
-      } // Decrementar la cantidad de un producto específico
+      }
     },
     cancelSale() {
       this.barcode = "";
@@ -354,18 +321,19 @@ export default {
   },
   computed: {
     getTotalProductPrice() {
-      return (product) => product.sellPrice * product.sellQuantity; // Calcular el precio total del producto
+      return (product) => product.sellPrice * product.sellQuantity;
     },
   },
   mounted() {
-    this.getBusinessData(),
-      window.addEventListener("keydown", this.handleKeyDown);
+    this.getBusinessData();
+    window.addEventListener("keydown", this.handleKeyDown);
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.handleKeyDown);
   },
 };
 </script>
+
 
 <style scoped>
 .productSale {

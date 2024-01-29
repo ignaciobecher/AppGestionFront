@@ -1,32 +1,12 @@
 <template>
   <div>
     <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
-    <div class="inputsContainer">
-      <input v-model="startMonth" type="month" />
-      <input v-model="endMonth" type="month" />
-      <button
-        style="background-color: #149c68"
-        @click="filterSalesByMonthRange"
-        :class="{ blink: isFilterClicked }"
-      >
-        Filtrar <i class="bi bi-filter-circle"></i>
-      </button>
-      <button
-        style="background-color: #d02941"
-        @click="removeFilters"
-        :class="{ blink: isRemoveFiltersClicked }"
-      >
-        Quitar filtros <i class="bi bi-x-circle"></i>
-      </button>
-    </div>
-
   </div>
 </template>
 
 <script>
 import { Bar } from "vue-chartjs";
 import axios from "axios";
-
 export default {
   name: "MonthlySalesChart",
   components: { Bar },
@@ -35,63 +15,6 @@ export default {
       chartData: {
         labels: [],
         datasets: [{ data: [] }],
-
-  </template>
-  
-  <script>
-  import { Bar } from "vue-chartjs";
-  import axios from "axios";
-  
-  export default {
-    name: "MonthlySalesChart",
-    components: { Bar },
-    data() {
-      return {
-        chartData: {
-          labels: [],
-          datasets: [{ data: [] }],
-        },
-        chartOptions: {
-          responsive: true,
-        },
-        startMonth: "",
-        endMonth: "",
-        isFilterClicked: false,
-        isRemoveFiltersClicked: false,
-      };
-    },
-    methods: {
-      async getAllSalesByMonthRange(startMonth, endMonth) {
-        let url = "https://api-gestion-ahil.onrender.com/business/salesBySelectedMonths/65931333d7c90d26950f7332";
-  
-        if (startMonth && endMonth) {
-          url += `?startMonth=${startMonth}&endMonth=${endMonth}`;
-        }
-  
-        const response = await axios.get(url);
-        const salesByMonthRange = response.data;
-  
-        const labels = Object.keys(salesByMonthRange);
-        const salesData = Object.values(salesByMonthRange);
-  
-        this.chartData = {
-          labels: labels,
-          datasets: [
-            {
-              label: "Ventas por mes",
-              backgroundColor: "#5c39f5",
-              data: salesData,
-            },
-          ],
-        };
-      },
-      filterSalesByMonthRange() {
-        this.isFilterClicked = true;
-        this.getAllSalesByMonthRange(this.startMonth, this.endMonth);
-        setTimeout(() => {
-          this.isFilterClicked = false;
-        }, 500);
-
       },
       chartOptions: {
         responsive: true,
@@ -105,7 +28,7 @@ export default {
   methods: {
     async getAllSalesByMonthRange(startMonth, endMonth) {
       let url =
-        "http://localhost:3000/business/salesBySelectedMonths/65931333d7c90d26950f7332";
+        "https://api-gestion-ahil.onrender.com/business/salesBySelectedMonths/65931333d7c90d26950f7332";
 
       if (startMonth && endMonth) {
         url += `?startMonth=${startMonth}&endMonth=${endMonth}`;
@@ -117,16 +40,13 @@ export default {
       const labels = Object.keys(salesByMonthRange);
       const salesData = Object.values(salesByMonthRange);
 
-      // Modificar para mostrar los totales en dinero en lugar de la cantidad de ventas
-      const totalSalesData = salesData.map((monthlyTotal) => monthlyTotal);
-
       this.chartData = {
         labels: labels,
         datasets: [
           {
-            label: "Totales mensuales en dinero",
+            label: "Ventas por mes",
             backgroundColor: "#5c39f5",
-            data: totalSalesData,
+            data: salesData,
           },
         ],
       };
@@ -136,15 +56,6 @@ export default {
       this.getAllSalesByMonthRange(this.startMonth, this.endMonth);
       setTimeout(() => {
         this.isFilterClicked = false;
-      }, 500);
-    },
-    removeFilters() {
-      this.isRemoveFiltersClicked = true;
-      this.startMonth = "";
-      this.endMonth = "";
-      this.getAllSalesByMonthRange();
-      setTimeout(() => {
-        this.isRemoveFiltersClicked = false;
       }, 500);
     },
   },
