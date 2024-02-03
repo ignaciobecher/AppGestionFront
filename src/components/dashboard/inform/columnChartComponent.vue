@@ -66,7 +66,7 @@ export default {
   methods: {
     async getAllSales(startDate, endDate) {
       let url =
-        "https://api-gestion-ahil.onrender.com/business/salesByDay/65931333d7c90d26950f7332";
+        "http://localhost:3000/business/salesByDay/65931333d7c90d26950f7332";
 
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;
@@ -79,8 +79,8 @@ export default {
       const salesData = [];
 
       for (const date in sales) {
-        const formateDate=this.formatDate(date)
-        labels.push(formateDate);
+        // const formateDate=this.formatDate(date)
+        labels.push(date);
 
         // Calcular el total en dinero para cada fecha
         const totalMoney = sales[date].reduce(
@@ -117,9 +117,9 @@ export default {
         this.isRemoveFiltersClicked = false;
       }, 500);
     },
-    formatDate(date){
-      return moment(date).format('DD-MM-YYYY');
-    }
+    // formatDate(date){
+    //   return moment(date).format('DD-MM-YYYY');
+    // }
   },
   mounted() {
     this.getAllSales();
@@ -169,3 +169,4 @@ export default {
   }
 }
 </style>
+
