@@ -1,35 +1,188 @@
 <template>
-    <div>
-        <ul v-for="(movement,index) in movements.sales" :key="index">
-            <li>{{ movement.total }}</li>
-        </ul>
+  <div style="display: flex; background-color: #292a31" class="backBtn">
+    <router-link to="/">
+      <button
+        style="
+          margin: 10px;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          background-color: rgb(109, 169, 62);
+          border: none;
+        "
+      >
+        <i
+          style="color: white; font-weight: bold; font-size: 20px"
+          class="bi bi-arrow-return-left"
+        ></i>
+      </button>
+    </router-link>
+
+    <h2 style="color: white">Movimientos del dia</h2>
+  </div>
+  <div class="mainContainer">
+    <div class="secondContainer">
+      <h1>Ventas</h1>
+      <h2 v-if="movements.sales.length === 0">
+        No hay movimientos en este dia
+      </h2>
+      <ul v-else v-for="(sale, index) in movements.sales" :key="index">
+        <li>Total: ${{ sale.total }}</li>
+        <li>Método de pago: {{ sale.paymentMethod }}</li>
+      </ul>
     </div>
+
+    <div class="secondContainer">
+      <h1>Compras</h1>
+      <h2 v-if="movements.buys.length === 0">No hay movimientos en este dia</h2>
+      <ul v-else v-for="(buy, index) in movements.buys" :key="index">
+        <li>Nombre: {{ buy.name }}</li>
+        <li>Cantidad: {{ buy.quantity }}</li>
+        <li>Descripción: {{ buy.description }}</li>
+        <li>Precio: ${{ buy.price }}</li>
+      </ul>
+    </div>
+
+    <div class="secondContainer">
+      <h1>Clientes</h1>
+      <h2 v-if="movements.clients.length === 0">
+        No hay movimientos en este dia
+      </h2>
+      <ul v-else v-for="(client, index) in movements.clients" :key="index">
+        <li>Nombre: {{ client.name }}</li>
+        <li>Direccion: {{ client.address }}</li>
+        <li>Mail: {{ client.email }}</li>
+        <li>Deuda: ${{ client.debt }}</li>
+      </ul>
+    </div>
+
+    <div class="secondContainer">
+      <h1>Empleados</h1>
+      <h2 v-if="movements.employees.length === 0">
+        No hay movimientos en este dia
+      </h2>
+
+      <ul v-else v-for="(employee, index) in movements.employees" :key="index">
+        <li>Nombre: {{ employee.name }}</li>
+        <li>Puesto: {{ employee.position }}</li>
+        <li>Mail: {{ employee.email }}</li>
+        <li>Sueldo: ${{ employee.wage }}</li>
+      </ul>
+    </div>
+
+    <div class="secondContainer">
+      <h1>Ingresos</h1>
+      <h2 v-if="movements.inputs.length === 0">
+        No hay movimientos en este dia
+      </h2>
+
+      <ul v-else v-for="(input, index) in movements.inputs" :key="index">
+        <li>Referencia: {{ input.name }}</li>
+        <li>Descripcion: {{ input.description }}</li>
+        <li>Monto: {{ input.value }}</li>
+        <li>Cantidad: ${{ input.quantity }}</li>
+      </ul>
+    </div>
+
+    <div class="secondContainer">
+      <h1>Egresos</h1>
+      <h2 v-if="movements.outputs.length === 0">
+        No hay movimientos en este dia
+      </h2>
+
+      <ul v-else v-for="(output, index) in movements.outputs" :key="index">
+        <li>Referencia: {{ output.name }}</li>
+        <li>Descripcion: {{ output.description }}</li>
+        <li>Monto: {{ output.value }}</li>
+        <li>Cantidad: ${{ output.quantity }}</li>
+      </ul>
+    </div>
+
+    <div class="secondContainer">
+      <h1>Productos</h1>
+      <h2 v-if="movements.products.length === 0">
+        No hay movimientos en este dia
+      </h2>
+
+      <ul v-else v-for="(product, index) in movements.products" :key="index">
+        <li>Referencia: {{ product.name }}</li>
+        <li>Descripcion: {{ product.description }}</li>
+        <li>Monto: {{ product.value }}</li>
+        <li>Cantidad: ${{ product.quantity }}</li>
+      </ul>
+    </div>
+  </div>
 </template>
 
-
 <script>
-import axios from 'axios';
+import axios, { all } from "axios";
 export default {
-    data(){
-        return{
-            movements:[]
-        }
+  data() {
+    return {
+      movements: {
+        sales: [],
+        buys: [],
+        clients: [],
+        employees: [],
+        inputs: [],
+        outputs: [],
+        products: [],
+      },
+    };
+  },
+  methods: {
+    async getAllMovements() {
+      const result = await axios.get(
+        "http://localhost:3000/business/65931333d7c90d26950f7332/transactions/today"
+      );
+      const allMovements = result.data;
+      this.movements = allMovements;
+      console.log(this.movements);
     },
-    methods:{
-        async getAllMovements(){
-            const result= await axios.get(`http://localhost:3000/business/65931333d7c90d26950f7332/transactions/today`) 
-            const allMovements=result.data
-            this.movements=allMovements
-        }
+    noMovements(movementArray) {
+      return movementArray.length === 0;
     },
-    mounted(){
-        this.getAllMovements()
-    }
-}
+  },
+  mounted() {
+    this.getAllMovements();
+  },
+};
 </script>
 
-
 <style scoped>
+.mainContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto auto;
+
+  background-color: #292a31;
+}
+
+.secondContainer {
+  background-color: #1a1a1a;
+  border: 1px solid black;
+  border-radius: 15px;
+  padding: 10px;
+  margin: 10px;
+  color: white;
+  transition: color 0.5s, font-size 0.5s;
+}
+
+.secondContainer:hover {
+  color: #5c39f5;
+  background-color: #292a31 !important;
+  border: 1px solid white;
+  font-size: 30px;
+}
+
+.secondContainer ul {
+  background-color: #292a31;
+  border-radius: 15px;
+  color: white;
+  font-weight: bold;
+}
+
+.secondContainer li {
+  list-style: none;
+}
 </style>
-
-

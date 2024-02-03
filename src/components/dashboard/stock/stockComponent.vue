@@ -84,6 +84,7 @@
                 v-model="product.barCode"
               />
             </td>
+            
             <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
             </td>
@@ -206,11 +207,11 @@
               type="text"
               placeholder="Ingrese codigo de barras"
             />
-            <!-- <input
+            <input
             v-model="data.expirationDate"
             type="date"
             placeholder="Ingrese una fecha de vencimiento"
-          /> -->
+          />
             <button @click="changeStatusOfForm" class="btn-cancel">
               Cancelar
             </button>
@@ -226,6 +227,7 @@
 <script>
 import numeral from "numeral";
 import axios from "axios";
+import moment from 'moment'
 
 export default {
   data() {
@@ -306,6 +308,7 @@ export default {
         ) {
           window.alert("Los campos no deben estar vacíos");
         } else {
+          const formattedDate = moment(this.data.expirationDate).format("DD-MM-YYYY");
           const newProduct = await axios.post(
             "http://localhost:3000/products",
             {
@@ -314,7 +317,8 @@ export default {
               sellPrice: this.data.sellPrice,
               quantity: this.data.quantity,
               barCode: this.data.barCode,
-              businessId: "65931333d7c90d26950f7332",
+              expirationDate:formattedDate,
+              businessId: "65931333d7c90d26950f7332"
             }
           );
           this.data.name = "";

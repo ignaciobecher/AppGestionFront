@@ -1,35 +1,31 @@
 <template>
   <div style="background-color: #1a1a1a" class="info-container">
     <h1 style="color: white; font-size: 25px; font-weight: 400">
-      <i style="color: green" class="bi bi-cash"></i> Balance actual
+      <i style="color: green" class="bi bi-cash"></i> Movimientos del día
     </h1>
-    <h1 style="color: white">{{ formatPrice(totalBalance) }}</h1>
-    <div class="button-container">
-      <button>Asistente virtual</button>
-      <br />
-    </div>
+    <router-link class="router" to="/dayMovements">
+      <h3>Ir a mis movimientos <i class="bi bi-arrow-right"></i></h3>
+    </router-link>
+  
   </div>
 
   <div style="background-color: #1a1a1a" class="info-container">
     <h1 style="color: white; font-size: 25px; font-weight: 400">
-      <i style="color: blue" class="bi bi-boxes"></i> Stock actual
+      <i style="color: blue" class="bi bi-boxes"></i> Faltantes
     </h1>
-    <h1 style="color: white">{{ totalStock }} productos</h1>
-    <div class="button-container">
-      <button>Asistente virtual</button>
-      <br />
-    </div>
+    <router-link class="router" to="/missingStock">
+      <h3>Ir a faltantes <i class="bi bi-arrow-right"></i></h3>
+    </router-link>
+   
   </div>
 
   <div style="background-color: #1a1a1a" class="info-container">
     <h1 style="color: white; font-size: 25px; font-weight: 400">
-      <i style="color: green" class="bi bi-bag"></i>Ventas de hoy
+      <i style="color: green" class="bi bi-bag"></i>Vencimientos
     </h1>
-    <h1 style="color: white">{{todaySales}}</h1>
-    <div class="button-container">
-      <button>Asistente virtual</button>
-      <br />
-    </div>
+    <router-link class="router" to="/expirations">
+      <h3>Ir a vencimientos <i class="bi bi-arrow-right"></i></h3>
+    </router-link>
   </div>
 </template>
 
@@ -66,12 +62,12 @@ export default {
           "http://localhost:3000/business/salesByDay/65931333d7c90d26950f7332"
         );
         const data = sales.data;
-        const todayDate = new Date().toLocaleDateString(); 
+        const todayDate = new Date().toLocaleDateString();
         if (data.hasOwnProperty(todayDate)) {
-          const todaySales = data[todayDate].length; 
-          this.todaySales = todaySales; 
+          const todaySales = data[todayDate].length;
+          this.todaySales = todaySales;
         } else {
-          this.todaySales='Sin ventas'
+          this.todaySales = "Sin ventas";
         }
 
         for (const date in data) {
@@ -97,14 +93,25 @@ export default {
   border-radius: 15px;
   padding: 10px;
   margin: 10px;
-  transition: color 0.5s, font-size 0.5s;
+  transition: color 0.5s;
 }
 
 .info-container:hover {
   color: #5c39f5;
   background-color: #292a31 !important;
   border: 1px solid white;
-  font-size: 30px;
+}
+
+.info-container .router {
+  color: white;
+  text-decoration: none;
+  transition: color 0.5s;
+}
+
+.info-container .router:hover {
+  color: #5c39f5;
+  background-color: #292a31 !important;
+  border: 1px solid white;
 }
 
 .info-container h1 {

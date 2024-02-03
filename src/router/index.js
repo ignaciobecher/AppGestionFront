@@ -9,6 +9,14 @@ const router = createRouter({
     {
       path:"/dayMovements",
       component:()=>import ('../components/testComponents/businessDayMovementsTest.vue')
+    },
+    {
+      path:'/missingStock',
+      component:()=> import ('../components/testComponents/missingElementsComponent.vue')
+    },
+    {
+      path:'/expirations',
+      component:()=>import('../components/testComponents/expirationDatesComponent.vue')
     }
    
   ],
