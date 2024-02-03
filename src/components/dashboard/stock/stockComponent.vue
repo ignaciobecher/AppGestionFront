@@ -255,7 +255,7 @@ export default {
     async getAllProducts() {
       try {
         const result = await axios.get(
-          "http://localhost:3000/business/products/65931333d7c90d26950f7332"
+          "https://api-gestion-ahil.onrender.com/business/products/65931333d7c90d26950f7332"
         );
         const data = result.data;
         this.products = data;
@@ -270,7 +270,7 @@ export default {
         //   .utc(buy.expirationDate)
         //   .add(1, "days")
         //   .format("YYYY-MM-DD");
-        await axios.put(`http://localhost:3000/products/${id}`, {
+        await axios.put(`https://api-gestion-ahil.onrender.com/products/${id}`, {
           name: product.name,
           description: product.description,
           quantity: product.quantity,
@@ -288,7 +288,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`http://localhost:3000/products/${id}`);
+          await axios.delete(`https://api-gestion-ahil.onrender.com/products/${id}`);
           window.alert("Producto eliminado");
           this.getAllProducts();
         } else {
@@ -310,7 +310,7 @@ export default {
         } else {
           const formattedDate = moment(this.data.expirationDate).format("DD-MM-YYYY");
           const newProduct = await axios.post(
-            "http://localhost:3000/products",
+            "https://api-gestion-ahil.onrender.com/products",
             {
               name: this.data.name,
               description: this.data.description,
@@ -340,7 +340,7 @@ export default {
       try {
        
         const product = await axios.get(
-          `http://localhost:3000/products/65931333d7c90d26950f7332/search/${productName}`
+          `https://api-gestion-ahil.onrender.com/products/65931333d7c90d26950f7332/search/${productName}`
         );
         const productoEncontrado = product.data;
 
