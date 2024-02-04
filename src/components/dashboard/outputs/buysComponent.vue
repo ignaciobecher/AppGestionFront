@@ -147,7 +147,7 @@ export default {
     async getAllBuys() {
       try {
         const response = await axios.get(
-          "http:localhost:3000/business/buys/65931333d7c90d26950f7332"
+          "http://localhost:3000/business/buys/65bfdff8a75ffb8fb6be8937"
         );
         const buys = response.data;
         this.buysArray = buys;
@@ -162,7 +162,7 @@ export default {
           .utc(buy.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        await axios.put(`http:localhost:3000/buys/${id}`, {
+        await axios.put(`http://localhost:3000/buys/${id}`, {
           name: buy.name,
           description: buy.description,
           quantity: buy.quantity,
@@ -183,12 +183,12 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        const newSale = await axios.post("http:localhost:3000/buys", {
+        const newSale = await axios.post("http://localhost:3000/buys", {
           name: this.data.product,
           description: this.data.description,
           price: this.data.price,
           quantity: this.data.quantity,
-          businessId: "65931333d7c90d26950f7332",
+          businessId: "65bfdff8a75ffb8fb6be8937",
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
@@ -206,7 +206,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`http:localhost:3000/buys/${id}`);
+          await axios.delete(`http://localhost:3000/buys/${id}`);
           window.alert("Compra eliminada");
           this.getAllBuys();
         } else {

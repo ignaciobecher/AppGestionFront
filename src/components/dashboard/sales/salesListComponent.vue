@@ -165,7 +165,7 @@
       async getAllProducts() {
         try {
           const result = await axios.get(
-            "http:localhost:3000/business/sales/65931333d7c90d26950f7332"
+            "http://localhost:3000/business/sales/65bfdff8a75ffb8fb6be8937"
           );
           const sales = result.data;
           this.salesArray = sales;
@@ -180,7 +180,7 @@
           //   .utc(buy.expirationDate)
           //   .add(1, "days")
           //   .format("YYYY-MM-DD");
-          await axios.put(`http:localhost:3000/products/${id}`, {
+          await axios.put(`http://localhost:3000/products/${id}`, {
             total: product.name,
             paymentMethod: product.description,
            
@@ -197,7 +197,7 @@
           if (
             window.confirm("¿Estás seguro de que deseas realizar esta acción?")
           ) {
-            await axios.delete(`http:localhost:3000/products/${id}`);
+            await axios.delete(`http://localhost:3000/products/${id}`);
             window.alert("Producto eliminado");
             this.getAllProducts();
           } else {
@@ -218,14 +218,14 @@
             window.alert("Los campos no deben estar vacíos");
           } else {
             const newProduct = await axios.post(
-              "http:localhost:3000/products",
+              "http://localhost:3000/products",
               {
                 name: this.data.name,
                 description: this.data.description,
                 sellPrice: this.data.sellPrice,
                 quantity: this.data.quantity,
                 barCode: this.data.barCode,
-                businessId: "65931333d7c90d26950f7332",
+                businessId: "65bfdff8a75ffb8fb6be8937",
               }
             );
             this.data.name = "";
@@ -246,7 +246,7 @@
       async searchProduct(productName) {
         try {
           const product = await axios.get(
-            `http:localhost:3000/products/65931333d7c90d26950f7332/search/${productName}`
+            `http://localhost:3000/products/65bfdff8a75ffb8fb6be8937/search/${productName}`
           );
           const productoEncontrado = product.data;
   

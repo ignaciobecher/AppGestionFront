@@ -36,16 +36,16 @@ export default {
     async getBalanceTotals() {
       try {
         const outputs = await axios.get(
-          "http:localhost:3000/business/outputs/65931333d7c90d26950f7332"
+          "http://localhost:3000/business/outputs/65bfdff8a75ffb8fb6be8937"
         );
         const inputs = await axios.get(
-          "http:localhost:3000/inputs/65931333d7c90d26950f7332"
+          "http://localhost:3000/inputs/65bfdff8a75ffb8fb6be8937"
         );
         const buys = await axios.get(
-          "http:localhost:3000/business/buys/65931333d7c90d26950f7332"
+          "http://localhost:3000/business/buys/65bfdff8a75ffb8fb6be8937"
         );
         const sales = await axios.get(
-          "http:localhost:3000/business/sales/65931333d7c90d26950f7332"
+          "http://localhost:3000/business/sales/65bfdff8a75ffb8fb6be8937"
         );
 
         //Egresos

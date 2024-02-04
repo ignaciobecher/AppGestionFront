@@ -47,7 +47,7 @@ export default {
   methods: {
     async getAllSalesByMonthRange(startMonth, endMonth) {
       let url =
-        "http:localhost:3000/business/salesBySelectedMonths/65931333d7c90d26950f7332";
+        "http://localhost:3000/business/salesBySelectedMonths/65bfdff8a75ffb8fb6be8937";
 
       if (startMonth && endMonth) {
         url += `?startMonth=${startMonth}&endMonth=${endMonth}`;
