@@ -43,7 +43,7 @@ export default {
   methods: {
     async getBalance() {
       const sales = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/salesTotal/65931333d7c90d26950f7332"
+        "http:localhost:3000/business/salesTotal/65931333d7c90d26950f7332"
       );
       const data = sales.data;
       console.log(data);
@@ -51,7 +51,7 @@ export default {
     },
     async getTotalStock() {
       const products = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/products/65931333d7c90d26950f7332"
+        "http:localhost:3000/business/products/65931333d7c90d26950f7332"
       );
       const data = products.data;
       this.totalStock = data.length;
@@ -59,7 +59,7 @@ export default {
     async getSalesDay() {
       try {
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65931333d7c90d26950f7332"
+          "http:localhost:3000/business/salesByDay/65931333d7c90d26950f7332"
         );
         const data = sales.data;
         const todayDate = new Date().toLocaleDateString();
