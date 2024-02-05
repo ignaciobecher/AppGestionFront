@@ -26,6 +26,7 @@
       <input v-model="minimumStock" placeholder="Cantidad minima..." style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="number" />
       <button @click="getMissingStock(minimumStock)" style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="submit">Continuar</button>
     </div>
+   
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
