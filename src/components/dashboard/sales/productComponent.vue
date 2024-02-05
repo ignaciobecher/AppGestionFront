@@ -157,7 +157,7 @@ export default {
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
-          `http://localhost:3000/products/barcode/${barcode}/search/65bfdff8a75ffb8fb6be8937`
+          `https://api-gestion-ahil.onrender.com/products/barcode/${barcode}/search/65bfdff8a75ffb8fb6be8937`
         );
         this.barcode = "";
 
@@ -203,7 +203,7 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
-            "http://localhost:3000/products",
+            "https://api-gestion-ahil.onrender.com/products",
             {
               name: this.data.name,
               sellPrice: this.data.sellPrice,
@@ -253,14 +253,14 @@ export default {
       try {
 
         const sale = await axios.post(
-          "http://localhost:3000/sales",
+          "https://api-gestion-ahil.onrender.com/sales",
           saleData
         );
 
 
         if (sale) {
           for (const product of this.carrito) {
-            await axios.patch(`http://localhost:3000/products/${product._id}`, {
+            await axios.patch(`https://api-gestion-ahil.onrender.com/products/${product._id}`, {
               quantity: product.quantity - product.sellQuantity, // Resta la cantidad vendida del inventario actual
             });
           }
@@ -279,7 +279,7 @@ export default {
     async getBusinessData() {
       try {
         const res = await axios.get(
-          "http://localhost:3000/business/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/business/65bfdff8a75ffb8fb6be8937"
         );
         const business = res.data;
         this.clients = business.clients;

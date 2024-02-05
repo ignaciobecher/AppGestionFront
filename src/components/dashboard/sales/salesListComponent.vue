@@ -165,7 +165,7 @@
       async getAllProducts() {
         try {
           const result = await axios.get(
-            "http://localhost:3000/business/sales/65bfdff8a75ffb8fb6be8937"
+            "https://api-gestion-ahil.onrender.com/business/sales/65bfdff8a75ffb8fb6be8937"
           );
           const sales = result.data;
           this.salesArray = sales;
@@ -180,7 +180,7 @@
           //   .utc(buy.expirationDate)
           //   .add(1, "days")
           //   .format("YYYY-MM-DD");
-          await axios.put(`http://localhost:3000/products/${id}`, {
+          await axios.put(`https://api-gestion-ahil.onrender.com/products/${id}`, {
             total: product.name,
             paymentMethod: product.description,
            
@@ -197,7 +197,7 @@
           if (
             window.confirm("¿Estás seguro de que deseas realizar esta acción?")
           ) {
-            await axios.delete(`http://localhost:3000/products/${id}`);
+            await axios.delete(`https://api-gestion-ahil.onrender.com/products/${id}`);
             window.alert("Producto eliminado");
             this.getAllProducts();
           } else {
@@ -218,7 +218,7 @@
             window.alert("Los campos no deben estar vacíos");
           } else {
             const newProduct = await axios.post(
-              "http://localhost:3000/products",
+              "https://api-gestion-ahil.onrender.com/products",
               {
                 name: this.data.name,
                 description: this.data.description,
@@ -246,7 +246,7 @@
       async searchProduct(productName) {
         try {
           const product = await axios.get(
-            `http://localhost:3000/products/65bfdff8a75ffb8fb6be8937/search/${productName}`
+            `https://api-gestion-ahil.onrender.com/products/65bfdff8a75ffb8fb6be8937/search/${productName}`
           );
           const productoEncontrado = product.data;
   

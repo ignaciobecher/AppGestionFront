@@ -133,7 +133,7 @@ export default {
   methods: {
     async getAllMovements() {
       const result = await axios.get(
-        "http://localhost:3000/business/65931333d7c90d26950f7332/transactions/today"
+        "https://api-gestion-ahil.onrender.com/business/65931333d7c90d26950f7332/transactions/today"
       );
       const allMovements = result.data;
       this.movements = allMovements;

@@ -56,7 +56,7 @@ export default {
     methods:{
        async getExpiratedProducts(days){
             try {
-                const response=await axios.get(`http://localhost:3000/products/toExpirate/65bfdff8a75ffb8fb6be8937/${days}`)
+                const response=await axios.get(`https://api-gestion-ahil.onrender.com/products/toExpirate/65bfdff8a75ffb8fb6be8937/${days}`)
                 const products=response.data
                 this.productsArray=products
             } catch (error) {

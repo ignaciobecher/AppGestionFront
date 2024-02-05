@@ -144,7 +144,7 @@ export default {
     async getAllOutputs() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/business/outputs/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/business/outputs/65bfdff8a75ffb8fb6be8937"
         );
         const buys = response.data;
         this.buysArray = buys;
@@ -158,7 +158,7 @@ export default {
           .utc(buy.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        await axios.put(`http://localhost:3000/outputs/${id}`, {
+        await axios.put(`https://api-gestion-ahil.onrender.com/outputs/${id}`, {
           name: buy.name,
           description: buy.description,
           quantity: buy.quantity,
@@ -179,7 +179,7 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        const newSale = await axios.post("http://localhost:3000/outputs", {
+        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/outputs", {
           name: this.data.product,
           description: this.data.description,
           value: this.data.value,
@@ -202,7 +202,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`http://localhost:3000/outputs/${id}`);
+          await axios.delete(`https://api-gestion-ahil.onrender.com/outputs/${id}`);
           window.alert("Compra eliminada");
           this.getAllOutputs();
         } else {
