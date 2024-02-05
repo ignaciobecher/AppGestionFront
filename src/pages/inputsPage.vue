@@ -26,7 +26,7 @@
         <button @click="showInputs" class="btnOutput">
           Ingresos de dinero <i class="bi bi-arrow-down-left"></i>
         </button>
-        <button @click="" class="btnSales">
+        <button @click="showRandomInputs" class="btnSales">
           Ingresos varios<i class="bi bi-bag"></i>
         </button>
       </div>
@@ -76,6 +76,12 @@ export default {
         this.randomState=false
         this.selector=false
         this.btn=true
+    },
+    showRandomInputs(){
+      this.inputState=false
+      this.randomState=true
+      this.selector=false
+      this.btn=true
     }
   }
 };

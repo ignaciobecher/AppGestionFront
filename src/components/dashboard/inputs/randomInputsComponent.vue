@@ -7,7 +7,7 @@
         <div class="date"></div>
       </div>
       <div class="top-container">
-        <button @click.prevent="changeFormStatus">Registrar nuevo ingreso</button>
+        <button @click.prevent="changeFormStatus">Registrar nuevo ingreso vario</button>
       </div>
   
       <div class="table-responsive">
@@ -33,8 +33,8 @@
                 <span>{{ formatDate(input.createdAt) }}</span>
               </td>
               <td>
-                <span v-if="!editStatus">{{ input.name }}</span>
-                <input v-else v-model="input.name" />
+                <span v-if="!editStatus">{{ input.reference }}</span>
+                <input v-else v-model="input.reference" />
               </td>
   
               <td>
@@ -147,7 +147,7 @@
       async getAllInputs() {
         try {
           const response = await axios.get(
-            "https://api-gestion-ahil.onrender.com/inputs/65931333d7c90d26950f7332"
+            "https://api-gestion-ahil.onrender.com/random-inputs/65bfdff8a75ffb8fb6be8937"
           );
           const inputs = response.data;
           this.inputsArray = inputs;
@@ -168,8 +168,8 @@
             .utc(buy.expirationDate)
             .add(1, "days")
             .format("YYYY-MM-DD");
-          await axios.put(`https://api-gestion-ahil.onrender.com/inputs/${id}`, {
-            name: buy.name,
+          await axios.put(`https://api-gestion-ahil.onrender.com/random-inputs/${id}`, {
+            reference: buy.reference,
             description: buy.description,
             quantity: buy.quantity,
             value: buy.value,
@@ -189,12 +189,12 @@
             .utc(this.data.expirationDate)
             .add(1, "days")
             .format("YYYY-MM-DD");
-          const newSale = await axios.post("https://api-gestion-ahil.onrender.com/inputs", {
-            name: this.data.product,
+          const newSale = await axios.post("https://api-gestion-ahil.onrender.com/random-inputs", {
+            reference: this.data.product,
             description: this.data.description,
             value: this.data.value,
             quantity: this.data.quantity,
-            businessId: "65931333d7c90d26950f7332",
+            businessId: "65bfdff8a75ffb8fb6be8937",
           });
           if (newSale) {
             console.log("Compra cargada con exito", newSale);
@@ -212,7 +212,7 @@
           if (
             window.confirm("¿Estás seguro de que deseas realizar esta acción?")
           ) {
-            await axios.delete(`https://api-gestion-ahil.onrender.com/inputs/${id}`);
+            await axios.delete(`https://api-gestion-ahil.onrender.com/random-inputs/${id}`);
             window.alert("Compra eliminada");
             this.getAllInputs();
           } else {
