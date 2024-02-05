@@ -83,26 +83,26 @@
     <div v-if="editFormStatus" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
-          <h3 style="text-align: center">Nuevo gasto</h3>
+          <h3 style="text-align: center">Nueva compra</h3>
           <input
             v-model="data.product"
             type="text"
-            placeholder="Ingrese una referencia"
+            placeholder="Producto..."
           />
           <input
             v-model="data.description"
             type="text"
-            placeholder="Ingrese una descripcion"
+            placeholder="Nro factura..."
           />
-          <input
+          <!-- <input
             v-model="data.quantity"
             type="text"
             placeholder="Ingrese una cantidad"
-          />
+          /> -->
           <input
             v-model="data.price"
             type="text"
-            placeholder="Ingrese un precio"
+            placeholder="Monto..."
           />
           <!-- <input
             v-model="data.expirationDate"
