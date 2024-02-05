@@ -23,10 +23,8 @@
   <div class="mainContainer">
     <div class="secondContainer">
       <h1>Ventas</h1>
-      <h2 v-if="movements.sales.length === 0">
-        No hay movimientos en este dia
-      </h2>
-      <ul v-else v-for="(sale, index) in movements.sales" :key="index">
+     
+      <ul  v-for="(sale, index) in movements.sales" :key="index">
         <li>Total: ${{ sale.total }}</li>
         <li>Método de pago: {{ sale.paymentMethod }}</li>
       </ul>
@@ -34,8 +32,8 @@
 
     <div class="secondContainer">
       <h1>Compras</h1>
-      <h2 v-if="movements.buys.length === 0">No hay movimientos en este dia</h2>
-      <ul v-else v-for="(buy, index) in movements.buys" :key="index">
+ 
+      <ul  v-for="(buy, index) in movements.buys" :key="index">
         <li>Nombre: {{ buy.name }}</li>
         <li>Cantidad: {{ buy.quantity }}</li>
         <li>Descripción: {{ buy.description }}</li>
@@ -45,10 +43,8 @@
 
     <div class="secondContainer">
       <h1>Clientes</h1>
-      <h2 v-if="movements.clients.length === 0">
-        No hay movimientos en este dia
-      </h2>
-      <ul v-else v-for="(client, index) in movements.clients" :key="index">
+     
+      <ul  v-for="(client, index) in movements.clients" :key="index">
         <li>Nombre: {{ client.name }}</li>
         <li>Direccion: {{ client.address }}</li>
         <li>Mail: {{ client.email }}</li>
@@ -58,11 +54,9 @@
 
     <div class="secondContainer">
       <h1>Empleados</h1>
-      <h2 v-if="movements.employees.length === 0">
-        No hay movimientos en este dia
-      </h2>
+     
 
-      <ul v-else v-for="(employee, index) in movements.employees" :key="index">
+      <ul  v-for="(employee, index) in movements.employees" :key="index">
         <li>Nombre: {{ employee.name }}</li>
         <li>Puesto: {{ employee.position }}</li>
         <li>Mail: {{ employee.email }}</li>
@@ -72,11 +66,9 @@
 
     <div class="secondContainer">
       <h1>Ingresos</h1>
-      <h2 v-if="movements.inputs.length === 0">
-        No hay movimientos en este dia
-      </h2>
+     
 
-      <ul v-else v-for="(input, index) in movements.inputs" :key="index">
+      <ul  v-for="(input, index) in movements.inputs" :key="index">
         <li>Referencia: {{ input.name }}</li>
         <li>Descripcion: {{ input.description }}</li>
         <li>Monto: {{ input.value }}</li>
@@ -86,11 +78,9 @@
 
     <div class="secondContainer">
       <h1>Egresos</h1>
-      <h2 v-if="movements.outputs.length === 0">
-        No hay movimientos en este dia
-      </h2>
+     
 
-      <ul v-else v-for="(output, index) in movements.outputs" :key="index">
+      <ul  v-for="(output, index) in movements.outputs" :key="index">
         <li>Referencia: {{ output.name }}</li>
         <li>Descripcion: {{ output.description }}</li>
         <li>Monto: {{ output.value }}</li>
@@ -100,11 +90,9 @@
 
     <div class="secondContainer">
       <h1>Productos</h1>
-      <h2 v-if="movements.products.length === 0">
-        No hay movimientos en este dia
-      </h2>
+     
 
-      <ul v-else v-for="(product, index) in movements.products" :key="index">
+      <ul  v-for="(product, index) in movements.products" :key="index">
         <li>Referencia: {{ product.name }}</li>
         <li>Descripcion: {{ product.description }}</li>
         <li>Monto: {{ product.value }}</li>
@@ -154,7 +142,7 @@ export default {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto auto;
-
+  height: 100vh;
   background-color: #292a31;
 }
 
