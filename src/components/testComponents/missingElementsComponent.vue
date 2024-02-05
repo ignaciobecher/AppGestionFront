@@ -67,7 +67,7 @@ export default {
       try {
     
         const res = await axios.get(
-          `http://localhost:3000/products/missing/stock/65931333d7c90d26950f7332/${minStock}`
+          `http://localhost:3000/products/missing/stock/65bfdff8a75ffb8fb6be8937/${minStock}`
         );
         const stock = res.data;
         this.missingProducts = stock;

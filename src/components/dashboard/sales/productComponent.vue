@@ -208,9 +208,11 @@ export default {
               name: this.data.name,
               sellPrice: this.data.sellPrice,
               barCode: this.data.barCode,
+              expirationDate: new Date(),
               businessId: "65bfdff8a75ffb8fb6be8937",
             }
           );
+          console.log(newProduct);
           newProduct.data.sellQuantity = 1;
           this.total += newProduct.data.sellPrice;
           this.carrito.push(newProduct.data);
