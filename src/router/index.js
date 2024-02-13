@@ -17,6 +17,10 @@ const router = createRouter({
     {
       path:'/expirations',
       component:()=>import('../components/testComponents/expirationDatesComponent.vue')
+    },
+    {
+      path:'/salesTest',
+      component:()=>import('../components/testComponents/salesTest.vue')
     }
    
   ],

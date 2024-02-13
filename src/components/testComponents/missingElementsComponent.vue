@@ -22,9 +22,9 @@
   <div class="mainContainer">
     <h2 style="margin-left: 10px;">Productos proximos a quedarse sin stock</h2>
     <div style="display:flex; margin-left: 10px;">
-      <h4 style="margin-top: 8px;">Ingrese cantidad mínima</h4>
+      <!-- <h4 style="margin-top: 8px;">Ingrese cantidad mínima</h4>
       <input v-model="minimumStock" placeholder="Cantidad minima..." style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="number" />
-      <button @click="getMissingStock(minimumStock)" style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="submit">Continuar</button>
+      <button @click="getMissingStock(minimumStock)" style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="submit">Continuar</button> -->
     </div>
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
@@ -36,15 +36,14 @@
         </thead>
         <tbody class="table-body">
           <tr
-            v-for="(count, product) in missingProducts"
-            :key="product"
+            v-for="(product) in missingProducts"
             class="tableRow"
           >
             <td>
-              <span>{{ product }}</span>
+              <span>{{ product.name }}</span>
             </td>
             <td>
-              <span>{{ count }}</span>
+              <span>{{ product.quantity }}</span>
             </td>
           </tr>
         </tbody>
@@ -63,22 +62,24 @@ export default {
     };
   },
   methods: {
-    async getMissingStock(minStock) {
+    async getMissingStock() {
       try {
     
         const res = await axios.get(
-          `http://localhost:3000/products/missing/stock/65bfdff8a75ffb8fb6be8937/${minStock}`
+          `http://localhost:3000/products/missing/stock/65bfdff8a75ffb8fb6be8937`
         );
         const stock = res.data;
-        this.missingProducts = stock;
         
+        for (const product of stock) {
+          this.missingProducts.push(product)
+        }
       } catch (error) {
         console.log(error);
       }
     },
   },
   mounted() {
-    this.getMissingStock(20);
+    this.getMissingStock();
   },
 };
 </script>

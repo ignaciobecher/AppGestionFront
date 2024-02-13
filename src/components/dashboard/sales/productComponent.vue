@@ -15,6 +15,7 @@
     <div class="inputsTitle">
       <p>Cliente:</p>
       <p>Vendedor:</p>
+      <p>Forma de pago:</p>
     </div>
 
     <div class="inputs">
@@ -38,6 +39,14 @@
         >
           {{ employee.name }}
         </option>
+      </select>
+
+      <select v-model="paymentMethod" name="" id="">
+        <option value="Efectivo">Efectivo</option>
+        <option value="Cheque">Cheque</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Credito">Credito</option>
+        <option value="Cuenta_corriente">Cuenta corriente</option>
       </select>
     </div>
 
@@ -101,6 +110,15 @@
           type="text"
           placeholder="Ingrese un precio"
         />
+        <select v-model="selectedCategoryId">
+          <option
+            v-for="(ids, index) in categoriesIds"
+            :value="ids._id"
+            :key="ids._id"
+          >
+            {{ ids.name }}
+          </option>
+        </select>
         <input
           v-model="data.barCode"
           type="text"
@@ -127,7 +145,6 @@
 
 <script>
 import axios from "axios";
-import stockComponent from "../stock/stockComponent.vue";
 
 export default {
   data() {
@@ -151,23 +168,23 @@ export default {
         barCode: "",
         expirationDate: new Date(),
       },
+      categoriesIds: [],
+      selectedCategoryId: null,
     };
   },
   methods: {
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
-          `http://localhost:3000/products/barcode/${barcode}/search/65bfdff8a75ffb8fb6be8937`
+          `http://localhost:3000/products/cate/65bfdff8a75ffb8fb6be8937/${barcode}`
         );
         this.barcode = "";
 
-        if (response && response.data) {
-          const productoEncontrado = response.data;
+        if (response && response.data && response.data.product) {
+          const productoEncontrado = response.data.product;
+          console.log("El producto encontrado es: ", productoEncontrado);
 
-          if (
-            productoEncontrado &&
-            productoEncontrado.sellPrice !== undefined
-          ) {
+          if (productoEncontrado.sellPrice !== undefined) {
             this.total += productoEncontrado.sellPrice;
             const existingProduct = this.carrito.find(
               (product) => product._id === productoEncontrado._id
@@ -179,19 +196,15 @@ export default {
               productoEncontrado.sellQuantity = 1;
               this.carrito.push(productoEncontrado);
               this.productsIds.push(productoEncontrado._id);
-              // for (const product of this.carrito) {
-              //   product.quantity=this.sellQuantity
-              //   console.log(product.quantity);
-              // }
-            }
-          } else {
-            if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
-              this.data.barCode = barcode;
-              this.changeStatusOfForm();
+              console.log("Carrito: ", this.carrito);
+              console.log("ProductID´s: ", this.productsIds);
             }
           }
         } else {
-          console.log("La respuesta no contiene datos válidos.");
+          if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
+            this.data.barCode = barcode;
+            this.changeStatusOfForm();
+          }
         }
       } catch (error) {
         console.error("Error al obtener el producto:", error);
@@ -203,7 +216,7 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
-            "http://localhost:3000/products",
+            `http://localhost:3000/products/${this.selectedCategoryId}`,
             {
               name: this.data.name,
               sellPrice: this.data.sellPrice,
@@ -228,20 +241,18 @@ export default {
         console.log("Error: ", error);
       }
     },
+
     async createSale() {
       let arrayOfIds = [];
-
       for (const product of this.productsIds) {
         arrayOfIds.push(product);
       }
-
       const saleData = {
         total: this.total,
         businessId: "65bfdff8a75ffb8fb6be8937",
         productIds: arrayOfIds,
         paymentMethod: this.paymentMethod,
       };
-
       if (this.clientId && this.clientId !== "General") {
         saleData.clientId = this.clientId;
       }
@@ -251,23 +262,29 @@ export default {
       }
 
       try {
-
-        const sale = await axios.post(
-          "http://localhost:3000/sales",
-          saleData
-        );
-
+        const sale = await axios.post("http://localhost:3000/sales", saleData);
 
         if (sale) {
+          if (this.clientId && this.clientId !== "General") {
+            const client =await axios.get(`http://localhost:3000/clients/searcher/${this.clientId}`)
+            const debtOfClient=client.data.debt
+            const newDebt = debtOfClient + this.total;
+            console.log('Deuda del cliente',debtOfClient);
+            await axios.put(`http://localhost:3000/clients/${this.clientId}`,{
+              debt:newDebt
+            })
+          }
           for (const product of this.carrito) {
             await axios.patch(`http://localhost:3000/products/${product._id}`, {
-              quantity: product.quantity - product.sellQuantity, // Resta la cantidad vendida del inventario actual
+              quantity: product.quantity - product.sellQuantity, 
             });
           }
-          console.log("Venta exitosa", sale);
+
           this.carrito = [];
           this.arrayOfIds = [];
           this.total = 0;
+          this.paymentMethod = "Efectivo";
+          this.clientId="General"
           this.showSuccesMessage();
         } else {
           console.log("Error al realizar la venta");
@@ -284,6 +301,18 @@ export default {
         const business = res.data;
         this.clients = business.clients;
         this.employees = business.employees;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async getCategoryesIds() {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
+        );
+
+        const cateIds = res.data;
+        this.categoriesIds = cateIds;
       } catch (error) {
         throw error;
       }
@@ -319,7 +348,7 @@ export default {
       this.employeeId = "";
     },
     handleKeyDown(event) {
-      if (event.key === "F4") {
+      if (event.key === "F8") {
         this.createSale();
       } else if (event.key === "Escape") {
         this.cancelSale();
@@ -336,7 +365,8 @@ export default {
   },
   mounted() {
     this.getBusinessData();
-    window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keydown", this.handleKeyDown),
+      this.getCategoryesIds();
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.handleKeyDown);
@@ -524,7 +554,8 @@ label {
   font-size: 18px;
 }
 
-input {
+input,
+select {
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #ccc;
