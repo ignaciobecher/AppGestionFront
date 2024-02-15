@@ -1,13 +1,13 @@
 <template>
   <div class="buysContainer">
-    <h1>Compras</h1>
+    <h1>Cheques</h1>
 
     <div class="searchbar-container">
-      <p>Buscar compra:</p>
+      <p>Buscar cheque:</p>
       <input type="search" name="" placeholder="Buscar por nombre" id="" />
       <div class="top-container">
         <button @click.prevent="changeFormStatus">
-          Registrar nueva compra
+          Registrar nuevo cheque
         </button>
       </div>
       <div class="date"></div>
@@ -17,55 +17,55 @@
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
           <tr class="tableRow">
-            <th scope="col">Fecha de compra</th>
-            <th scope="col">Proveedor</th>
-            <th scope="col">Descripcion</th>
-            <th scope="col">Monto</th>
-            <th scope="col">Numero Factura</th>
+            <th scope="col">Fecha de creación</th>
+            <th scope="col">Identificación</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">N° cheque</th>
+            <th scope="col">Fecha de cobro</th>
+            <th scope="col">Total</th>
           </tr>
         </thead>
         <tbody class="table-body">
           <tr
-            @click="setId(buy._id)"
-            v-for="(buy, index) in buysArray"
+            @click="setId(cheque._id)"
+            v-for="(cheque, index) in chequesArray"
             :key="index"
             class="tableRow"
           >
             <td>
-              <span>{{ formatDate(buy.createdAt) }}</span>
+              <span>{{ formatDate(cheque.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ buy.providerId.name }}</span>
-              <input v-else v-model="buy.providerId.name" />
+              <span v-if="!editStatus">{{ cheque.identification }}</span>
+              <input v-else v-model="cheque.identification" />
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ buy.description }}</span>
-              <input v-else v-model="buy.description" type="text" />
+              <span v-if="!editStatus">{{ cheque.description }}</span>
+              <input v-else v-model="cheque.description" type="text" />
             </td>
-            <!-- <td>
-              <span v-if="!editStatus">{{ buy.quantity }}</span>
-              <input v-else v-model="buy.quantity" type="text" />
-            </td> -->
+
             <td>
-              <span v-if="!editStatus">{{ formatPrice(buy.price) }}</span>
-              <input v-else v-model="buy.price" type="text" />
+              <span v-if="!editStatus">{{ cheque.chequeNumber }}</span>
+              <input v-else v-model="cheque.chequeNumber" type="text" />
             </td>
             <td>
-              <span v-if="!editStatus">{{ buy.receiptNumber }}</span>
-              <input v-else v-model="buy.receiptNumber" type="text" />
-            </td>
-            <!-- <td>
               <span v-if="!editStatus">{{
-                formatDate(buy.expirationDate)
+                formatDate(cheque.chequeDate)
               }}</span>
-              <input v-else v-model="buy.expirationDate" type="date" />
-            </td> -->
+              <input v-else v-model="cheque.chequeDate" type="date" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ formatPrice(cheque.total) }}</span>
+              <input v-else v-model="cheque.total" type="number" />
+            </td>
+
             <td v-if="!editStatus">
               <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
             </td>
             <td v-else>
-              <a @click="updateBuy(buy, buy._id)" href="#">
+              <a @click="updateCheque(cheque, cheque._id)" href="#">
                 <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
               </a>
               <a href="#">
@@ -77,7 +77,9 @@
               </a>
             </td>
             <td>
-              <a @click="deleteBuy(buy._id)"> <i class="bi bi-trash"></i></a>
+              <a @click="deleteCheque(cheque._id)">
+                <i class="bi bi-trash"></i
+              ></a>
             </td>
           </tr>
         </tbody>
@@ -88,38 +90,33 @@
       <form action="" class="expenses-form">
         <div class="form-group">
           <h3 style="text-align: center">Nueva compra</h3>
-          <select v-model="providerId" name="" id="">
-            <option
-              v-for="(provider, index) in providersArray"
-              :key="index"
-              :value="provider._id"
-            >
-              {{ provider.name }}
-            </option>
-          </select>
-         
+
+          <input
+            v-model="data.identification"
+            type="text"
+            placeholder="Identificacion... (opcional)"
+          />
+
           <input
             v-model="data.description"
             type="text"
-            placeholder="Decripcion... (opcional)"
+            placeholder="Descripcion... (opcional)"
           />
 
           <input
-            v-model="data.receiptNumber"
-            type="text"
-            placeholder="Nro factura... (opcional)"
+            v-model="data.chequeNumber"
+            type="number"
+            placeholder="N° cheque..."
           />
 
-          <input
-            v-model="data.price"
-            type="text"
-            placeholder="Monto total..."
-          />
+          <input v-model="data.total" type="text" placeholder="Monto..." />
+
+          <input v-model="data.chequeDate" type="date" placeholder="Fecha..." />
 
           <button @click.prevent="changeFormStatus" class="btn-cancel">
             Cancelar
           </button>
-          <button @click.prevent="createNewBuy" class="btn-confirm">
+          <button @click.prevent="createNewCheque" class="btn-confirm">
             Confirmar
           </button>
         </div>
@@ -136,95 +133,96 @@ import numeral from "numeral";
 export default {
   data() {
     return {
-      buysArray: [],
+      chequesArray: [],
       editStatus: false,
       editFormStatus: false,
-      buy_id: null,
+      cheque_id: null,
       data: {
-        // product: "",
+        identification: "",
         description: "",
-        // quantity: "",
-        price: "",
-        receiptNumber: null,
-        // expirationDate: "",
+        chequeNumber: "",
+        total: "",
+        chequeDate: Date,
       },
-      providersArray: [],
-      providerId:null
+      chequeId: null,
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
-    async getAllBuys() {
+    async getAllCheques() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/business/buys/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/cheques/65bfdff8a75ffb8fb6be8937"
         );
-        const buys = response.data;
-        this.buysArray = buys;
-        console.log(buys);
+        const cheques = response.data;
+        this.chequesArray = cheques;
+        console.log(cheques);
       } catch (error) {
         console.log(error);
       }
     },
-    async updateBuy(buy, id) {
+    async updateCheque(cheque, id) {
       try {
-        const formattedExpirationDate = moment
-          .utc(buy.expirationDate)
-          .add(1, "days")
-          .format("YYYY-MM-DD");
-        await axios.put(`http://localhost:3000/buys/${id}`, {
-          // name: buy.name,
-          description: buy.description,
-          // quantity: buy.quantity,
-          price: buy.price,
-          receiptNumber: buy.receiptNumber,
-          // expirationDate: formattedExpirationDate,
+     
+        const fechaCheque = moment(cheque.chequeDate);
+        const nuevaFecha = fechaCheque.add(1, "day");
+        const formatedDate = nuevaFecha.format("YYYY-MM-DD");
+        await axios.put(`http://localhost:3000/cheques/${id}`, {
+          identification: cheque.identification,
+          description: cheque.description,
+          chequeNumber: cheque.chequeNumber,
+          total: cheque.total,
+          chequeDate:formatedDate
         });
 
-        this.getAllBuys();
+        this.getAllCheques();
         this.changeEditStatus();
       } catch (error) {
         console.log("Error al actualizar");
       }
     },
-    async createNewBuy() {
+    async createNewCheque() {
       try {
-        console.log(this.data);
-        const formattedExpirationDate = moment
-          .utc(this.data.expirationDate)
-          .add(1, "days")
-          .format("YYYY-MM-DD");
-        const newSale = await axios.post("http://localhost:3000/buys", {
+        // const formattedExpirationDate = moment
+        //   .utc(this.data.expirationDate)
+        //   .add(1, "days")
+        //   .format("YYYY-MM-DD");
+
+        const fechaCheque = moment(this.data.chequeDate);
+        const nuevaFecha = fechaCheque.add(1, "day");
+        const formatedDate = nuevaFecha.format("YYYY-MM-DD");
+
+        const newCheque = await axios.post("http://localhost:3000/cheques", {
+          identification: this.data.identification,
           description: this.data.description,
-          price: this.data.price,
-          // quantity: this.data.quantity,
-          receiptNumber: this.data.receiptNumber,
+          chequeNumber: this.data.chequeNumber,
+          total: this.data.total,
+          chequeDate: formatedDate,
           businessId: "65bfdff8a75ffb8fb6be8937",
-          providerId:this.providerId
         });
-        if (newSale) {
-          console.log("Compra cargada con exito", newSale);
+        if (newCheque) {
+          console.log("Cheque cargado con exito", newCheque);
           this.changeFormStatus();
-          this.getAllBuys();
-          this.data.description=""
-          this.data.price=""
-          this.data.receiptNumber=""
-          this.providerId=""
+          this.getAllCheques();
+          this.data.description = "";
+          this.data.identification = "";
+          this.data.chequeNumber = 0;
+          this.total = 0;
         } else {
-          console.log("Error al cargar la venta");
+          console.log("Error al cargar cheque");
         }
       } catch (error) {
         console.log("Error desde el catch", error);
       }
     },
-    async deleteBuy(id) {
+    async deleteCheque(id) {
       try {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`http://localhost:3000/buys/${id}`);
-          window.alert("Compra eliminada");
-          this.getAllBuys();
+          await axios.delete(`http://localhost:3000/cheques/${id}`);
+          window.alert("Cheque eliminado");
+          this.getAllCheques();
         } else {
           window.alert("Accion cancelada");
         }
@@ -232,25 +230,10 @@ export default {
         console.log(error);
       }
     },
-    async getAllProviders() {
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/providers/business/65bfdff8a75ffb8fb6be8937"
-        );
-        const providers = response.data;
 
-        for (const provider of providers) {
-          for (const iterator of provider.providers) {
-            this.providersArray.push(iterator)
-          }
-        }
-      } catch (error) {
-        throw error;
-      }
-    },
     // ********************************************----------------**************************************
     setId(id) {
-      this.buy_id = id;
+      this.cheque_id = id;
     },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
@@ -266,7 +249,7 @@ export default {
     },
   },
   created() {
-    this.getAllBuys(), this.getAllProviders();
+    this.getAllCheques();
   },
 };
 </script>

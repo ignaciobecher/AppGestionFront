@@ -21,6 +21,10 @@ const router = createRouter({
     {
       path:'/salesTest',
       component:()=>import('../components/testComponents/salesTest.vue')
+    },
+    {
+      path:'/gptTest',
+      component:()=>import('../components/testComponents/gptTest.vue')
     }
    
   ],
