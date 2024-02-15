@@ -1,7 +1,10 @@
 <template>
   <informContainer></informContainer>
-  <div style="display: flex">
+  <div class="secondContainer">
     <pieChart class="chart"></pieChart>
+    <div class="chart">
+      <accountContainer></accountContainer>
+    </div>
   </div>
   <button class="visibilityBtn" @click="changeChartVisibility">Mes/Día</button>
   <columnChart v-show="dayChart"></columnChart>
@@ -13,12 +16,14 @@ import monthSalesChart from "@/components/dashboard/inform/monthSalesChartcompon
 import columnChart from "@/components/dashboard/inform/columnChartComponent.vue";
 import pieChart from "@/components/dashboard/inform/pieChartComponent.vue";
 import informContainer from "../components/dashboard/inform/informComponent.vue";
+import accountContainer from '../components/dashboard/inform/accountComponent.vue'
 export default {
   components: {
     informContainer,
     pieChart,
     columnChart,
     monthSalesChart,
+    accountContainer
   },
   data() {
     return {
@@ -38,10 +43,13 @@ export default {
 </script>
 
 <style scoped>
+.secondContainer{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
 .chart {
-  width: 50%;
   background-color: #1a1a1a;
-  margin: 10px;
+  margin: 5px;
   border-radius: 15px;
 }
 

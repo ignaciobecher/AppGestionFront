@@ -21,7 +21,7 @@
             ><i class="bi bi-arrow-up-right-circle"></i> Gastos</a
           >
           <a href="#" @click="togglePage('stock')"
-            ><i class="bi bi-box-seam"></i> Stock</a
+            ><i class="bi bi-box-seam"></i> Productos</a
           >
 
           <a href="#" @click="togglePage('inform')"

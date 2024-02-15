@@ -18,10 +18,10 @@
         <thead class="thead-light">
           <tr class="tableRow">
             <th scope="col">Fecha de compra</th>
-            <th scope="col">Referencia</th>
+            <th scope="col">Proveedor</th>
             <th scope="col">Descripcion</th>
-            <th scope="col">Cantidad</th>
-            <th scope="col">Precio</th>
+            <th scope="col">Monto</th>
+            <th scope="col">Numero Factura</th>
           </tr>
         </thead>
         <tbody class="table-body">
@@ -35,21 +35,25 @@
               <span>{{ formatDate(buy.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ buy.name }}</span>
-              <input v-else v-model="buy.name" />
+              <span v-if="!editStatus">{{ buy.providerId.name }}</span>
+              <input v-else v-model="buy.providerId.name" />
             </td>
 
             <td>
               <span v-if="!editStatus">{{ buy.description }}</span>
               <input v-else v-model="buy.description" type="text" />
             </td>
-            <td>
+            <!-- <td>
               <span v-if="!editStatus">{{ buy.quantity }}</span>
               <input v-else v-model="buy.quantity" type="text" />
-            </td>
+            </td> -->
             <td>
               <span v-if="!editStatus">{{ formatPrice(buy.price) }}</span>
               <input v-else v-model="buy.price" type="text" />
+            </td>
+            <td>
+              <span v-if="!editStatus">{{ buy.receiptNumber }}</span>
+              <input v-else v-model="buy.receiptNumber" type="text" />
             </td>
             <!-- <td>
               <span v-if="!editStatus">{{
@@ -83,32 +87,35 @@
     <div v-if="editFormStatus" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
-          <h3 style="text-align: center">Nuevo gasto</h3>
-          <input
-            v-model="data.product"
-            type="text"
-            placeholder="Ingrese una referencia"
-          />
+          <h3 style="text-align: center">Nueva compra</h3>
+          <select v-model="providerId" name="" id="">
+            <option
+              v-for="(provider, index) in providersArray"
+              :key="index"
+              :value="provider._id"
+            >
+              {{ provider.name }}
+            </option>
+          </select>
+         
           <input
             v-model="data.description"
             type="text"
-            placeholder="Ingrese una descripcion"
+            placeholder="Decripcion... (opcional)"
           />
+
           <input
-            v-model="data.quantity"
+            v-model="data.receiptNumber"
             type="text"
-            placeholder="Ingrese una cantidad"
+            placeholder="Nro factura... (opcional)"
           />
+
           <input
             v-model="data.price"
             type="text"
-            placeholder="Ingrese un precio"
+            placeholder="Monto total..."
           />
-          <!-- <input
-            v-model="data.expirationDate"
-            type="date"
-            placeholder="Ingrese una fecha de vencimiento"
-          /> -->
+
           <button @click.prevent="changeFormStatus" class="btn-cancel">
             Cancelar
           </button>
@@ -134,12 +141,15 @@ export default {
       editFormStatus: false,
       buy_id: null,
       data: {
-        product: "",
+        // product: "",
         description: "",
-        quantity: "",
+        // quantity: "",
         price: "",
+        receiptNumber: null,
         // expirationDate: "",
       },
+      providersArray: [],
+      providerId:null
     };
   },
   methods: {
@@ -162,11 +172,14 @@ export default {
           .utc(buy.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
+
         await axios.put(`https://api-gestion-ahil.onrender.com/buys/${id}`, {
           name: buy.name,
+
           description: buy.description,
-          quantity: buy.quantity,
+          // quantity: buy.quantity,
           price: buy.price,
+          receiptNumber: buy.receiptNumber,
           // expirationDate: formattedExpirationDate,
         });
 
@@ -183,17 +196,23 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/buys", {
-          name: this.data.product,
+
+        const newSale = await axios.post("http://localhost:3000/buys", {
           description: this.data.description,
           price: this.data.price,
-          quantity: this.data.quantity,
+          // quantity: this.data.quantity,
+          receiptNumber: this.data.receiptNumber,
           businessId: "65bfdff8a75ffb8fb6be8937",
+          providerId:this.providerId
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
           this.changeFormStatus();
           this.getAllBuys();
+          this.data.description=""
+          this.data.price=""
+          this.data.receiptNumber=""
+          this.providerId=""
         } else {
           console.log("Error al cargar la venta");
         }
@@ -216,6 +235,22 @@ export default {
         console.log(error);
       }
     },
+    async getAllProviders() {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/providers/business/65bfdff8a75ffb8fb6be8937"
+        );
+        const providers = response.data;
+
+        for (const provider of providers) {
+          for (const iterator of provider.providers) {
+            this.providersArray.push(iterator)
+          }
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
     // ********************************************----------------**************************************
     setId(id) {
       this.buy_id = id;
@@ -234,7 +269,7 @@ export default {
     },
   },
   created() {
-    this.getAllBuys();
+    this.getAllBuys(), this.getAllProviders();
   },
 };
 </script>
@@ -335,7 +370,8 @@ label {
   font-size: 18px;
 }
 
-input {
+input,
+select {
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #ccc;

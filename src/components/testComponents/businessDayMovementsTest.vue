@@ -121,11 +121,12 @@ export default {
   methods: {
     async getAllMovements() {
       const result = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/65931333d7c90d26950f7332/transactions/today"
+
+        "http://localhost:3000/business/65bfdff8a75ffb8fb6be8937/transactions/today"
+
       );
       const allMovements = result.data;
       this.movements = allMovements;
-      console.log(this.movements);
     },
     noMovements(movementArray) {
       return movementArray.length === 0;
@@ -158,9 +159,7 @@ export default {
 
 .secondContainer:hover {
   color: #5c39f5;
-  background-color: #292a31 !important;
   border: 1px solid white;
-  font-size: 30px;
 }
 
 .secondContainer ul {
