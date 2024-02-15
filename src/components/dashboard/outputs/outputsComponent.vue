@@ -236,7 +236,7 @@ export default {
     async analizeData() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/business/outputs/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/business/outputs/65bfdff8a75ffb8fb6be8937"
         );
         const buys = response.data;
         const analyzedBuys = [];

@@ -75,7 +75,7 @@ export default {
     async getQuantityOfProductsSold() {
       try {
         const sales = await axios.get(
-          "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
         );
         const data = sales.data;
 
@@ -112,7 +112,7 @@ export default {
 
     async getTotalOfSales(startDate, endDate) {
       let url =
-        "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937";
+        "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937";
 
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;

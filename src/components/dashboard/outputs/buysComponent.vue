@@ -210,7 +210,7 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
 
-        const newSale = await axios.post("http://localhost:3000/buys", {
+        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/buys", {
           description: this.data.description,
           price: this.data.price,
           // quantity: this.data.quantity,
@@ -253,7 +253,7 @@ export default {
     async getAllProviders() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/providers/business/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/providers/business/65bfdff8a75ffb8fb6be8937"
         );
         const providers = response.data;
 

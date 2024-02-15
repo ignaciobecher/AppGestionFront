@@ -317,7 +317,7 @@ export default {
           );
           const newProduct = await axios.post(
 
-            `http://localhost:3000/products/${this.selectedCategoryId}`,
+            `https://api-gestion-ahil.onrender.com/products/${this.selectedCategoryId}`,
 
             {
               name: this.data.name,
@@ -365,7 +365,7 @@ export default {
     async getCategoryesIds() {
       try {
         const res = await axios.get(
-          "http://localhost:3000/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
         );
 
         const cateIds = res.data;

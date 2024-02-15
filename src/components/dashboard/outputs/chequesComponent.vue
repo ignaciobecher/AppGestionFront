@@ -152,7 +152,7 @@ export default {
     async getAllCheques() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/cheques/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/cheques/65bfdff8a75ffb8fb6be8937"
         );
         const cheques = response.data;
         this.chequesArray = cheques;
@@ -167,7 +167,7 @@ export default {
         const fechaCheque = moment(cheque.chequeDate);
         const nuevaFecha = fechaCheque.add(1, "day");
         const formatedDate = nuevaFecha.format("YYYY-MM-DD");
-        await axios.put(`http://localhost:3000/cheques/${id}`, {
+        await axios.put(`https://api-gestion-ahil.onrender.com/cheques/${id}`, {
           identification: cheque.identification,
           description: cheque.description,
           chequeNumber: cheque.chequeNumber,
@@ -192,7 +192,7 @@ export default {
         const nuevaFecha = fechaCheque.add(1, "day");
         const formatedDate = nuevaFecha.format("YYYY-MM-DD");
 
-        const newCheque = await axios.post("http://localhost:3000/cheques", {
+        const newCheque = await axios.post("https://api-gestion-ahil.onrender.com/cheques", {
           identification: this.data.identification,
           description: this.data.description,
           chequeNumber: this.data.chequeNumber,
@@ -220,7 +220,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`http://localhost:3000/cheques/${id}`);
+          await axios.delete(`https://api-gestion-ahil.onrender.com/cheques/${id}`);
           window.alert("Cheque eliminado");
           this.getAllCheques();
         } else {

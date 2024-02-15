@@ -182,7 +182,7 @@
           //   .add(1, "days")
           //   .format("YYYY-MM-DD");
 
-          await axios.put(`http://localhost:3000/sales/${id}`, {
+          await axios.put(`https://api-gestion-ahil.onrender.com/sales/${id}`, {
 
             total: product.name,
             paymentMethod: product.description,
@@ -201,7 +201,7 @@
             window.confirm("¿Estás seguro de que deseas realizar esta acción?")
           ) {
 
-            await axios.delete(`http://localhost:3000/sales/${id}`);
+            await axios.delete(`https://api-gestion-ahil.onrender.com/sales/${id}`);
 
             window.alert("Producto eliminado");
             this.getAllProducts();

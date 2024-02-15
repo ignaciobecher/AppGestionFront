@@ -68,7 +68,7 @@ export default {
     
         const res = await axios.get(
 
-          `http://localhost:3000/products/missing/stock/65bfdff8a75ffb8fb6be8937`
+          `https://api-gestion-ahil.onrender.com/products/missing/stock/65bfdff8a75ffb8fb6be8937`
 
         );
         const stock = res.data;
