@@ -45,7 +45,7 @@ export default {
     async getSalesDay() {
       try {
         const sales = await axios.get(
-          "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
         );
         const data = sales.data;
 

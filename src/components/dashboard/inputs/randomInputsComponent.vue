@@ -1,4 +1,5 @@
 <template>
+
   <div class="inputsContainer">
       <h1>Ingresos varios</h1>
     <div class="searchbar-container">
@@ -217,11 +218,11 @@ export default {
           this.getAllInputs();
         } else {
           window.alert("Accion cancelada");
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    },
+
+   
+    
+             
+
     // ********************************************----------------**************************************
     setId(id) {
       this.input_Id = id;
