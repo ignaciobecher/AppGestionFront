@@ -20,7 +20,7 @@
 
     <div v-if="selector" class="selector">
       <h1 style="text-align: center; margin-top: 20px; margin-right: 10%">
-        Gastos de tu negocio
+      Ingresos de tu negocio
       </h1>
       <div class="mainBtns">
         <button @click="showInputs" class="btnOutput">

@@ -86,22 +86,22 @@
           <input
             v-model="data.product"
             type="text"
-            placeholder="Ingrese una referencia"
+            placeholder="Destino..."
           />
           <input
             v-model="data.description"
             type="text"
-            placeholder="Ingrese una descripcion"
+            placeholder="Descripcion... (opcional)"
           />
           <input
             v-model="data.quantity"
             type="text"
-            placeholder="Ingrese una cantidad"
+            placeholder="Cantidad... (opcional)"
           />
           <input
             v-model="data.value"
             type="text"
-            placeholder="Ingrese un monto"
+            placeholder="Monto... (opcional)"
           />
           <!-- <input
             v-model="data.expirationDate"

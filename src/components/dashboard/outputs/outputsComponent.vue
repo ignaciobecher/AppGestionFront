@@ -7,6 +7,12 @@
     </div>
     <div class="top-container">
       <button @click.prevent="changeFormStatus">Registrar nuevo egreso</button>
+      <button
+        @click="analizeData()"
+        style="margin-left: 50px; background-color: gray"
+      >
+        Analizar egresos con inteligencia artificial
+      </button>
     </div>
 
     <div class="table-responsive">
@@ -115,6 +121,19 @@
         </div>
       </form>
     </div>
+
+    <div class="gpt">
+      <h4>Resumen</h4>
+      <ul>
+        <li>Movimientos: {{ gptArray.total_transactions }}</li>
+        <li>Transacciones:</li>
+        <ul v-for="item in gptArray.transactions">
+          <li>Gasto: {{ item.name }} | Monto: {{formatPrice(item.value)  }}</li>
+        </ul>
+        <li>Monto promedio: {{ formatPrice(gptArray.average_value) }}</li>
+        <li>Total: {{formatPrice(gptArray.total_value) }}</li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -122,6 +141,7 @@
 import axios from "axios";
 import moment from "moment";
 import numeral from "numeral";
+import * as todo from "@/components/testComponents/gptTest.vue";
 
 export default {
   data() {
@@ -137,6 +157,7 @@ export default {
         value: "",
         expirationDate: "",
       },
+      gptArray: [],
     };
   },
   methods: {
@@ -212,6 +233,35 @@ export default {
         console.log(error);
       }
     },
+    async analizeData() {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/business/outputs/65bfdff8a75ffb8fb6be8937"
+        );
+        const buys = response.data;
+        const analyzedBuys = [];
+        for (const buy of buys) {
+          const analyzedBuy = {
+            createdAt: buy.createdAt,
+            description: buy.description,
+            name: buy.name,
+            quantity: buy.quantity,
+            updatedAt: buy.updatedAt,
+            value: buy.value,
+          };
+          analyzedBuys.push(analyzedBuy);
+        }
+        const analyzedBuysText = JSON.stringify(analyzedBuys);
+        const gptResponse = await todo.default.methods.analizeText(analyzedBuysText);
+        const toJSON= JSON.parse(gptResponse)
+        this.gptArray=toJSON
+
+        console.log(toJSON);
+        
+      } catch (error) {
+        throw error;
+      }
+    },
     // ********************************************----------------**************************************
     setId(id) {
       this.buy_id = id;
@@ -236,6 +286,13 @@ export default {
 </script>
 
 <style scoped>
+.gpt{
+  margin: 10px;
+}
+
+.gpt li{
+  list-style-type: none;
+}
 .table-body input {
   width: 100%;
 }

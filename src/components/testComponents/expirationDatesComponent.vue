@@ -20,6 +20,12 @@
       </router-link>
       <h4 style="color: white; margin-top: 15px">Productos por vencer</h4>
     </div>
+
+    <div style="display:flex; margin-left: 10px;">
+      <h4 style="margin-top: 8px; color: white;">Ingrese cantidad de días</h4>
+      <input v-model="expirationDays" placeholder="Días..." style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="number" />
+      <button @click="getExpiratedProducts(expirationDays)" style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="submit">Continuar</button>
+    </div>
     <div class="innerContainer">
         <div class="table-responsive">
       <table class="table table-hover table-nowrap">
@@ -50,7 +56,8 @@ import axios from 'axios';
 export default {
     data(){
         return{
-            productsArray:[]
+            productsArray:[],
+            expirationDays:150
         }
     },
     methods:{

@@ -1,5 +1,10 @@
 <template>
-  <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
+  <button style="margin-left: 10px; border-radius: 15px; padding: 5px; border: none;" @click="getSalesDay">Ventas diarias</button>
+  <button style="margin-left: 10px; border-radius: 15px; padding: 5px; border: none;" @click="getQuantityOfProductsSold">Productos vendidos</button>
+  <button style="margin-left: 10px; border-radius: 15px; padding: 5px; border: none;" @click="getTotalOfSales">Totales de ventas</button>
+  <div>
+    <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
+  </div>
 </template>
 
 <script>
@@ -56,7 +61,7 @@ export default {
           labels: labels, // Establecer las fechas como etiquetas
           datasets: [
             {
-              label: "Ultimas ventas",
+              label: "Cantidad de ventas",
               backgroundColor: "#5c39f5", // Color de las barras
               data: salesData, // Establecer los datos de ventas
             },
@@ -66,10 +71,86 @@ export default {
         console.error("Error al obtener los datos de ventas:", error);
       }
     },
+
+    async getQuantityOfProductsSold() {
+      try {
+        const sales = await axios.get(
+          "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+        );
+        const data = sales.data;
+
+        const labels = []; // Array para almacenar las fechas
+        const productsData = []; // Array para almacenar la cantidad total de productos vendidos por día
+
+        for (const date in data) {
+          labels.push(date);
+          // Calculamos el total de productos vendidos por día sumando las longitudes de los arrays productIds de cada venta
+          const totalProducts = data[date].reduce(
+            (acc, sale) => acc + sale.productIds.length,
+            0
+          );
+          productsData.push(totalProducts);
+        }
+
+        this.chartData = {
+          labels: labels, // Establecer las fechas como etiquetas
+          datasets: [
+            {
+              label: "Cantidad de productos vendidos",
+              backgroundColor: "#5c39f5", // Color de las barras
+              data: productsData, // Establecer los datos de ventas
+            },
+          ],
+        };
+
+        return { labels, productsData };
+      } catch (error) {
+        console.error("Error al obtener las ventas por día: ", error);
+        // Manejar el error adecuadamente
+      }
+    },
+
+    async getTotalOfSales(startDate, endDate) {
+      let url =
+        "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937";
+
+      if (startDate && endDate) {
+        url += `?startDate=${startDate}&endDate=${endDate}`;
+      }
+
+      const response = await axios.get(url);
+      const sales = response.data;
+
+      const labels = [];
+      const salesData = [];
+
+      for (const date in sales) {
+        // const formateDate=this.formatDate(date)
+        labels.push(date);
+
+        // Calcular el total en dinero para cada fecha
+        const totalMoney = sales[date].reduce(
+          (acc, sale) => acc + sale.total,
+          0
+        );
+        salesData.push(totalMoney);
+      }
+
+      this.chartData = {
+        labels: labels,
+        datasets: [
+          {
+            label: "Total en ventas",
+            backgroundColor: "#5c39f5",
+            data: salesData,
+          },
+        ],
+      };
+    },
   },
-  mounted() {
-    this.getSalesDay();
-  },
+  mounted(){
+    this.getSalesDay()
+  }
 };
 </script>
 

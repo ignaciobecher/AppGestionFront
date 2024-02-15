@@ -95,6 +95,7 @@
                 <span v-if="!editorStatus">{{formatPrice(sale.total)  }}</span>
                 <input name="name" v-else type="text" v-model="sale.total" />
               </td>
+              
               <td>
                 <span v-if="!editorStatus">{{ sale.paymentMethod }}</span>
                 <input
@@ -180,7 +181,9 @@
           //   .utc(buy.expirationDate)
           //   .add(1, "days")
           //   .format("YYYY-MM-DD");
-          await axios.put(`https://api-gestion-ahil.onrender.com/products/${id}`, {
+
+          await axios.put(`http://localhost:3000/sales/${id}`, {
+
             total: product.name,
             paymentMethod: product.description,
            
@@ -197,7 +200,9 @@
           if (
             window.confirm("¿Estás seguro de que deseas realizar esta acción?")
           ) {
-            await axios.delete(`https://api-gestion-ahil.onrender.com/products/${id}`);
+
+            await axios.delete(`http://localhost:3000/sales/${id}`);
+
             window.alert("Producto eliminado");
             this.getAllProducts();
           } else {
