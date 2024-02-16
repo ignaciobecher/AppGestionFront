@@ -1,145 +1,153 @@
 <template>
-  <div class="searchbar-container">
-    <p>Buscar producto:</p>
-    <input
-      v-model="barcode"
-      type="search"
-      @keyup.enter="getProductBybarCode(barcode)"
-      name=""
-      placeholder="Buscar por codigo"
-      id=""
-    />
-  </div>
-
-  <div>
-    <div class="inputsTitle">
-      <p>Cliente:</p>
-      <p>Vendedor:</p>
-      <p>Forma de pago:</p>
+  <div class="mainContainer">
+    <div class="searchbar-container">
+      <p>Buscar producto:</p>
+      <input
+        v-model="barcode"
+        type="search"
+        @keyup.enter="getProductBybarCode(barcode)"
+        name=""
+        placeholder="Buscar por codigo"
+        id=""
+      />
     </div>
 
-    <div class="inputs">
-      <select v-model="clientId" name="" id="">
-        <option value="">General</option>
-        <option
-          v-for="(client, index) in clients"
-          :key="index"
-          :value="client._id"
-        >
-          {{ client.name }}
-        </option>
-      </select>
-
-      <select v-model="employeeId" name="" id="">
-        <option value="">General</option>
-        <option
-          v-for="(employee, index) in employees"
-          :key="index"
-          :value="employee._id"
-        >
-          {{ employee.name }}
-        </option>
-      </select>
-
-      <select v-model="paymentMethod" name="" id="">
-        <option value="Efectivo">Efectivo</option>
-        <option value="Cheque">Cheque</option>
-        <option value="Transferencia">Transferencia</option>
-        <option value="Credito">Credito</option>
-        <option value="Cuenta_corriente">Cuenta corriente</option>
-      </select>
-    </div>
-
-    <div class="productSale">
-      <div>
-        <div class="products-titles">
-          <p>Productos</p>
-          <p>Cantidad</p>
-          <p>Precio unitario</p>
-          <p>Precio total</p>
-        </div>
-        <div
-          class="product-container"
-          v-for="(product, index) in carrito"
-          :key="index"
-        >
-          <p>{{ product.name }}</p>
-          <div class="btn">
-            <button @click="decreaseQuantity(product)">-</button>
-            <p>{{ product.sellQuantity }}</p>
-            <button @click="increaseQuantity(product)">+</button>
-          </div>
-          <p>${{ product.sellPrice }}</p>
-          <p>${{ getTotalProductPrice(product) }}</p>
-          <p>
-            <i @click="removeFromCart(index)" class="bi bi-x-circle-fill"></i>
-          </p>
-        </div>
+    <div>
+      <div class="inputsTitle">
+        <p>Cliente:</p>
+        <p>Vendedor:</p>
+        <p>Forma de pago:</p>
       </div>
 
-      <div class="totalClass">
-        <div class="total">
-          <h2>Total:</h2>
-          <h1>${{ total }}</h1>
-        </div>
-      </div>
-      <div class="buttons">
-        <button @click="cancelSale" class="btnCancel">Cancelar</button>
-        <input
-          class="btnConfirm"
-          @click="createSale"
-          type="submit"
-          value="Vender"
-        />
-      </div>
-    </div>
-  </div>
-
-  <div v-if="formStatus" class="register-component">
-    <div class="expenses-form">
-      <div class="form-group">
-        <h3 style="text-align: center">Nuevo producto</h3>
-        <input
-          v-model="data.name"
-          type="text"
-          placeholder="Ingrese un producto"
-        />
-
-        <input
-          v-model="data.sellPrice"
-          type="text"
-          placeholder="Ingrese un precio"
-        />
-        <select v-model="selectedCategoryId">
+      <div class="inputs">
+        <select v-model="clientId" name="" id="">
+          <option value="">General</option>
           <option
-            v-for="(ids, index) in categoriesIds"
-            :value="ids._id"
-            :key="ids._id"
+            v-for="(client, index) in clients"
+            :key="index"
+            :value="client._id"
           >
-            {{ ids.name }}
+            {{ client.name }}
           </option>
         </select>
-        <input
-          v-model="data.barCode"
-          type="text"
-          placeholder="Ingrese codigo de barras"
-        />
-        <!-- <input
+
+        <select v-model="employeeId" name="" id="">
+          <option value="">General</option>
+          <option
+            v-for="(employee, index) in employees"
+            :key="index"
+            :value="employee._id"
+          >
+            {{ employee.name }}
+          </option>
+        </select>
+
+        <select v-model="paymentMethod" name="" id="">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Cheque">Cheque</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Credito">Credito</option>
+          <option value="Cuenta_corriente">Cuenta corriente</option>
+        </select>
+      </div>
+
+      <div class="productSale">
+        <div>
+          <div class="products-titles">
+            <p>Productos</p>
+            <p>Cantidad</p>
+            <p>Precio unitario</p>
+            <p>Precio total</p>
+          </div>
+          <div
+            class="product-container"
+            v-for="(product, index) in carrito"
+            :key="index"
+          >
+            <p>{{ product.name }}</p>
+            <div class="btn">
+              <button @click="decreaseQuantity(product)">-</button>
+              <p>{{ product.sellQuantity }}</p>
+              <button @click="increaseQuantity(product)">+</button>
+            </div>
+            <p>${{ product.sellPrice }}</p>
+            <p>${{ getTotalProductPrice(product) }}</p>
+            <p>
+              <i @click="removeFromCart(index)" class="bi bi-x-circle-fill"></i>
+            </p>
+          </div>
+        </div>
+
+        <div class="totalClass">
+          <div class="total">
+            <h2>Total:</h2>
+            <h1>${{ total }}</h1>
+          </div>
+        </div>
+        <div class="buttons">
+          <button @click="cancelSale" class="btnCancel">Cancelar</button>
+          <input
+            class="btnConfirm"
+            @click="createSale"
+            type="submit"
+            value="Vender"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div v-if="formStatus" class="register-component">
+      <div class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Nuevo producto</h3>
+          <input
+            v-model="data.name"
+            type="text"
+            placeholder="Ingrese un producto"
+          />
+
+          <input
+            v-model="data.sellPrice"
+            type="text"
+            placeholder="Ingrese un precio"
+          />
+          <select v-model="selectedCategoryId">
+            <option
+              v-for="(ids, index) in categoriesIds"
+              :value="ids._id"
+              :key="ids._id"
+            >
+              {{ ids.name }}
+            </option>
+          </select>
+          <input
+            v-model="data.barCode"
+            type="text"
+            placeholder="Ingrese codigo de barras"
+          />
+          <!-- <input
             v-model="data.expirationDate"
             type="date"
             placeholder="Ingrese una fecha de vencimiento"
           /> -->
-        <button @click="changeStatusOfForm" class="btn-cancel">Cancelar</button>
-        <button @click="createNewProduct" class="btn-confirm">Confirmar</button>
+          <button @click="changeStatusOfForm" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click="createNewProduct" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div v-if="succesMessageVisible" class="alert alert-success" role="alert">
-    <h4 class="alert-heading">
-      VENTA EXITOSA <i class="bi bi-check-circle-fill"></i>
-    </h4>
-    <p>Hiciste una venta, podes ver sus estadisticas en el sitio de resumen</p>
+    <div v-if="succesMessageVisible" class="alert alert-success" role="alert">
+      <h4 class="alert-heading">
+        VENTA EXITOSA <i class="bi bi-check-circle-fill"></i>
+      </h4>
+      <p>
+        Hiciste una venta, podes ver sus estadisticas en el sitio de resumen
+      </p>
+    </div>
   </div>
 </template>
 
@@ -266,17 +274,19 @@ export default {
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
-            const client =await axios.get(`http://localhost:3000/clients/searcher/${this.clientId}`)
-            const debtOfClient=client.data.debt
+            const client = await axios.get(
+              `http://localhost:3000/clients/searcher/${this.clientId}`
+            );
+            const debtOfClient = client.data.debt;
             const newDebt = debtOfClient + this.total;
-            console.log('Deuda del cliente',debtOfClient);
-            await axios.put(`http://localhost:3000/clients/${this.clientId}`,{
-              debt:newDebt
-            })
+            console.log("Deuda del cliente", debtOfClient);
+            await axios.put(`http://localhost:3000/clients/${this.clientId}`, {
+              debt: newDebt,
+            });
           }
           for (const product of this.carrito) {
             await axios.patch(`http://localhost:3000/products/${product._id}`, {
-              quantity: product.quantity - product.sellQuantity, 
+              quantity: product.quantity - product.sellQuantity,
             });
           }
 
@@ -284,7 +294,7 @@ export default {
           this.arrayOfIds = [];
           this.total = 0;
           this.paymentMethod = "Efectivo";
-          this.clientId="General"
+          this.clientId = "General";
           this.showSuccesMessage();
         } else {
           console.log("Error al realizar la venta");
@@ -375,13 +385,15 @@ export default {
 </script>
 
 <style scoped>
+
 .productSale {
-  background-color: #1a1a1a;
+  background-color: #ffffff;
+  height: 400px;
   margin: 10px;
-  width: 100%;
-  height: 520px;
   display: grid;
   grid-template-rows: 10vh auto 20vh 15vh;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+
 }
 .inputsTitle {
   display: grid;
@@ -425,17 +437,21 @@ export default {
   display: flex;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  font-weight: bold;
+
 }
 .product-container {
   margin-left: 10px;
   margin-right: 10px;
   margin-top: 5px;
   margin-bottom: 5px;
-  background-color: #1a1a1a;
+  background-color: #ffffff;
   padding: 5px;
   border-radius: 5px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  font-weight: bold;
+
 }
 
 .btn {
@@ -446,9 +462,15 @@ export default {
 .btn button {
   width: 25px;
   height: 25px;
-  background-color: #292a31;
+  background-color: #ffffff;
+  color: black;
   border: none;
   border-radius: 4px;
+  font-weight: bold;
+}
+.btn p{
+  color: black;
+  font-weight: bold;
 }
 
 .searchbar-container {

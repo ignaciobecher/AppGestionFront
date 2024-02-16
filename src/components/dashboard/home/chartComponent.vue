@@ -1,7 +1,25 @@
 <template>
-  <button style="margin-left: 10px; border-radius: 15px; padding: 5px; border: none;" @click="getSalesDay">Ventas diarias</button>
-  <button style="margin-left: 10px; border-radius: 15px; padding: 5px; border: none;" @click="getQuantityOfProductsSold">Productos vendidos</button>
-  <button style="margin-left: 10px; border-radius: 15px; padding: 5px; border: none;" @click="getTotalOfSales">Totales de ventas</button>
+  <div class="btns">
+    <button
+      style="margin-left: 10px; padding: 5px; border: none"
+      @click="getSalesDay"
+    >
+      Ventas diarias
+    </button>
+    <button
+      style="margin-left: 10px; padding: 5px; border: none"
+      @click="getQuantityOfProductsSold"
+    >
+      Productos vendidos
+    </button>
+    <button
+      style="margin-left: 10px;  padding: 5px; border: none"
+      @click="getTotalOfSales"
+    >
+      Totales de ventas
+    </button>
+  </div>
+
   <div>
     <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
   </div>
@@ -62,7 +80,7 @@ export default {
           datasets: [
             {
               label: "Cantidad de ventas",
-              backgroundColor: "#5c39f5", // Color de las barras
+              backgroundColor: "#fbce1d", // Color de las barras
               data: salesData, // Establecer los datos de ventas
             },
           ],
@@ -97,7 +115,7 @@ export default {
           datasets: [
             {
               label: "Cantidad de productos vendidos",
-              backgroundColor: "#5c39f5", // Color de las barras
+              backgroundColor: "#fbce1d", // Color de las barras
               data: productsData, // Establecer los datos de ventas
             },
           ],
@@ -141,23 +159,27 @@ export default {
         datasets: [
           {
             label: "Total en ventas",
-            backgroundColor: "#5c39f5",
+            backgroundColor: "#fbce1d",
             data: salesData,
           },
         ],
       };
     },
   },
-  mounted(){
-    this.getSalesDay()
-  }
+  mounted() {
+    this.getSalesDay();
+  },
 };
 </script>
 
 <style scoped>
 #my-chart-id {
-  background-color: #1a1a1a;
+  background-color: #ffffff;
   margin: 10px;
-  border-radius: 15px;
+}
+
+.btns button{
+  background-color: #ffffff;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
 }
 </style>

@@ -402,7 +402,6 @@ input {
 .searchbar-container input {
   margin-left: 20px; /* Ajustar márgenes si es necesario */
   width: 50%;
-  border-radius: 15px;
   border: 1px solid #574f7a;
   padding: 10px;
 }
@@ -410,24 +409,25 @@ input {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #1a1a1a;
+  background-color: #FFFFFF;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   border-radius: 15px;
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .table-body td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .expenses-form {

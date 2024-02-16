@@ -1,25 +1,17 @@
 <template>
   <div class="searchbar-container">
-    <p>{{ title }}</p>
-    <input placeholder="Buscar..." type="search" />
-    <div class="date">
-    <p style="color: white">{{ formatDate(todayDate) }}</p>
+    <p>Bienvenido </p>
+    <div class="input-container">
+      <input placeholder="Buscar... " type="search" />
+      <i class="bi bi-search"></i>
+    </div>
+    <div class="date"></div>
   </div>
-  </div>
-
-  
 </template>
 
 <script>
 import moment from "moment";
 export default {
-  props:{
-    title:{
-      type:String,
-      default:"Busqueda rapida: "
-    }
-  }
-  ,
   methods: {
     getDate() {
       const date = new Date();
@@ -38,25 +30,39 @@ export default {
 <style scoped>
 .searchbar-container {
   display: flex;
-  align-items: center; /* Alinear verticalmente los elementos */
+  align-items: center;
+  box-shadow: 0px 5px 5px -5px rgba(32, 32, 32, 0.5);
 }
 
 .searchbar-container p {
-  margin-right: 10px; /* Ajustar márgenes si es necesario */
+  margin-left: 10px;
   margin-top: 10px;
-  font-size: 20px;
+  font-size: 25px;
   padding: 10px;
   font-weight: bolder;
 }
 
-.searchbar-container input {
-  margin-left: 20px; /* Ajustar márgenes si es necesario */
-  width: 50%;
-  border-radius: 15px;
+.input-container {
+  position: relative;
+  margin-left: 500px; /* Puedes ajustar este valor según sea necesario */
+}
+
+.input-container input {
   border: 1px solid #574f7a;
   padding: 10px;
+  padding-left: 30px; /* Añadimos espacio a la izquierda para el icono */
+  width: 350px;
 }
-.date{
-    margin-left: 170px;
+
+.input-container i {
+  position: absolute;
+  right: 10px; /* Ajusta la posición del icono dentro del input */
+  top: 50%;
+  transform: translateY(-50%);
+  color: blueviolet;
+}
+
+.date {
+  margin-left: 170px;
 }
 </style>
