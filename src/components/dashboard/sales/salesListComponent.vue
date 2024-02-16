@@ -1,4 +1,5 @@
 <template>
+
   <div class="stock-container">
     <div class="searchbar-container">
       <p>Buscar venta:</p>
@@ -91,10 +92,10 @@
             v-if="foundProduct"
           >
             <td>
-              <span v-if="!editorStatus">{{ formatPrice(sale.total) }}</span>
+              <span v-if="!editorStatus">{{formatPrice(sale.total)  }}</span>
               <input name="name" v-else type="text" v-model="sale.total" />
             </td>
-
+            
             <td>
               <span v-if="!editorStatus">{{ sale.paymentMethod }}</span>
               <input
@@ -105,7 +106,8 @@
               />
             </td>
             <td>
-              <span>{{ formatDate(sale.createdAt) }}</span>
+              <span >{{formatDate(sale.createdAt)  }}</span>
+              
             </td>
 
             <td v-if="!editorStatus">
@@ -128,6 +130,8 @@
         </tbody>
       </table>
     </div>
+
+  
   </div>
 </template>
 
@@ -177,9 +181,12 @@ export default {
         //   .utc(buy.expirationDate)
         //   .add(1, "days")
         //   .format("YYYY-MM-DD");
+
         await axios.put(`http://localhost:3000/sales/${id}`, {
+
           total: product.name,
           paymentMethod: product.description,
+         
         });
 
         this.getAllProducts();
@@ -193,7 +200,9 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
+
           await axios.delete(`http://localhost:3000/sales/${id}`);
+
           window.alert("Producto eliminado");
           this.getAllProducts();
         } else {

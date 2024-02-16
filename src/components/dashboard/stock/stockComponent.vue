@@ -316,7 +316,9 @@ export default {
             "DD-MM-YYYY"
           );
           const newProduct = await axios.post(
+
             `http://localhost:3000/products/${this.selectedCategoryId}`,
+
             {
               name: this.data.name,
               sellPrice: this.data.sellPrice,

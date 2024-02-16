@@ -184,7 +184,9 @@ export default {
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
+
           `http://localhost:3000/products/cate/65bfdff8a75ffb8fb6be8937/${barcode}`
+
         );
         this.barcode = "";
 
@@ -224,6 +226,7 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
+
             `http://localhost:3000/products/${this.selectedCategoryId}`,
             {
               name: this.data.name,
@@ -270,7 +273,9 @@ export default {
       }
 
       try {
+
         const sale = await axios.post("http://localhost:3000/sales", saleData);
+
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
@@ -285,6 +290,7 @@ export default {
             });
           }
           for (const product of this.carrito) {
+
             await axios.patch(`http://localhost:3000/products/${product._id}`, {
               quantity: product.quantity - product.sellQuantity,
             });

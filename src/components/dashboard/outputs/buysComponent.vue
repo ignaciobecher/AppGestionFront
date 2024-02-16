@@ -172,8 +172,10 @@ export default {
           .utc(buy.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
+
         await axios.put(`http://localhost:3000/buys/${id}`, {
-          // name: buy.name,
+          name: buy.name,
+
           description: buy.description,
           // quantity: buy.quantity,
           price: buy.price,
@@ -194,6 +196,7 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
+
         const newSale = await axios.post("http://localhost:3000/buys", {
           description: this.data.description,
           price: this.data.price,

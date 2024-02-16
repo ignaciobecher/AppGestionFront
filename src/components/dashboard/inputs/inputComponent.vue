@@ -158,6 +158,7 @@ export default {
           console.log("Fecha:", formattedDate,'////','Mes: ',month);
         }
       } catch (error) {
+        
         console.log(error);
       }
     },

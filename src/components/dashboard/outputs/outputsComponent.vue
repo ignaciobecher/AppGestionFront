@@ -223,7 +223,8 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`http://localhost:3000/outputs/${id}`);
+          await axios.delete(`http://localhost:3000
+          /outputs/${id}`);
           window.alert("Compra eliminada");
           this.getAllOutputs();
         } else {
