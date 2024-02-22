@@ -66,7 +66,7 @@ export default {
   methods: {
     async getAllSales(startDate, endDate) {
       let url =
-        "http://localhost:3000/business/salesByDay/65931333d7c90d26950f7332";
+        "https://api-gestion-ahil.onrender.com/business/salesByDay/65931333d7c90d26950f7332";
 
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;

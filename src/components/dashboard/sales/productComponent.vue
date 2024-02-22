@@ -189,7 +189,7 @@ export default {
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
-          `http://localhost:3000/products/cate/65bfdff8a75ffb8fb6be8937/${barcode}`
+          `https://api-gestion-ahil.onrender.com/products/cate/65bfdff8a75ffb8fb6be8937/${barcode}`
         );
         this.barcode = "";
 
@@ -229,7 +229,7 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
-            `http://localhost:3000/products/${this.selectedCategoryId}`,
+            `https://api-gestion-ahil.onrender.com/products/${this.selectedCategoryId}`,
             {
               name: this.data.name,
               sellPrice: this.data.sellPrice,
@@ -275,22 +275,22 @@ export default {
       }
 
       try {
-        const sale = await axios.post("http://localhost:3000/sales", saleData);
+        const sale = await axios.post("https://api-gestion-ahil.onrender.com/sales", saleData);
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
             const client = await axios.get(
-              `http://localhost:3000/clients/searcher/${this.clientId}`
+              `https://api-gestion-ahil.onrender.com/clients/searcher/${this.clientId}`
             );
             const debtOfClient = client.data.debt;
             const newDebt = debtOfClient + this.total;
             console.log("Deuda del cliente", debtOfClient);
-            await axios.put(`http://localhost:3000/clients/${this.clientId}`, {
+            await axios.put(`https://api-gestion-ahil.onrender.com/clients/${this.clientId}`, {
               debt: newDebt,
             });
           }
           for (const product of this.carrito) {
-            await axios.patch(`http://localhost:3000/products/${product._id}`, {
+            await axios.patch(`https://api-gestion-ahil.onrender.com/products/${product._id}`, {
               quantity: product.quantity - product.sellQuantity,
             });
           }
@@ -311,7 +311,7 @@ export default {
     async getBusinessData() {
       try {
         const res = await axios.get(
-          "http://localhost:3000/business/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/business/65bfdff8a75ffb8fb6be8937"
         );
         const business = res.data;
         this.clients = business.clients;
@@ -323,7 +323,7 @@ export default {
     async getCategoryesIds() {
       try {
         const res = await axios.get(
-          "http://localhost:3000/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
         );
 
         const cateIds = res.data;
