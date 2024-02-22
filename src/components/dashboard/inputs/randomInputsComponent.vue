@@ -127,6 +127,7 @@ import axios from "axios";
 import moment from "moment";
 import numeral from "numeral";
 import { toHandlerKey } from "vue";
+import { toHandlerKey } from "vue";
 
 export default {
   data() {
@@ -159,6 +160,7 @@ export default {
           const month = date.getMonth() + 1;
           const formattedDate = date.toLocaleDateString();
           console.log("Fecha:", formattedDate, "////", "Mes: ", month);
+          console.log("Fecha:", formattedDate, "////", "Mes: ", month);
         }
       } catch (error) {
         console.log(error);
@@ -170,13 +172,16 @@ export default {
           .utc(buy.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        await axios.put(`https://api-gestion-ahil.onrender.com/random-inputs/${id}`, {
-          reference: buy.reference,
-          description: buy.description,
-          quantity: buy.quantity,
-          value: buy.value,
-          expirationDate: formattedExpirationDate,
-        });
+        await axios.put(
+          `https://api-gestion-ahil.onrender.com/random-inputs/${id}`,
+          {
+            reference: buy.reference,
+            description: buy.description,
+            quantity: buy.quantity,
+            value: buy.value,
+            expirationDate: formattedExpirationDate,
+          }
+        );
 
         this.getAllInputs();
         this.changeEditStatus();
@@ -191,6 +196,16 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
+        const newSale = await axios.post(
+          "https://api-gestion-ahil.onrender.com/random-inputs",
+          {
+            reference: this.data.product,
+            description: this.data.description,
+            value: this.data.value,
+            quantity: this.data.quantity,
+            businessId: "65bfdff8a75ffb8fb6be8937",
+          }
+        );
         const newSale = await axios.post(
           "https://api-gestion-ahil.onrender.com/random-inputs",
           {
@@ -217,11 +232,18 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`https://api-gestion-ahil.onrender.com/random-inputs/${id}`);
+          await axios.delete(
+            `https://api-gestion-ahil.onrender.com/random-inputs/${id}`
+          );
           window.alert("Compra eliminada");
           this.getAllInputs();
         } else {
           window.alert("Accion cancelada");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
         }
       } catch (error) {
         console.log(error);

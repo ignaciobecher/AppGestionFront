@@ -189,7 +189,9 @@ export default {
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
+
           `https://api-gestion-ahil.onrender.com/products/cate/65bfdff8a75ffb8fb6be8937/${barcode}`
+
         );
         this.barcode = "";
 
@@ -229,6 +231,7 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
+
             `https://api-gestion-ahil.onrender.com/products/${this.selectedCategoryId}`,
             {
               name: this.data.name,
@@ -275,23 +278,25 @@ export default {
       }
 
       try {
+
         const sale = await axios.post("https://api-gestion-ahil.onrender.com/sales", saleData);
+
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
-            const client = await axios.get(
-              `https://api-gestion-ahil.onrender.com/clients/searcher/${this.clientId}`
-            );
-            const debtOfClient = client.data.debt;
+            const client =await axios.get(`https://api-gestion-ahil.onrender.com/clients/searcher/${this.clientId}`)
+            const debtOfClient=client.data.debt
             const newDebt = debtOfClient + this.total;
-            console.log("Deuda del cliente", debtOfClient);
-            await axios.put(`https://api-gestion-ahil.onrender.com/clients/${this.clientId}`, {
-              debt: newDebt,
-            });
+            console.log('Deuda del cliente',debtOfClient);
+            await axios.put(`https://api-gestion-ahil.onrender.com/clients/${this.clientId}`,{
+              debt:newDebt
+            })
           }
           for (const product of this.carrito) {
+
             await axios.patch(`https://api-gestion-ahil.onrender.com/products/${product._id}`, {
-              quantity: product.quantity - product.sellQuantity,
+              quantity: product.quantity - product.sellQuantity, 
+
             });
           }
 

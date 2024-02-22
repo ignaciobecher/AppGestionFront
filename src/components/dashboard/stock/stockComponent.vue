@@ -462,6 +462,7 @@ export default {
       try {
         const res = await axios.get(
           "https://api-gestion-ahil.onrender.com/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
         );
 
         const cateIds = res.data;
