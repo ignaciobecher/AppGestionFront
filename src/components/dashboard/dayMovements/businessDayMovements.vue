@@ -125,7 +125,7 @@ export default {
   methods: {
     async getAllMovements() {
       const result = await axios.get(
-        "http://localhost:3000/business/65bfdff8a75ffb8fb6be8937/transactions/today"
+        "https://api-gestion-ahil.onrender.com/business/65bfdff8a75ffb8fb6be8937/transactions/today"
       );
       const allMovements = result.data;
       this.movements = allMovements;

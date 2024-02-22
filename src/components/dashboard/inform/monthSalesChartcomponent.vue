@@ -48,7 +48,7 @@ export default {
   methods: {
     async getAllSalesByMonthRange(startMonth, endMonth) {
       let url =
-        "http://localhost:3000/business/salesBySelectedMonths/65bfdff8a75ffb8fb6be8937";
+        "https://api-gestion-ahil.onrender.com/business/salesBySelectedMonths/65bfdff8a75ffb8fb6be8937";
 
       if (startMonth && endMonth) {
         url += `?startMonth=${startMonth}&endMonth=${endMonth}`;

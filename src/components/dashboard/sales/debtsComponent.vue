@@ -235,7 +235,7 @@ export default {
     async getAllClients() {
       try {
         const result = await axios.get(
-          "http://localhost:3000/business/clients/65bfdff8a75ffb8fb6be8937"
+          "https://api-gestion-ahil.onrender.com/business/clients/65bfdff8a75ffb8fb6be8937"
         );
         const sales = result.data;
         this.clientsArray = sales;
@@ -246,7 +246,7 @@ export default {
     },
     async updateClient(client, id) {
       try {
-        await axios.put(`http://localhost:3000/clients/${id}`, {
+        await axios.put(`https://api-gestion-ahil.onrender.com/clients/${id}`, {
           name: client.name,
           address: client.address,
           email: client.email,
@@ -265,7 +265,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`http://localhost:3000/clients/${id}`);
+          await axios.delete(`https://api-gestion-ahil.onrender.com/clients/${id}`);
           window.alert("Cliente eliminado");
           this.getAllClients();
         } else {
@@ -281,7 +281,7 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const debtFormated=numeral(this.data.debt).value();
-          const newProduct = await axios.post("http://localhost:3000/clients", {
+          const newProduct = await axios.post("https://api-gestion-ahil.onrender.com/clients", {
             name: this.data.name,
             address: this.data.address,
             phoneNumber: this.data.phoneNumber,
@@ -307,7 +307,7 @@ export default {
     async searchClient(clientName) {
       try {
         const client = await axios.get(
-          `http://localhost:3000/clients/search/65bfdff8a75ffb8fb6be8937/${clientName}`
+          `https://api-gestion-ahil.onrender.com/clients/search/65bfdff8a75ffb8fb6be8937/${clientName}`
         );
         const clienteEncontrado = client.data;
 
