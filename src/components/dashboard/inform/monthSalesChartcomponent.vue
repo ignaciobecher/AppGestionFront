@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
     <div class="inputsContainer">
       <input v-model="startMonth" type="month" />
       <input v-model="endMonth" type="month" />
@@ -19,6 +18,8 @@
         Quitar filtros <i class="bi bi-x-circle"></i>
       </button>
     </div>
+    <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
+   
   </div>
 </template>
 
@@ -47,7 +48,7 @@ export default {
   methods: {
     async getAllSalesByMonthRange(startMonth, endMonth) {
       let url =
-        "https://api-gestion-ahil.onrender.com/business/salesBySelectedMonths/65bfdff8a75ffb8fb6be8937";
+        "http://localhost:3000/business/salesBySelectedMonths/65bfdff8a75ffb8fb6be8937";
 
       if (startMonth && endMonth) {
         url += `?startMonth=${startMonth}&endMonth=${endMonth}`;
@@ -85,9 +86,14 @@ export default {
 </script>
 
 <style scoped>
-#my-chart-id {
+.main {
+  background-color: #ffffff;
   margin: 10px;
-  background-color: #1a1a1a;
+  height: 100;
+}
+
+#my-chart-id {
+  background-color: #ffffff;
   border-radius: 15px;
 }
 
@@ -100,7 +106,7 @@ export default {
   border: none;
   margin: 5px;
   border-radius: 15px;
-  font-size: 15px;
+  font-size: 10px;
   font-weight: bold;
 }
 
@@ -109,7 +115,7 @@ export default {
   border: none;
   margin: 5px;
   border-radius: 15px;
-  font-size: 15px;
+  font-size: 10px;
   font-weight: bold;
 }
 

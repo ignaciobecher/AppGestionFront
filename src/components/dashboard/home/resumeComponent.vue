@@ -1,30 +1,24 @@
 <template>
-  <div style="background-color: #1a1a1a" class="info-container">
-    <h1 style="color: white; font-size: 25px; font-weight: 400">
-      <i style="color: green" class="bi bi-cash"></i> Movimientos del día
-    </h1>
+  <div class="info-container">
+    <h4>Movimientos del dia</h4>
     <router-link class="router" to="/dayMovements">
-      <h3>Ir a mis movimientos <i class="bi bi-arrow-right"></i></h3>
+      <h3>Movimientos <i class="bi bi-arrow-right"></i></h3>
     </router-link>
-  
   </div>
 
-  <div style="background-color: #1a1a1a" class="info-container">
-    <h1 style="color: white; font-size: 25px; font-weight: 400">
-      <i style="color: blue" class="bi bi-boxes"></i> Faltantes
-    </h1>
+  <div class="info-container">
+    <h4>Productos faltantes</h4>
+
     <router-link class="router" to="/missingStock">
-      <h3>Ir a faltantes <i class="bi bi-arrow-right"></i></h3>
+      <h3>Faltantes <i class="bi bi-arrow-right"></i></h3>
     </router-link>
-   
   </div>
 
-  <div style="background-color: #1a1a1a" class="info-container">
-    <h1 style="color: white; font-size: 25px; font-weight: 400">
-      <i style="color: green" class="bi bi-bag"></i>Vencimientos
-    </h1>
+  <div class="info-container">
+    <h4>Vencimientos</h4>
+
     <router-link class="router" to="/expirations">
-      <h3>Ir a vencimientos <i class="bi bi-arrow-right"></i></h3>
+      <h3>Vencimientos <i class="bi bi-arrow-right"></i></h3>
     </router-link>
   </div>
 </template>
@@ -43,7 +37,7 @@ export default {
   methods: {
     async getBalance() {
       const sales = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/salesTotal/65bfdff8a75ffb8fb6be8937"
+        "http://localhost:3000/business/salesTotal/65bfdff8a75ffb8fb6be8937"
       );
       const data = sales.data;
       console.log(data);
@@ -51,7 +45,7 @@ export default {
     },
     async getTotalStock() {
       const products = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/products/65bfdff8a75ffb8fb6be8937"
+        "http://localhost:3000/business/products/65bfdff8a75ffb8fb6be8937"
       );
       const data = products.data;
       this.totalStock = data.length;
@@ -59,7 +53,7 @@ export default {
     async getSalesDay() {
       try {
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937"
         );
         const data = sales.data;
         const todayDate = new Date().toLocaleDateString();
@@ -90,32 +84,39 @@ export default {
 
 <style scoped>
 .info-container {
-  border-radius: 15px;
-  padding: 10px;
   margin: 10px;
   transition: color 0.5s;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  background-color: #ffffff;
+  height: 150px;
 }
 
-.info-container:hover {
+.info-container h4 {
+  background-color: #262042;
+  padding: 10px;
+  margin: 0 auto;
+}
+
+/* .info-container:hover {
   color: #5c39f5;
   background-color: #292a31 !important;
   border: 1px solid white;
-}
+} */
 
 .info-container .router {
-  color: white;
-  text-decoration: none;
-  transition: color 0.5s;
-}
-
-.info-container .router:hover {
-  color: #5c39f5;
-  background-color: #292a31 !important;
-  border: 1px solid white;
-}
-
-.info-container h1 {
   color: black;
+  padding: 10px;
+  text-decoration: none;
+}
+
+
+.info-container h3 {
+  padding: 10px;
+  transition: color 0.5s ;
+}
+
+.info-container h3:hover{
+  color: #5c39f5;
 }
 
 .info-container button {

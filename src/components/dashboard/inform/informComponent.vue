@@ -1,32 +1,26 @@
 <template>
   <div class="informContainer">
-    <div style="background-color: #1a1a1a" class="info-container">
-      <h1 style="color: white; font-size: 25px; font-weight: 400">
-        <i style="color: green" class="bi bi-cash"></i> Balance actual
-      </h1>
-      <h1 style="color: white">{{formatPrice(totalBalance)  }}</h1>
+    <div class="info-container">
+      <h4><i class="bi bi-cash"></i> Balance actual</h4>
+      <h3>{{ formatPrice(totalBalance) }}</h3>
       <div class="button-container">
         <button>Asistente virtual</button>
         <br />
       </div>
     </div>
 
-    <div style="background-color: #1a1a1a" class="info-container">
-      <h1 style="color: white; font-size: 25px; font-weight: 400">
-        <i style="color: blue" class="bi bi-boxes"></i> Stock actual
-      </h1>
-      <h1 style="color: white">{{ totalStock }}</h1>
+    <div class="info-container">
+      <h4><i class="bi bi-box"></i> Stock actual</h4>
+      <h3>{{ totalStock }}</h3>
       <div class="button-container">
         <button>Asistente virtual</button>
         <br />
       </div>
     </div>
 
-    <div style="background-color: #1a1a1a" class="info-container">
-      <h1 style="color: white; font-size: 25px; font-weight: 400">
-        <i style="color: green" class="bi bi-bag"></i>Ventas de hoy
-      </h1>
-      <h1 style="color: white">{{ todaySales }}</h1>
+    <div class="info-container">
+      <h4><i class="bi bi-bag"></i>Ventas de hoy</h4>
+      <h3>{{ todaySales }}</h3>
       <div class="button-container">
         <button>Asistente virtual</button>
         <br />
@@ -49,15 +43,15 @@ export default {
   methods: {
     async getBalance() {
       const sales = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/salesTotal/65bfdff8a75ffb8fb6be8937"
+        "http://localhost:3000/business/salesTotal/65bfdff8a75ffb8fb6be8937"
       );
       const data = sales.data;
-      console.log('Total de ventas: ',data);
+      console.log("Total de ventas: ", data);
       this.totalBalance = data;
     },
     async getTotalStock() {
       const products = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/products/65bfdff8a75ffb8fb6be8937"
+        "http://localhost:3000/business/products/65bfdff8a75ffb8fb6be8937"
       );
       const data = products.data;
       this.totalStock = data.length;
@@ -65,15 +59,15 @@ export default {
     async getSalesDay() {
       try {
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937"
         );
         const data = sales.data;
-        const todayDate = new Date().toLocaleDateString(); 
+        const todayDate = new Date().toLocaleDateString();
         if (data.hasOwnProperty(todayDate)) {
-          const todaySales = data[todayDate].length; 
-          this.todaySales = todaySales; 
+          const todaySales = data[todayDate].length;
+          this.todaySales = todaySales;
         } else {
-          this.todaySales='Sin ventas'
+          this.todaySales = "Sin ventas";
         }
 
         for (const date in data) {
@@ -94,39 +88,51 @@ export default {
 };
 </script>
 
-
 <style scoped>
-.informContainer {
-  margin: 10px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
 .info-container {
-  border-radius: 15px;
-  padding: 10px;
   margin: 10px;
-  transition: color 0.5s, font-size 0.5s;
+  transition: color 0.5s;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  background-color: #ffffff;
+  height: 150px;
 }
 
-.info-container:hover {
+.info-container h4 {
+  background-color: #262042;
+  padding: 10px;
+  margin: 0 auto;
+  color: white;
+}
+
+/* .info-container:hover {
   color: #5c39f5;
   background-color: #292a31 !important;
   border: 1px solid white;
-  font-size: 30px;
+} */
+
+.info-container .router {
+  color: black;
+  padding: 10px;
+  text-decoration: none;
 }
 
-.info-container h1 {
-  color: black;
+
+.info-container h3 {
+  padding: 10px;
+  transition: color 0.5s ;
+}
+
+.info-container h3:hover{
+  color: #5c39f5;
 }
 
 .info-container button {
-  background-color: #5c39f5;
+  background-color: #b28cc4;
   border: none;
-  border-radius: 15px;
   padding: 5px;
   font-size: 15px;
-  margin-bottom: 10px;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  margin-left: 10px;
 }
 
 .info-container a {

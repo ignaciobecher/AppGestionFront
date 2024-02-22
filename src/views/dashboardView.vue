@@ -3,7 +3,7 @@
     <div class="sidebar-container">
       <div class="sidebar">
         <div class="img-logo">
-          <img style="width: 150px" src="../assets/3.png" alt="" />
+          <img style="width: 150px; " src="../assets/3.png" alt="" />
           <p>Cuyo Software</p>
         </div>
 
@@ -28,7 +28,7 @@
             ><i class="bi bi-bar-chart"></i> Informe</a
           >
           <a href=""
-            ><i class="bi bi-person-arms-up"></i> Asistente inteligente</a
+            ><i class="bi bi-person-arms-up"></i> Asistente </a
           >
         </div>
       </div>
@@ -90,17 +90,21 @@ export default {
   display: grid;
   grid-template-columns: 20% 80%;
   width: 100%;
-  height: 100%;
+  background-color: #f0e7f7;
+
 }
 
 .sidebar-container {
-  background-color: #292a31;
+  background-color: #262042;
   border-right: 1px solid rgb(55, 54, 54);
+
 }
 
+
+
 .pages-container {
-  background-color: #292a31;
-  color: white;
+  background-color: #f0e7f7;
+  height: 100vh;
 }
 
 .img-logo {
@@ -114,7 +118,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-left: 10px;
+  justify-content: center;
   row-gap: 30px;
 }
 
@@ -124,17 +128,21 @@ export default {
 
 .nav-links {
   a {
-    font-size: 20px;
+    font-size: 25px;
     text-decoration: none;
     color: white;
-    font-weight: lighter;
+    font-weight: 400;
     transition: color 0.5s, font-size 0.5s;
+    width: 100%;
+    padding-left: 20px;
   }
 }
 
 .nav-links a:hover {
   color: #5c39f5;
-  font-size: 22px;
+  background-color: #5c39f5;
+  color: white;
+  font-size: 26px;
 }
 
 .active {

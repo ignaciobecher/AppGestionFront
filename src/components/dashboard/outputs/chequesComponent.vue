@@ -12,6 +12,21 @@
       </div>
       <div class="date"></div>
     </div>
+    <div class="datesDiv">
+      <label for="startDate">Fecha de inicio:</label>
+      <input type="date" id="startDate" v-model="startDate" />
+
+      <label for="endDate">Fecha de fin:</label>
+      <input type="date" id="endDate" v-model="endDate" />
+
+      <button @click="getFilteredCheques">Obtener cheques filtrados</button>
+      <button
+        style="background-color: #d02941; margin-right: 10px"
+        @click="clearFilters"
+      >
+        Quitar filtros
+      </button>
+    </div>
 
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
@@ -22,15 +37,18 @@
             <th scope="col">Descripción</th>
             <th scope="col">N° cheque</th>
             <th scope="col">Fecha de cobro</th>
+            <th scope="col">Propio/Tercero</th>
+
             <th scope="col">Total</th>
           </tr>
         </thead>
         <tbody class="table-body">
+          <!-- CHEQUES FILTRADOS -->
           <tr
             @click="setId(cheque._id)"
-            v-for="(cheque, index) in chequesArray"
-            :key="index"
+            v-for="cheque in filteredCheques"
             class="tableRow"
+            v-if="filteredCheques.length > 0"
           >
             <td>
               <span>{{ formatDate(cheque.createdAt) }}</span>
@@ -54,6 +72,77 @@
                 formatDate(cheque.chequeDate)
               }}</span>
               <input v-else v-model="cheque.chequeDate" type="date" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ cheque.chequeOwner }}</span>
+              <input v-else v-model="cheque.chequeOwner" type="number" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ formatPrice(cheque.total) }}</span>
+              <input v-else v-model="cheque.total" type="number" />
+            </td>
+
+            <td v-if="!editStatus">
+              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            </td>
+            <td v-else>
+              <a @click="updateCheque(cheque, cheque._id)" href="#">
+                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
+              </a>
+              <a href="#">
+                <i
+                  style="color: #d02941"
+                  @click="changeEditStatus"
+                  class="bi bi-x-circle"
+                ></i>
+              </a>
+            </td>
+            <td>
+              <a @click="deleteCheque(cheque._id)">
+                <i class="bi bi-trash"></i
+              ></a>
+            </td>
+          </tr>
+          <!-- TODOS LOS CHEQUES -->
+          <tr
+            @click="setId(cheque._id)"
+            v-for="(cheque, index) in chequesArray"
+            :key="index"
+            class="tableRow"
+            v-else
+          >
+            <td>
+              <span>{{ formatDate(cheque.createdAt) }}</span>
+            </td>
+            <td>
+              <span v-if="!editStatus">{{ cheque.identification }}</span>
+              <input v-else v-model="cheque.identification" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ cheque.description }}</span>
+              <input v-else v-model="cheque.description" type="text" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ cheque.chequeNumber }}</span>
+              <input v-else v-model="cheque.chequeNumber" type="text" />
+            </td>
+            <td>
+              <span v-if="!editStatus">{{
+                formatDate(cheque.chequeDate)
+              }}</span>
+              <input v-else v-model="cheque.chequeDate" type="date" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ cheque.chequeOwner }}</span>
+              <select v-else v-model="chequeOwner" name="" id="">
+                <option value="Propio">Propio</option>
+                <option value="Tercero">Tercero</option>
+              </select>
             </td>
 
             <td>
@@ -97,6 +186,11 @@
             placeholder="Identificacion... (opcional)"
           />
 
+          <select v-model="chequeOwner" name="" id="">
+            <option value="Propio">Propio</option>
+            <option value="Tercero">Tercero</option>
+          </select>
+
           <input
             v-model="data.description"
             type="text"
@@ -109,7 +203,12 @@
             placeholder="N° cheque..."
           />
 
-          <input v-model="data.total" type="text" placeholder="Monto..." />
+          <input
+            v-model="data.total"
+            type="text"
+            placeholder="Monto..."
+            @input="formatPriceInput"
+          />
 
           <input v-model="data.chequeDate" type="date" placeholder="Fecha..." />
 
@@ -144,7 +243,11 @@ export default {
         total: "",
         chequeDate: Date,
       },
+      chequeOwner: "Propio",
       chequeId: null,
+      startDate: "",
+      endDate: "",
+      filteredCheques: [],
     };
   },
   methods: {
@@ -152,7 +255,7 @@ export default {
     async getAllCheques() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/cheques/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/cheques/65bfdff8a75ffb8fb6be8937"
         );
         const cheques = response.data;
         this.chequesArray = cheques;
@@ -163,16 +266,16 @@ export default {
     },
     async updateCheque(cheque, id) {
       try {
-     
         const fechaCheque = moment(cheque.chequeDate);
         const nuevaFecha = fechaCheque.add(1, "day");
         const formatedDate = nuevaFecha.format("YYYY-MM-DD");
-        await axios.put(`https://api-gestion-ahil.onrender.com/cheques/${id}`, {
+        await axios.put(`http://localhost:3000/cheques/${id}`, {
           identification: cheque.identification,
           description: cheque.description,
           chequeNumber: cheque.chequeNumber,
           total: cheque.total,
-          chequeDate:formatedDate
+          chequeDate: formatedDate,
+          chequeOwner: this.chequeOwner,
         });
 
         this.getAllCheques();
@@ -188,17 +291,19 @@ export default {
         //   .add(1, "days")
         //   .format("YYYY-MM-DD");
 
+        const totalWhitoutFormat = numeral(this.data.total).value();
         const fechaCheque = moment(this.data.chequeDate);
         const nuevaFecha = fechaCheque.add(1, "day");
         const formatedDate = nuevaFecha.format("YYYY-MM-DD");
 
-        const newCheque = await axios.post("https://api-gestion-ahil.onrender.com/cheques", {
+        const newCheque = await axios.post("http://localhost:3000/cheques", {
           identification: this.data.identification,
           description: this.data.description,
           chequeNumber: this.data.chequeNumber,
-          total: this.data.total,
+          total: totalWhitoutFormat,
           chequeDate: formatedDate,
           businessId: "65bfdff8a75ffb8fb6be8937",
+          chequeOwner: this.chequeOwner,
         });
         if (newCheque) {
           console.log("Cheque cargado con exito", newCheque);
@@ -220,7 +325,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`https://api-gestion-ahil.onrender.com/cheques/${id}`);
+          await axios.delete(`http://localhost:3000/cheques/${id}`);
           window.alert("Cheque eliminado");
           this.getAllCheques();
         } else {
@@ -230,16 +335,35 @@ export default {
         console.log(error);
       }
     },
-
+    async getFilteredCheques() {
+      try {
+        const businessId = "65bfdff8a75ffb8fb6be8937";
+        const res = await axios.get(
+          `http://localhost:3000/cheques/getByDay/${businessId}/${this.startDate}/${this.endDate}`
+        );
+        const cheques = res.data;
+        this.filteredCheques = cheques;
+      } catch (error) {}
+    },
     // ********************************************----------------**************************************
     setId(id) {
       this.cheque_id = id;
+    },
+    clearFilters() {
+      this.startDate = "";
+      this.endDate = "";
+      this.filteredCheques.length = 0;
+      this.getAllCheques();
     },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
     },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
+    },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.total = numeral(this.data.total).format("$0,0");
     },
     changeEditStatus() {
       this.editStatus = !this.editStatus;
@@ -255,6 +379,27 @@ export default {
 </script>
 
 <style scoped>
+.datesDiv {
+  display: flex;
+  margin-left: 10px;
+}
+
+.datesDiv label {
+  align-self: center;
+}
+.datesDiv input {
+  width: 20%;
+  height: auto;
+  margin-left: 10px;
+  margin-bottom: 0;
+}
+.datesDiv button {
+  width: 20%;
+  margin-left: 10px;
+  border: none;
+  background-color: #574f7a;
+  color: white;
+}
 .buysContainer {
   margin-left: 10px;
 }
@@ -304,19 +449,24 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #ffffff;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #ffffff;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #ffffff;
+  color: black;
+}
+
+.table-body td {
+  background-color: #ffffff;
+  color: black;
 }
 
 .expenses-form {

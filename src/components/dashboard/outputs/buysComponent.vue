@@ -88,19 +88,7 @@
       <form action="" class="expenses-form">
         <div class="form-group">
           <h3 style="text-align: center">Nueva compra</h3>
-
-          <input v-model="data.product" type="text" placeholder="Producto..." />
-          <input
-            v-model="data.description"
-            type="text"
-            placeholder="Nro factura..."
-          />
-          <!-- <input
-            v-model="data.quantity"
-            type="text"
-            placeholder="Ingrese una cantidad"
-          /> -->
-          <input v-model="data.price" type="text" placeholder="Monto..." />
+          <p>Proveedor:</p>
           <select v-model="providerId" name="" id="">
             <option
               v-for="(provider, index) in providersArray"
@@ -110,7 +98,7 @@
               {{ provider.name }}
             </option>
           </select>
-
+         
           <input
             v-model="data.description"
             type="text"
@@ -127,7 +115,8 @@
             v-model="data.price"
             type="text"
             placeholder="Monto total..."
-          />>>>>>> 03a8f7407d674b257889ee74a732a2f692761ffc />
+            @input="formatPriceInput"
+          />
 
           <button @click.prevent="changeFormStatus" class="btn-cancel">
             Cancelar
@@ -162,7 +151,7 @@ export default {
         // expirationDate: "",
       },
       providersArray: [],
-      providerId: null,
+      providerId:null
     };
   },
   methods: {
@@ -170,7 +159,7 @@ export default {
     async getAllBuys() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/buys/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/business/buys/65bfdff8a75ffb8fb6be8937"
         );
         const buys = response.data;
         this.buysArray = buys;
@@ -186,7 +175,7 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
 
-        await axios.put(`https://api-gestion-ahil.onrender.com/buys/${id}`, {
+        await axios.put(`http://localhost:3000/buys/${id}`, {
           name: buy.name,
 
           description: buy.description,
@@ -210,22 +199,23 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
 
-        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/buys", {
+        const totalWhitoutFormat = numeral(this.data.price).value();
+        const newSale = await axios.post("http://localhost:3000/buys", {
           description: this.data.description,
-          price: this.data.price,
+          price: totalWhitoutFormat,
           // quantity: this.data.quantity,
           receiptNumber: this.data.receiptNumber,
           businessId: "65bfdff8a75ffb8fb6be8937",
-          providerId: this.providerId,
+          providerId:this.providerId
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
           this.changeFormStatus();
           this.getAllBuys();
-          this.data.description = "";
-          this.data.price = "";
-          this.data.receiptNumber = "";
-          this.providerId = "";
+          this.data.description=""
+          this.data.price=""
+          this.data.receiptNumber=""
+          this.providerId=""
         } else {
           console.log("Error al cargar la venta");
         }
@@ -238,9 +228,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(
-            `https://api-gestion-ahil.onrender.com/buys/${id}`
-          );
+          await axios.delete(`http://localhost:3000/buys/${id}`);
           window.alert("Compra eliminada");
           this.getAllBuys();
         } else {
@@ -253,13 +241,13 @@ export default {
     async getAllProviders() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/providers/business/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/providers/business/65bfdff8a75ffb8fb6be8937"
         );
         const providers = response.data;
 
         for (const provider of providers) {
           for (const iterator of provider.providers) {
-            this.providersArray.push(iterator);
+            this.providersArray.push(iterator)
           }
         }
       } catch (error) {
@@ -276,6 +264,10 @@ export default {
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.price = numeral(this.data.price).format('$0,0');
+    },
     changeEditStatus() {
       this.editStatus = !this.editStatus;
     },
@@ -288,6 +280,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
 .buysContainer {
@@ -339,19 +333,24 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #FFFFFF;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
+}
+
+.table-body td {
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .expenses-form {
@@ -362,10 +361,11 @@ export default {
   align-items: center;
   border-radius: 5px;
   padding: 5px;
-  background-color: black;
+  background-color: #FFFFFF;
   position: absolute;
   top: 10%;
   right: 30%;
+  color: black;
 }
 
 .form-group {
@@ -377,7 +377,7 @@ export default {
 
 .expenses-form {
   h3 {
-    color: white;
+    color: black;
   }
 }
 

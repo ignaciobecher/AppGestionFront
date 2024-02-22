@@ -1,9 +1,29 @@
 <template>
-  <button style="margin-left: 10px; border-radius: 15px; padding: 5px; border: none;" @click="getSalesDay">Ventas diarias</button>
-  <button style="margin-left: 10px; border-radius: 15px; padding: 5px; border: none;" @click="getQuantityOfProductsSold">Productos vendidos</button>
-  <button style="margin-left: 10px; border-radius: 15px; padding: 5px; border: none;" @click="getTotalOfSales">Totales de ventas</button>
-  <div>
-    <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
+  <div class="mainContainer">
+    <div class="btns">
+      <button
+        style="margin-left: 10px; padding: 5px; border: none"
+        @click="getSalesDay"
+      >
+        Ventas diarias
+      </button>
+      <button
+        style="margin-left: 10px; padding: 5px; border: none"
+        @click="getQuantityOfProductsSold"
+      >
+        Productos vendidos
+      </button>
+      <button
+        style="margin-left: 10px; padding: 5px; border: none"
+        @click="getTotalOfSales"
+      >
+        Totales de ventas
+      </button>
+    </div>
+
+    <div>
+      <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
+    </div>
   </div>
 </template>
 
@@ -45,7 +65,7 @@ export default {
     async getSalesDay() {
       try {
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937"
         );
         const data = sales.data;
 
@@ -62,7 +82,7 @@ export default {
           datasets: [
             {
               label: "Cantidad de ventas",
-              backgroundColor: "#5c39f5", // Color de las barras
+              backgroundColor: "#fbce1d", // Color de las barras
               data: salesData, // Establecer los datos de ventas
             },
           ],
@@ -75,7 +95,7 @@ export default {
     async getQuantityOfProductsSold() {
       try {
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937"
         );
         const data = sales.data;
 
@@ -97,7 +117,7 @@ export default {
           datasets: [
             {
               label: "Cantidad de productos vendidos",
-              backgroundColor: "#5c39f5", // Color de las barras
+              backgroundColor: "#fbce1d", // Color de las barras
               data: productsData, // Establecer los datos de ventas
             },
           ],
@@ -112,7 +132,7 @@ export default {
 
     async getTotalOfSales(startDate, endDate) {
       let url =
-        "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937";
+        "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937";
 
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;
@@ -141,23 +161,33 @@ export default {
         datasets: [
           {
             label: "Total en ventas",
-            backgroundColor: "#5c39f5",
+            backgroundColor: "#fbce1d",
             data: salesData,
           },
         ],
       };
     },
   },
-  mounted(){
-    this.getSalesDay()
-  }
+  mounted() {
+    this.getSalesDay();
+  },
 };
 </script>
 
 <style scoped>
+.mainContainer{
+  background-color:#ffffff ;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  margin-left: 10px;
+}
+
 #my-chart-id {
-  background-color: #1a1a1a;
+  background-color: #ffffff;
   margin: 10px;
-  border-radius: 15px;
+}
+
+.btns button {
+  background-color: #b28cc4;
+  margin-top: 10px;
 }
 </style>

@@ -23,8 +23,8 @@
       Ingresos de tu negocio
       </h1>
       <div class="mainBtns">
-        <button @click="showInputs" class="btnOutput">
-          Ingresos de dinero <i class="bi bi-arrow-down-left"></i>
+        <button @click="showInputs" class="btnSales">
+          Ingresos  <i class="bi bi-arrow-down-left"></i>
         </button>
         <button @click="showRandomInputs" class="btnSales">
           Ingresos varios<i class="bi bi-bag"></i>
@@ -94,47 +94,36 @@ export default {
   text-align: center;
   margin: 0 auto;
   margin-top: 150px;
+  display: grid;
+  grid-template-columns: 1fr 1fr ;
 }
 
-.btnOutput {
-  margin-right: 100px;
-  width: 30%;
-  border-radius: 25px;
-  border: none;
-  padding: 10px;
-  font-size: 20px;
-  font-weight: bold;
-  transition: transform 0.3s ease, background-color 0.3s ease;
-  background-color: #d02941;
-}
+
 
 .btnSales {
-  margin-right: 100px;
-  width: 30%;
-  border-radius: 25px;
+  margin: 10px;
+  width: 95%;
+  height: 100px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   border: none;
   padding: 10px;
   font-size: 30px;
   font-weight: bold;
   transition: transform 0.3s ease, background-color 0.3s ease;
-  background-color: #d02941;
-}
-
-.btnOutput:hover {
-  transform: scale(1.1);
-  background-color: #ec1a41;
-
+  background-color: #b28cc4 ;
 }
 
 .btnSales:hover {
   transform: scale(1.1);
-  background-color: #ec1a41;
+  background-color: #63308e;
+  color: white;
 }
 
-.btnOutput,
+
 .btnSales i {
   font-size: 30px;
   font-weight: bolder;
+  color:  #242445 
 }
 
 </style>

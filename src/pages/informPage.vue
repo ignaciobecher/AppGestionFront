@@ -1,14 +1,15 @@
 <template>
-  <informContainer></informContainer>
+  <informContainer class="resume"></informContainer>
   <div class="secondContainer">
     <pieChart class="chart"></pieChart>
-    <div class="chart">
-      <accountContainer></accountContainer>
+    <div class="graphics">
+      <columnChart v-show="dayChart"></columnChart>
+      <monthSalesChart v-show="monthChart"></monthSalesChart>
+      <button class="visibilityBtn" @click="changeChartVisibility">
+        Mes/Día
+      </button>
     </div>
   </div>
-  <button class="visibilityBtn" @click="changeChartVisibility">Mes/Día</button>
-  <columnChart v-show="dayChart"></columnChart>
-  <monthSalesChart v-show="monthChart"></monthSalesChart>
 </template>
 
 <script>
@@ -16,14 +17,14 @@ import monthSalesChart from "@/components/dashboard/inform/monthSalesChartcompon
 import columnChart from "@/components/dashboard/inform/columnChartComponent.vue";
 import pieChart from "@/components/dashboard/inform/pieChartComponent.vue";
 import informContainer from "../components/dashboard/inform/informComponent.vue";
-import accountContainer from '../components/dashboard/inform/accountComponent.vue'
+import accountContainer from "../components/dashboard/inform/accountComponent.vue";
 export default {
   components: {
     informContainer,
     pieChart,
     columnChart,
     monthSalesChart,
-    accountContainer
+    accountContainer,
   },
   data() {
     return {
@@ -33,8 +34,6 @@ export default {
   },
   methods: {
     async changeChartVisibility() {
-
-     
       this.monthChart = !this.monthChart;
       this.dayChart = !this.dayChart;
     },
@@ -43,22 +42,32 @@ export default {
 </script>
 
 <style scoped>
-.secondContainer{
+.secondContainer {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
 .chart {
-  background-color: #1a1a1a;
-  margin: 5px;
-  border-radius: 15px;
+  margin-right: 5px;
 }
 
-.visibilityBtn{
+.graphics{
+  background-color: #ffffff;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  width: 98%;
+}
+
+.resume {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.visibilityBtn {
   margin: 10px;
   border: none;
-  border-radius: 15px;
   padding: 10px;
   font-size: 15px;
   font-weight: bold;
+  background-color: #b28cc4;
+  
 }
 </style>

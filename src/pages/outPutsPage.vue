@@ -112,30 +112,31 @@ export default {
 }
 
 .btnSales {
-  margin-right: 100px;
-  width: 90%;
-  border-radius: 25px;
+  margin: 10px;
+  width: 95%;
+  height: 100px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   border: none;
   padding: 10px;
   font-size: 30px;
   font-weight: bold;
   transition: transform 0.3s ease, background-color 0.3s ease;
-  background-color: #d02941;
+  background-color: #b28cc4 ;
 }
 
-.btnOutput:hover {
-  transform: scale(1.1);
-  background-color: #ec1a41;
-}
+
 
 .btnSales:hover {
   transform: scale(1.1);
-  background-color: #ec1a41;
+  background-color: #63308e;
+  color: white;
 }
 
-.btnOutput,
+
+
 .btnSales i {
   font-size: 30px;
   font-weight: bolder;
+  color:  #242445 
 }
 </style>

@@ -2,11 +2,12 @@
   <div class="inputsContainer">
     <div class="searchbar-container">
       <p>Buscar ingreso:</p>
-      <input type="search" name="" placeholder="Buscar por nombre" id="" />
-      <div class="date"></div>
-    </div>
-    <div class="top-container">
-      <button @click.prevent="changeFormStatus">Registrar nuevo ingreso</button>
+      <input type="search" name="" placeholder="Buscar ingreso..." id="" />
+      <div class="top-container">
+        <button @click.prevent="changeFormStatus">
+          Registrar nuevo ingreso
+        </button>
+      </div>
     </div>
 
     <div class="table-responsive">
@@ -83,11 +84,7 @@
       <form action="" class="expenses-form">
         <div class="form-group">
           <h3 style="text-align: center">Nuevo ingreso</h3>
-          <input
-            v-model="data.product"
-            type="text"
-            placeholder="Destino..."
-          />
+          <input v-model="data.product" type="text" placeholder="Destino..." />
           <input
             v-model="data.description"
             type="text"
@@ -102,6 +99,7 @@
             v-model="data.value"
             type="text"
             placeholder="Monto... (opcional)"
+            @input="formatPriceInput"
           />
           <!-- <input
             v-model="data.expirationDate"
@@ -146,7 +144,7 @@ export default {
     async getAllInputs() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/inputs/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/inputs/65bfdff8a75ffb8fb6be8937"
         );
         const inputs = response.data;
         this.inputsArray = inputs;
@@ -155,7 +153,7 @@ export default {
           const date = new Date(element.createdAt);
           const month = date.getMonth() + 1;
           const formattedDate = date.toLocaleDateString();
-          console.log("Fecha:", formattedDate,'////','Mes: ',month);
+          console.log("Fecha:", formattedDate, "////", "Mes: ", month);
         }
       } catch (error) {
         console.log(error);
@@ -167,7 +165,7 @@ export default {
           .utc(buy.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        await axios.put(`https://api-gestion-ahil.onrender.com/inputs/${id}`, {
+        await axios.put(`http://localhost:3000/inputs/${id}`, {
           name: buy.name,
           description: buy.description,
           quantity: buy.quantity,
@@ -188,10 +186,11 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/inputs", {
+        const value=numeral(this.data.value).value();
+        const newSale = await axios.post("http://localhost:3000/inputs", {
           name: this.data.product,
           description: this.data.description,
-          value: this.data.value,
+          value: value,
           quantity: this.data.quantity,
           businessId: "65bfdff8a75ffb8fb6be8937",
         });
@@ -211,7 +210,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`https://api-gestion-ahil.onrender.com/inputs/${id}`);
+          await axios.delete(`http://localhost:3000/inputs/${id}`);
           window.alert("Compra eliminada");
           this.getAllInputs();
         } else {
@@ -228,6 +227,10 @@ export default {
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
     },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.value = numeral(this.data.value).format('$0,0');
+    },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
@@ -237,8 +240,6 @@ export default {
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
     },
-  
-    
   },
   created() {
     this.getAllInputs();
@@ -269,7 +270,6 @@ export default {
 .searchbar-container input {
   margin-left: 20px; /* Ajustar márgenes si es necesario */
   width: 50%;
-  border-radius: 15px;
   border: 1px solid #574f7a;
   padding: 10px;
 }
@@ -292,24 +292,29 @@ export default {
 .top-container button:hover {
   transform: scale(1.1); /* Agrandar el botón al 110% de su tamaño original */
 }
-
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #FFFFFF;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
+
+.table-body td {
+  background-color: #FFFFFF;
+  color: black;
+}
+
 
 .expenses-form {
   width: 40%;
