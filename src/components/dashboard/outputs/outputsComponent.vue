@@ -23,7 +23,12 @@
       <input type="date" id="endDate" v-model="endDate" />
 
       <button @click="getFilteredOutputs">Obtener egresos filtrados</button>
-      <button style="background-color:#d02941; margin-right: 10px;" @click="clearFilters">Quitar filtros</button>
+      <button
+        style="background-color: #d02941; margin-right: 10px"
+        @click="clearFilters"
+      >
+        Quitar filtros
+      </button>
     </div>
 
     <div class="table-responsive">
@@ -42,7 +47,7 @@
           <!-- EGRESOS FILTRADOS -->
           <tr
             @click="setId(buy._id)"
-            v-for="(buy) in filteredOutputs"
+            v-for="buy in filteredOutputs"
             class="tableRow"
             v-if="filteredOutputs.length > 0"
           >
@@ -58,12 +63,12 @@
               <span v-if="!editStatus">{{ buy.description }}</span>
               <input v-else v-model="buy.description" type="text" />
             </td>
-         
+
             <td>
               <span v-if="!editStatus">{{ formatPrice(buy.value) }}</span>
               <input v-else v-model="buy.value" type="text" />
             </td>
-        
+
             <td v-if="!editStatus">
               <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
             </td>
@@ -217,9 +222,9 @@ export default {
         expirationDate: "",
       },
       gptArray: [],
-      startDate:'',
-      endDate:'',
-      filteredOutputs:[]
+      startDate: "",
+      endDate: "",
+      filteredOutputs: [],
     };
   },
   methods: {
@@ -227,7 +232,7 @@ export default {
     async getAllOutputs() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/outputs/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/business/outputs/65bfdff8a75ffb8fb6be8937"
         );
         const buys = response.data;
         this.buysArray = buys;
@@ -241,7 +246,8 @@ export default {
           .utc(buy.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        await axios.put(`https://api-gestion-ahil.onrender.com/outputs/${id}`, {
+
+        await axios.put(`http://localhost:3000/outputs/${id}`, {
           name: buy.name,
           description: buy.description,
           quantity: buy.quantity,
@@ -262,10 +268,12 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/outputs", {
+        const totalWhitoutFormat = numeral(this.data.value).value();
+
+        const newSale = await axios.post("http://localhost:3000/outputs", {
           name: this.data.product,
           description: this.data.description,
-          value: this.data.value,
+          value: totalWhitoutFormat,
           quantity: this.data.quantity,
           businessId: "65bfdff8a75ffb8fb6be8937",
         });
@@ -285,7 +293,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`https://api-gestion-ahil.onrender.com
+          await axios.delete(`http://localhost:3000
           /outputs/${id}`);
           window.alert("Compra eliminada");
           this.getAllOutputs();
@@ -299,7 +307,7 @@ export default {
     async analizeData() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/outputs/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/business/outputs/65bfdff8a75ffb8fb6be8937"
         );
         const buys = response.data;
         const analyzedBuys = [];
@@ -326,17 +334,19 @@ export default {
         throw error;
       }
     },
-    async getFilteredOutputs(){
+    async getFilteredOutputs() {
       try {
-        const businessId='65bfdff8a75ffb8fb6be8937'
-        const res= await axios.get(`https://api-gestion-ahil.onrender.com/outputs/getOutputs/${businessId}/${this.startDate}/${this.endDate}`)
-        const outputs=res.data
-        this.filteredOutputs=outputs
+        const businessId = "65bfdff8a75ffb8fb6be8937";
+        const res = await axios.get(
+          `http://localhost:3000/outputs/getOutputs/${businessId}/${this.startDate}/${this.endDate}`
+        );
+        const outputs = res.data;
+        this.filteredOutputs = outputs;
         for (const item of this.filteredOutputs) {
           console.log(item);
         }
       } catch (error) {
-        throw error
+        throw error;
       }
     },
     // ********************************************----------------**************************************
@@ -351,7 +361,7 @@ export default {
     },
     formatPriceInput() {
       // Formatear el precio mientras se escribe
-      this.data.value = numeral(this.data.value).format('$0,0');
+      this.data.value = numeral(this.data.value).format("$0,0");
     },
     changeEditStatus() {
       this.editStatus = !this.editStatus;
@@ -359,12 +369,12 @@ export default {
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
     },
-    clearFilters(){
-      this.startDate=''
-      this.endDate=''
-      this.filteredOutputs.length = 0
-      this.getAllOutputs()
-    }
+    clearFilters() {
+      this.startDate = "";
+      this.endDate = "";
+      this.filteredOutputs.length = 0;
+      this.getAllOutputs();
+    },
   },
   created() {
     this.getAllOutputs();
@@ -373,8 +383,6 @@ export default {
 </script>
 
 <style scoped>
-
-
 .datesDiv {
   display: flex;
   margin-left: 10px;
@@ -449,23 +457,23 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .tableRow td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .table-body td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 

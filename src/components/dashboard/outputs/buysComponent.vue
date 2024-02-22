@@ -98,7 +98,7 @@
               {{ provider.name }}
             </option>
           </select>
-
+         
           <input
             v-model="data.description"
             type="text"
@@ -151,7 +151,7 @@ export default {
         // expirationDate: "",
       },
       providersArray: [],
-      providerId: null,
+      providerId:null
     };
   },
   methods: {
@@ -159,7 +159,7 @@ export default {
     async getAllBuys() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/buys/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/business/buys/65bfdff8a75ffb8fb6be8937"
         );
         const buys = response.data;
         this.buysArray = buys;
@@ -175,7 +175,7 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
 
-        await axios.put(`https://api-gestion-ahil.onrender.com/buys/${id}`, {
+        await axios.put(`http://localhost:3000/buys/${id}`, {
           name: buy.name,
 
           description: buy.description,
@@ -199,23 +199,23 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
 
-        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/buys", {
-        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/buys", {
+        const totalWhitoutFormat = numeral(this.data.price).value();
+        const newSale = await axios.post("http://localhost:3000/buys", {
           description: this.data.description,
-          price: this.data.price,
+          price: totalWhitoutFormat,
           // quantity: this.data.quantity,
           receiptNumber: this.data.receiptNumber,
           businessId: "65bfdff8a75ffb8fb6be8937",
-          providerId: this.providerId,
+          providerId:this.providerId
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
           this.changeFormStatus();
           this.getAllBuys();
-          this.data.description = "";
-          this.data.price = "";
-          this.data.receiptNumber = "";
-          this.providerId = "";
+          this.data.description=""
+          this.data.price=""
+          this.data.receiptNumber=""
+          this.providerId=""
         } else {
           console.log("Error al cargar la venta");
         }
@@ -228,9 +228,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(
-            `https://api-gestion-ahil.onrender.com/buys/${id}`
-          );
+          await axios.delete(`http://localhost:3000/buys/${id}`);
           window.alert("Compra eliminada");
           this.getAllBuys();
         } else {
@@ -243,14 +241,13 @@ export default {
     async getAllProviders() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/providers/business/65bfdff8a75ffb8fb6be8937"
-          "https://api-gestion-ahil.onrender.com/providers/business/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/providers/business/65bfdff8a75ffb8fb6be8937"
         );
         const providers = response.data;
 
         for (const provider of providers) {
           for (const iterator of provider.providers) {
-            this.providersArray.push(iterator);
+            this.providersArray.push(iterator)
           }
         }
       } catch (error) {
@@ -283,6 +280,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
 .buysContainer {

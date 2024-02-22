@@ -193,7 +193,7 @@ export default {
     async getAllProducts() {
       try {
         const result = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/sales/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/business/sales/65bfdff8a75ffb8fb6be8937"
         );
         const sales = result.data;
         this.salesArray = sales;
@@ -208,7 +208,7 @@ export default {
         //   .add(1, "days")
         //   .format("YYYY-MM-DD");
 
-        await axios.put(`https://api-gestion-ahil.onrender.com/sales/${id}`, {
+        await axios.put(`http://localhost:3000/sales/${id}`, {
           total: product.name,
           paymentMethod: product.description,
         });
@@ -224,7 +224,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`https://api-gestion-ahil.onrender.com/sales/${id}`);
+          await axios.delete(`http://localhost:3000/sales/${id}`);
 
           window.alert("Producto eliminado");
           this.getAllProducts();
@@ -246,7 +246,7 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
-            "https://api-gestion-ahil.onrender.com/products",
+            "http://localhost:3000/products",
             {
               name: this.data.name,
               description: this.data.description,
@@ -274,7 +274,7 @@ export default {
     async searchProduct(productName) {
       try {
         const product = await axios.get(
-          `https://api-gestion-ahil.onrender.com/products/65bfdff8a75ffb8fb6be8937/search/${productName}`
+          `http://localhost:3000/products/65bfdff8a75ffb8fb6be8937/search/${productName}`
         );
         const productoEncontrado = product.data;
 
@@ -297,7 +297,7 @@ export default {
       const businessId = "65bfdff8a75ffb8fb6be8937";
       try {
         const response = await axios.get(
-          `https://api-gestion-ahil.onrender.com/sales/getSales/business/${businessId}/${this.startDate}/${this.endDate}`
+          `http://localhost:3000/sales/getSales/business/${businessId}/${this.startDate}/${this.endDate}`
         );
         const salesData = response.data;
         this.filteredSales = salesData;
@@ -312,7 +312,7 @@ export default {
     },
     async getSalesDetails(id) {
       try {
-        const res = await axios.get(`https://api-gestion-ahil.onrender.com/sales/${id}`);
+        const res = await axios.get(`http://localhost:3000/sales/${id}`);
         const sale = res.data;
         this.salesDetailsArray = sale;
         this.showMessageBox = true;

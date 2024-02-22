@@ -2,11 +2,9 @@
   <div class="inputsContainer">
     <div class="searchbar-container">
       <p>Buscar ingreso vario:</p>
-      <input type="search" name="" placeholder="Buscar cliente..." id="" />
+      <input type="search" name="" placeholder="Buscar ingreso..." id="" />
       <div class="top-container">
-        <button @click.prevent="changeFormStatus">
-          Registrar ingreso vario 
-        </button>
+        <button @click="changeFormStatus">Registrar ingreso vario</button>
       </div>
     </div>
 
@@ -49,12 +47,7 @@
               <span v-if="!editStatus">{{ formatPrice(input.value) }}</span>
               <input v-else v-model="input.value" type="text" />
             </td>
-            <!-- <td>
-              <span v-if="!editStatus">{{
-                formatDate(buy.expirationDate)
-              }}</span>
-              <input v-else v-model="buy.expirationDate" type="date" />
-            </td> -->
+
             <td v-if="!editStatus">
               <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
             </td>
@@ -126,8 +119,6 @@
 import axios from "axios";
 import moment from "moment";
 import numeral from "numeral";
-import { toHandlerKey } from "vue";
-import { toHandlerKey } from "vue";
 
 export default {
   data() {
@@ -150,18 +141,19 @@ export default {
     async getAllInputs() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/random-inputs/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/random-inputs/65bfdff8a75ffb8fb6be8937"
         );
         const inputs = response.data;
         this.inputsArray = inputs;
-        for (let index = 0; index < inputs.length; index++) {
-          const element = inputs[index];
-          const date = new Date(element.createdAt);
-          const month = date.getMonth() + 1;
-          const formattedDate = date.toLocaleDateString();
-          console.log("Fecha:", formattedDate, "////", "Mes: ", month);
-          console.log("Fecha:", formattedDate, "////", "Mes: ", month);
-        }
+        console.log(this.inputsArray);
+        // for (let index = 0; index < inputs.length; index++) {
+        //   const element = inputs[index];
+        //   const date = new Date(element.createdAt);
+        //   const month = date.getMonth() + 1;
+        //   const formattedDate = date.toLocaleDateString();
+        //   console.log("Fecha:", formattedDate, "////", "Mes: ", month);
+        //   console.log("Fecha:", formattedDate, "////", "Mes: ", month);
+        // }
       } catch (error) {
         console.log(error);
       }
@@ -172,16 +164,13 @@ export default {
           .utc(buy.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        await axios.put(
-          `https://api-gestion-ahil.onrender.com/random-inputs/${id}`,
-          {
-            reference: buy.reference,
-            description: buy.description,
-            quantity: buy.quantity,
-            value: buy.value,
-            expirationDate: formattedExpirationDate,
-          }
-        );
+        await axios.put(`http://localhost:3000/random-inputs/${id}`, {
+          reference: buy.reference,
+          description: buy.description,
+          quantity: buy.quantity,
+          value: buy.value,
+          expirationDate: formattedExpirationDate,
+        });
 
         this.getAllInputs();
         this.changeEditStatus();
@@ -196,22 +185,13 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
+        const totalWhitoutFormat = numeral(this.data.value).value();
         const newSale = await axios.post(
-          "https://api-gestion-ahil.onrender.com/random-inputs",
+          "http://localhost:3000/random-inputs",
           {
             reference: this.data.product,
             description: this.data.description,
-            value: this.data.value,
-            quantity: this.data.quantity,
-            businessId: "65bfdff8a75ffb8fb6be8937",
-          }
-        );
-        const newSale = await axios.post(
-          "https://api-gestion-ahil.onrender.com/random-inputs",
-          {
-            reference: this.data.product,
-            description: this.data.description,
-            value: this.data.value,
+            value: totalWhitoutFormat,
             quantity: this.data.quantity,
             businessId: "65bfdff8a75ffb8fb6be8937",
           }
@@ -232,18 +212,11 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(
-            `https://api-gestion-ahil.onrender.com/random-inputs/${id}`
-          );
+          await axios.delete(`http://localhost:3000/random-inputs/${id}`);
           window.alert("Compra eliminada");
           this.getAllInputs();
         } else {
           window.alert("Accion cancelada");
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    },
         }
       } catch (error) {
         console.log(error);
@@ -259,7 +232,7 @@ export default {
     },
     formatPriceInput() {
       // Formatear el precio mientras se escribe
-      this.data.value = numeral(this.data.value).format('$0,0');
+      this.data.value = numeral(this.data.value).format("$0,0");
     },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
@@ -327,23 +300,23 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .tableRow td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .table-body td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
