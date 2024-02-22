@@ -1,18 +1,48 @@
 <template>
-
   <div class="stock-container">
     <div class="searchbar-container">
       <p>Buscar venta:</p>
-      <input
-        @input="checkInput"
-        v-model="productName"
-        type="search"
-        @keyup.enter="searchProduct(productName)"
-        name=""
-        placeholder="Buscar venta..."
-        id=""
-      />
-      <div class="date"></div>
+    </div>
+    <div class="datesDiv">
+      <label for="startDate">Fecha de inicio:</label>
+      <input type="date" id="startDate" v-model="startDate" />
+
+      <label for="endDate">Fecha de fin:</label>
+      <input type="date" id="endDate" v-model="endDate" />
+
+      <button @click="getFilteredSales">Obtener ventas filtradas</button>
+      <button
+        style="background-color: #d02941; margin-right: 10px"
+        @click="clearFilters"
+      >
+        Quitar filtros
+      </button>
+    </div>
+    <div v-if="showMessageBox" class="message-box">
+      <div class="close-btn" @click="closeMessageBox">
+        <i style="color: red" class="bi bi-x-circle-fill"></i>
+      </div>
+      <h4>Detalles de venta</h4>
+      <div class="table-responsive">
+        <table class="table table-hover table-nowrap">
+          <thead class="thead-light">
+            <tr class="tableRow">
+              <th scope="col">Producto</th>
+              <th scope="col">Precio de venta</th>
+            </tr>
+          </thead>
+          <tbody class="table-body">
+            <!-- *****************************TODAS LA VENTAS**************************************************** -->
+            <tr
+              @click="setId(sale._id)"
+              v-for="(sale) in salesDetailsArray.products"
+            >
+            <td scope="col">{{ sale.name }}</td>
+            <td scope="col">{{ formatPrice(sale.sellPrice) }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="table-responsive">
@@ -25,77 +55,18 @@
           </tr>
         </thead>
         <tbody class="table-body">
-          <!-- *************************SI SE BUSCA UN PRODUCTO****************************** -->
+          <!-- *****************************VENTAS FILTRADAS**************************************************** -->
           <tr
-            v-if="!foundProduct"
-            v-for="(product, index) in searchedProducts"
-            :key="index"
+            @click="setId(sale._id)"
+            v-for="(sale, index2) in filteredSales"
+            :key="index2"
+            v-if="filteredSales.length > 0"
           >
             <td>
-              <span v-if="!editorStatus">{{ product.name }}</span>
-              <input name="name" v-else type="text" v-model="product.name" />
-            </td>
-            <td>
-              <span v-if="!editorStatus">{{ product.description }}</span>
-              <input
-                name="name"
-                v-else
-                type="text"
-                v-model="product.description"
-              />
-            </td>
-            <td>
-              <span v-if="!editorStatus">{{ product.sellPrice }}</span>
-              <input
-                name="name"
-                v-else
-                type="text"
-                v-model="product.sellPrice"
-              />
-            </td>
-            <td>
-              <span v-if="!editorStatus">{{ product.quantity }}</span>
-              <input
-                name="name"
-                v-else
-                type="text"
-                v-model="product.quantity"
-              />
-            </td>
-            <td>
-              <span v-if="!editorStatus">{{ product.barCode }}</span>
-              <input name="name" v-else type="text" v-model="product.barCode" />
-            </td>
-            <td v-if="!editorStatus">
-              <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
-            </td>
-            <td v-else>
-              <a @click.prevent="updateProduct(product, product._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#" @click="changeStatusOfEditor">
-                <i style="color: #d02941" class="bi bi-x-circle"></i>
-              </a>
-            </td>
-            <td>
-              <a @click.prevent="deleteProduct(product._id)">
-                <i class="bi bi-trash"></i
-              ></a>
-            </td>
-          </tr>
-
-          <!--****************************** TODOS LOS PRODUCTOS************************************ -->
-          <tr
-            @click="setId(sales._id)"
-            v-for="(sale, index) in salesArray"
-            :key="index"
-            v-if="foundProduct"
-          >
-            <td>
-              <span v-if="!editorStatus">{{formatPrice(sale.total)  }}</span>
+              <span v-if="!editorStatus">{{ formatPrice(sale.total) }}</span>
               <input name="name" v-else type="text" v-model="sale.total" />
             </td>
-            
+
             <td>
               <span v-if="!editorStatus">{{ sale.paymentMethod }}</span>
               <input
@@ -106,8 +77,55 @@
               />
             </td>
             <td>
-              <span >{{formatDate(sale.createdAt)  }}</span>
-              
+              <span>{{ formatDate(sale.createdAt) }}</span>
+            </td>
+
+            <td v-if="!editorStatus">
+              <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
+            </td>
+            <td v-else>
+              <a @click.prevent="updateProduct(sale, sale._id)" href="#">
+                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
+              </a>
+              <a href="#" @click="changeStatusOfEditor">
+                <i style="color: #d02941" class="bi bi-x-circle"></i>
+              </a>
+            </td>
+            <td>
+              <a @click.prevent="deleteProduct(sale._id)">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+            <td>
+              <a @click.prevent="getSalesDetails" href="#">
+                <i style="color: black" class="bi bi-search"></i>
+              </a>
+            </td>
+          </tr>
+
+          <!-- *****************************TODAS LA VENTAS**************************************************** -->
+          <tr
+            @click="setId(sale._id)"
+            v-for="(sale, index) in salesArray"
+            :key="index"
+            v-else
+          >
+            <td>
+              <span v-if="!editorStatus">{{ formatPrice(sale.total) }}</span>
+              <input name="name" v-else type="text" v-model="sale.total" />
+            </td>
+
+            <td>
+              <span v-if="!editorStatus">{{ sale.paymentMethod }}</span>
+              <input
+                name="description"
+                v-else
+                type="text"
+                v-model="sale.paymentMethod"
+              />
+            </td>
+            <td>
+              <span>{{ formatDate(sale.createdAt) }}</span>
             </td>
 
             <td v-if="!editorStatus">
@@ -126,12 +144,15 @@
                 <i class="bi bi-trash"></i
               ></a>
             </td>
+            <td>
+              <a @click.prevent="getSalesDetails(sale._id)" href="#">
+                <i style="color: black" class="bi bi-search"></i>
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-  
   </div>
 </template>
 
@@ -159,6 +180,12 @@ export default {
       selectedProduct: {},
       foundProduct: true,
       searchedProducts: [],
+      startDate: "",
+      endDate: "",
+      filteredSales: [],
+      salesDetailsArray: [],
+      showMessageBox: false,
+      message: "",
     };
   },
   methods: {
@@ -170,7 +197,6 @@ export default {
         );
         const sales = result.data;
         this.salesArray = sales;
-        console.log(this.salesArray);
       } catch (error) {
         console.log(error);
       }
@@ -183,10 +209,8 @@ export default {
         //   .format("YYYY-MM-DD");
 
         await axios.put(`http://localhost:3000/sales/${id}`, {
-
           total: product.name,
           paymentMethod: product.description,
-         
         });
 
         this.getAllProducts();
@@ -200,7 +224,6 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-
           await axios.delete(`http://localhost:3000/sales/${id}`);
 
           window.alert("Producto eliminado");
@@ -270,7 +293,33 @@ export default {
         console.log("Error: ", error);
       }
     },
-
+    async getFilteredSales(startDate, endDate) {
+      const businessId = "65bfdff8a75ffb8fb6be8937";
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/sales/getSales/business/${businessId}/${this.startDate}/${this.endDate}`
+        );
+        const salesData = response.data;
+        this.filteredSales = salesData;
+        for (const sale of this.filteredSales) {
+          console.log(sale);
+        }
+      } catch (error) {
+        console.error("Error al obtener las ventas filtradas:", error);
+        // Manejar el error si es necesario
+        throw error;
+      }
+    },
+    async getSalesDetails(id) {
+      try {
+        const res = await axios.get(`http://localhost:3000/sales/${id}`);
+        const sale = res.data;
+        this.salesDetailsArray = sale;
+        this.showMessageBox = true;
+      } catch (error) {
+        throw error;
+      }
+    },
     // *****************************************************************************************
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
@@ -294,6 +343,19 @@ export default {
       this.formStatus = !this.formStatus;
       console.log("Formulario abierto/cerrado");
     },
+    clearFilters() {
+      this.startDate = "";
+      this.endDate = "";
+      this.filteredSales.length = 0;
+      this.getAllProducts();
+    },
+    openMessageBox() {
+      this.showMessageBox = true;
+    },
+    closeMessageBox() {
+      this.showMessageBox = false;
+      this.salesDetailsArray=[]
+    },
   },
   mounted() {
     this.getAllProducts();
@@ -302,6 +364,51 @@ export default {
 </script>
 
 <style scoped>
+.message-box {
+  position: fixed;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  background-color: #f0f0f0;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 400px;
+  height: 400px;
+  overflow-y: auto;
+}
+
+.message-content {
+  text-align: center;
+}
+
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+}
+.datesDiv {
+  display: flex;
+  margin-left: 10px;
+}
+
+.datesDiv label {
+  align-self: center;
+}
+.datesDiv input {
+  width: 20%;
+  height: auto;
+  margin-left: 10px;
+  margin-bottom: 0;
+}
+.datesDiv button {
+  width: 20%;
+  margin-left: 10px;
+  border: none;
+  background-color: #574f7a;
+  color: white;
+}
 .top-container button {
   margin: 10px;
   border-radius: 15px;

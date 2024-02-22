@@ -11,11 +11,12 @@
         id=""
       />
     </div>
-
+    <div v-if="instructionsState">
+      <p style="color: black; margin-left: 10px; font-weight: bold;">Para realizar una <span style=" color: green;">venta</span> presiona <span style="background-color: green; padding: 2px; border-radius: 5px; color: white;">F4</span>. Para <span style=" color: red;">Cancelar</span>, presiona <span style="background-color: red; padding: 2px; border-radius: 5px; color: white;">Escape</span> </p>
+    </div>
     <div>
       <div class="inputsTitle">
         <p>Cliente:</p>
-        <p>Vendedor:</p>
         <p>Forma de pago:</p>
       </div>
 
@@ -31,7 +32,7 @@
           </option>
         </select>
 
-        <select v-model="employeeId" name="" id="">
+        <!-- <select v-model="employeeId" name="" id="">
           <option value="">General</option>
           <option
             v-for="(employee, index) in employees"
@@ -40,7 +41,7 @@
           >
             {{ employee.name }}
           </option>
-        </select>
+        </select> -->
 
         <select v-model="paymentMethod" name="" id="">
           <option value="Efectivo">Efectivo</option>
@@ -148,6 +149,8 @@
         Hiciste una venta, podes ver sus estadisticas en el sitio de resumen
       </p>
     </div>
+
+    
   </div>
 </template>
 
@@ -178,15 +181,15 @@ export default {
       },
       categoriesIds: [],
       selectedCategoryId: null,
+      instructionsState: false,
+      instructions: "",
     };
   },
   methods: {
     async getProductBybarCode(barcode) {
       try {
         const response = await axios.get(
-
           `http://localhost:3000/products/cate/65bfdff8a75ffb8fb6be8937/${barcode}`
-
         );
         this.barcode = "";
 
@@ -226,7 +229,6 @@ export default {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const newProduct = await axios.post(
-
             `http://localhost:3000/products/${this.selectedCategoryId}`,
             {
               name: this.data.name,
@@ -273,9 +275,7 @@ export default {
       }
 
       try {
-
         const sale = await axios.post("http://localhost:3000/sales", saleData);
-
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
@@ -290,7 +290,6 @@ export default {
             });
           }
           for (const product of this.carrito) {
-
             await axios.patch(`http://localhost:3000/products/${product._id}`, {
               quantity: product.quantity - product.sellQuantity,
             });
@@ -333,10 +332,17 @@ export default {
         throw error;
       }
     },
+    // **********************LLAMADAS A LA API******************************************************************
     removeFromCart(index) {
       const removedProduct = this.carrito[index];
       this.total -= this.getTotalProductPrice(removedProduct);
       this.carrito.splice(index, 1);
+    },
+    showInstructions() {
+      this.instructionsState = true;
+      setTimeout(() => {
+        this.instructionsState = false;
+      }, 20000);
     },
     showSuccesMessage() {
       this.succesMessageVisible = true;
@@ -383,6 +389,7 @@ export default {
     this.getBusinessData();
     window.addEventListener("keydown", this.handleKeyDown),
       this.getCategoryesIds();
+    this.showInstructions();
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.handleKeyDown);
@@ -391,7 +398,6 @@ export default {
 </script>
 
 <style scoped>
-
 .productSale {
   background-color: #ffffff;
   height: 400px;
@@ -399,6 +405,7 @@ export default {
   display: grid;
   grid-template-rows: 10vh auto 20vh 15vh;
   box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
 
 }
 .inputsTitle {
@@ -444,7 +451,6 @@ export default {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   font-weight: bold;
-
 }
 .product-container {
   margin-left: 10px;
@@ -457,7 +463,6 @@ export default {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   font-weight: bold;
-
 }
 
 .btn {
@@ -474,7 +479,7 @@ export default {
   border-radius: 4px;
   font-weight: bold;
 }
-.btn p{
+.btn p {
   color: black;
   font-weight: bold;
 }

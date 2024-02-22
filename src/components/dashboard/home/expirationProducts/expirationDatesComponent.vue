@@ -1,6 +1,6 @@
 <template>
   <div class="mainContainer">
-    <div style="display: flex; background-color: #292a31" class="backBtn">
+    <div style="display: flex; background-color: #ffffff" class="backBtn">
       <router-link to="/">
         <button
           style="
@@ -18,13 +18,13 @@
           ></i>
         </button>
       </router-link>
-      <h4 style="color: white; margin-top: 15px">Productos por vencer</h4>
+      <h4 style="color: black; margin-top: 15px">Productos por vencer</h4>
     </div>
 
-    <div style="display:flex; margin-left: 10px;">
-      <h4 style="margin-top: 8px; color: white;">Ingrese cantidad de días</h4>
-      <input v-model="expirationDays" placeholder="Días..." style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="number" />
-      <button @click="getExpiratedProducts(expirationDays)" style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="submit">Continuar</button>
+    <div style="display:flex; margin-left: 10px; margin-top:10px;">
+      <h4 style="margin-top: 8px; color: black;">Ingrese cantidad de días</h4>
+      <input v-model="expirationDays" placeholder="Ingrese una cantidad de días para ver vencimientos" style="margin-left: 10px;  padding: 10px; font-size: 15px; font-weight: bold; width: 40%;" type="number" />
+      <button @click="getExpiratedProducts(expirationDays)" style="margin-left: 10px;  padding: 10px; font-size: 15px; font-weight: bold; border:none; background-color:#b28cc4;" type="submit">Ver productos</button>
     </div>
     <div class="innerContainer">
         <div class="table-responsive">
@@ -57,7 +57,7 @@ export default {
     data(){
         return{
             productsArray:[],
-            expirationDays:150
+            expirationDays:null
         }
     },
     methods:{
@@ -79,25 +79,26 @@ export default {
 
 <style scoped>
 .mainContainer {
-  background-color: #292a31;
+  background-color: #f0e7f7;
   height: 100vh;
 }
 
 .table-responsive {
   margin: 10px;
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #ffffff;
   padding: 5px;
   border: 1px solid white;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #ffffff;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #ffffff;
+  color: blck;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="chartContainer">
-      <h4 style="text-align: center; padding: 5px">Ingresos/Egresos</h4>
+      <h4>Ingresos/Egresos</h4>
       <pie-chart
         class="pieChart"
         :data="[
@@ -96,10 +96,21 @@ export default {
 <style scoped>
 .chartContainer {
   margin-left: 10px;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  background-color: #ffffff !important;
 
 }
 
+
+.chartContainer h4{
+  background-color: #ffffff;
+  text-align: center;
+  margin: 0;
+  font-weight: bold;
+}
+
 .pieChart {
-  padding: 10px;
+  background-color: #ffffff;
+  padding: 10px
 }
 </style>

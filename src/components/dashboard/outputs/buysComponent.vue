@@ -88,6 +88,7 @@
       <form action="" class="expenses-form">
         <div class="form-group">
           <h3 style="text-align: center">Nueva compra</h3>
+          <p>Proveedor:</p>
           <select v-model="providerId" name="" id="">
             <option
               v-for="(provider, index) in providersArray"
@@ -114,6 +115,7 @@
             v-model="data.price"
             type="text"
             placeholder="Monto total..."
+            @input="formatPriceInput"
           />
 
           <button @click.prevent="changeFormStatus" class="btn-cancel">
@@ -261,6 +263,10 @@ export default {
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.price = numeral(this.data.price).format('$0,0');
+    },
     changeEditStatus() {
       this.editStatus = !this.editStatus;
     },
@@ -324,19 +330,24 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #FFFFFF;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
+}
+
+.table-body td {
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .expenses-form {
@@ -347,10 +358,11 @@ export default {
   align-items: center;
   border-radius: 5px;
   padding: 5px;
-  background-color: black;
+  background-color: #FFFFFF;
   position: absolute;
   top: 10%;
   right: 30%;
+  color: black;
 }
 
 .form-group {
@@ -362,7 +374,7 @@ export default {
 
 .expenses-form {
   h3 {
-    color: white;
+    color: black;
   }
 }
 

@@ -2,11 +2,12 @@
   <div class="inputsContainer">
     <div class="searchbar-container">
       <p>Buscar ingreso:</p>
-      <input type="search" name="" placeholder="Buscar por nombre" id="" />
-      <div class="date"></div>
-    </div>
-    <div class="top-container">
-      <button @click.prevent="changeFormStatus">Registrar nuevo ingreso</button>
+      <input type="search" name="" placeholder="Buscar cliente..." id="" />
+      <div class="top-container">
+        <button @click.prevent="changeFormStatus">
+          Registrar nuevo ingreso
+        </button>
+      </div>
     </div>
 
     <div class="table-responsive">
@@ -83,11 +84,7 @@
       <form action="" class="expenses-form">
         <div class="form-group">
           <h3 style="text-align: center">Nuevo ingreso</h3>
-          <input
-            v-model="data.product"
-            type="text"
-            placeholder="Destino..."
-          />
+          <input v-model="data.product" type="text" placeholder="Destino..." />
           <input
             v-model="data.description"
             type="text"
@@ -102,6 +99,7 @@
             v-model="data.value"
             type="text"
             placeholder="Monto... (opcional)"
+            @input="formatPriceInput"
           />
           <!-- <input
             v-model="data.expirationDate"
@@ -155,10 +153,9 @@ export default {
           const date = new Date(element.createdAt);
           const month = date.getMonth() + 1;
           const formattedDate = date.toLocaleDateString();
-          console.log("Fecha:", formattedDate,'////','Mes: ',month);
+          console.log("Fecha:", formattedDate, "////", "Mes: ", month);
         }
       } catch (error) {
-        
         console.log(error);
       }
     },
@@ -229,6 +226,10 @@ export default {
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
     },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.value = numeral(this.data.value).format('$0,0');
+    },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
@@ -238,8 +239,6 @@ export default {
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
     },
-  
-    
   },
   created() {
     this.getAllInputs();
@@ -270,7 +269,6 @@ export default {
 .searchbar-container input {
   margin-left: 20px; /* Ajustar márgenes si es necesario */
   width: 50%;
-  border-radius: 15px;
   border: 1px solid #574f7a;
   padding: 10px;
 }
@@ -293,24 +291,29 @@ export default {
 .top-container button:hover {
   transform: scale(1.1); /* Agrandar el botón al 110% de su tamaño original */
 }
-
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #FFFFFF;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
+
+.table-body td {
+  background-color: #FFFFFF;
+  color: black;
+}
+
 
 .expenses-form {
   width: 40%;

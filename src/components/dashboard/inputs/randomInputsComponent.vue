@@ -1,15 +1,13 @@
 <template>
   <div class="inputsContainer">
-    <h1>Ingresos varios</h1>
     <div class="searchbar-container">
-      <p>Buscar ingreso:</p>
-      <input type="search" name="" placeholder="Buscar por nombre" id="" />
-      <div class="date"></div>
-    </div>
-    <div class="top-container">
-      <button @click.prevent="changeFormStatus">
-        Registrar nuevo ingreso vario
-      </button>
+      <p>Buscar ingreso vario:</p>
+      <input type="search" name="" placeholder="Buscar cliente..." id="" />
+      <div class="top-container">
+        <button @click.prevent="changeFormStatus">
+          Registrar ingreso vario 
+        </button>
+      </div>
     </div>
 
     <div class="table-responsive">
@@ -105,6 +103,7 @@
             v-model="data.value"
             type="text"
             placeholder="Ingrese un monto"
+            @input="formatPriceInput"
           />
           <!-- <input
             v-model="data.expirationDate"
@@ -171,16 +170,13 @@ export default {
           .utc(buy.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        await axios.put(
-          `http://localhost:3000/random-inputs/${id}`,
-          {
-            reference: buy.reference,
-            description: buy.description,
-            quantity: buy.quantity,
-            value: buy.value,
-            expirationDate: formattedExpirationDate,
-          }
-        );
+        await axios.put(`http://localhost:3000/random-inputs/${id}`, {
+          reference: buy.reference,
+          description: buy.description,
+          quantity: buy.quantity,
+          value: buy.value,
+          expirationDate: formattedExpirationDate,
+        });
 
         this.getAllInputs();
         this.changeEditStatus();
@@ -221,9 +217,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(
-            `http://localhost:3000/random-inputs/${id}`
-          );
+          await axios.delete(`http://localhost:3000/random-inputs/${id}`);
           window.alert("Compra eliminada");
           this.getAllInputs();
         } else {
@@ -240,6 +234,10 @@ export default {
     },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
+    },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.value = numeral(this.data.value).format('$0,0');
     },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
@@ -307,19 +305,24 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #FFFFFF;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
+}
+
+.table-body td {
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .expenses-form {

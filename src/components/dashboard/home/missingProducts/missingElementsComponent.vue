@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; background-color: #292a31" class="backBtn">
+  <div style="display: flex; background-color: #ffffff" class="backBtn">
     <router-link to="/">
       <button
         style="
@@ -17,16 +17,16 @@
         ></i>
       </button>
     </router-link>
-    <h2 style="color: white; margin-top: 10px">Movimientos del dia</h2>
+    <h4 style="color: white; margin-top: 15px; color: black;">Productos por acabarse</h4>
   </div>
   <div class="mainContainer">
-    <h2 style="margin-left: 10px;">Productos proximos a quedarse sin stock</h2>
-    <div style="display:flex; margin-left: 10px;">
+   
+    <div style="display: flex; margin-left: 10px">
       <!-- <h4 style="margin-top: 8px;">Ingrese cantidad mínima</h4>
       <input v-model="minimumStock" placeholder="Cantidad minima..." style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="number" />
       <button @click="getMissingStock(minimumStock)" style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="submit">Continuar</button> -->
     </div>
-   
+
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -36,10 +36,7 @@
           </tr>
         </thead>
         <tbody class="table-body">
-          <tr
-            v-for="(product) in missingProducts"
-            class="tableRow"
-          >
+          <tr v-for="product in missingProducts" class="tableRow">
             <td>
               <span>{{ product.name }}</span>
             </td>
@@ -59,22 +56,19 @@ export default {
   data() {
     return {
       missingProducts: [],
-      minimumStock:null
+      minimumStock: null,
     };
   },
   methods: {
     async getMissingStock() {
       try {
-    
         const res = await axios.get(
-
           `http://localhost:3000/products/missing/stock/65bfdff8a75ffb8fb6be8937`
-
         );
         const stock = res.data;
-        
+
         for (const product of stock) {
-          this.missingProducts.push(product)
+          this.missingProducts.push(product);
         }
       } catch (error) {
         console.log(error);
@@ -89,26 +83,27 @@ export default {
 
 <style scoped>
 .mainContainer {
-  background-color: #292a31;
+  background-color: #f0e7f7;
   color: white;
   height: 100vh;
 }
 
 .table-responsive {
   margin: 10px;
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #ffffff;
   padding: 5px;
   border: 1px solid white;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #ffffff;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #ffffff;
+  color: black;
 }
 </style>

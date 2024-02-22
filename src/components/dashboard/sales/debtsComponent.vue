@@ -16,7 +16,6 @@
           Registrar nuevo cliente
         </button>
       </div>
-      <div class="date"></div>
     </div>
 
     <div class="table-responsive">
@@ -192,6 +191,7 @@
             v-model="data.debt"
             type="text"
             placeholder="Deuda... (opcional)"
+            @input="formatPriceInput"
           />
           <button @click="changeStatusOfForm" class="btn-cancel">
             Cancelar
@@ -330,6 +330,10 @@ export default {
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.debt = numeral(this.data.debt).format('$0,0');
+    },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
     },
@@ -411,7 +415,6 @@ input {
   /* background-color: #1a1a1a; */
   background-color: #FFFFFF;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
-  border-radius: 15px;
   padding: 5px;
 }
 

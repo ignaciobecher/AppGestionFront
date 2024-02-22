@@ -1,27 +1,29 @@
 <template>
-  <div class="btns">
-    <button
-      style="margin-left: 10px; padding: 5px; border: none"
-      @click="getSalesDay"
-    >
-      Ventas diarias
-    </button>
-    <button
-      style="margin-left: 10px; padding: 5px; border: none"
-      @click="getQuantityOfProductsSold"
-    >
-      Productos vendidos
-    </button>
-    <button
-      style="margin-left: 10px;  padding: 5px; border: none"
-      @click="getTotalOfSales"
-    >
-      Totales de ventas
-    </button>
-  </div>
+  <div class="mainContainer">
+    <div class="btns">
+      <button
+        style="margin-left: 10px; padding: 5px; border: none"
+        @click="getSalesDay"
+      >
+        Ventas diarias
+      </button>
+      <button
+        style="margin-left: 10px; padding: 5px; border: none"
+        @click="getQuantityOfProductsSold"
+      >
+        Productos vendidos
+      </button>
+      <button
+        style="margin-left: 10px; padding: 5px; border: none"
+        @click="getTotalOfSales"
+      >
+        Totales de ventas
+      </button>
+    </div>
 
-  <div>
-    <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
+    <div>
+      <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
+    </div>
   </div>
 </template>
 
@@ -173,13 +175,19 @@ export default {
 </script>
 
 <style scoped>
+.mainContainer{
+  background-color:#ffffff ;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  margin-left: 10px;
+}
+
 #my-chart-id {
   background-color: #ffffff;
   margin: 10px;
 }
 
-.btns button{
-  background-color: #ffffff;
-  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+.btns button {
+  background-color: #b28cc4;
+  margin-top: 10px;
 }
 </style>

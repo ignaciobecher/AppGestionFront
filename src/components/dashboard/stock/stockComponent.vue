@@ -8,17 +8,28 @@
         type="search"
         @keyup.enter="searchProduct(productName)"
         name=""
-        placeholder="Buscar producto..."
+        placeholder="Ingrese un producto..."
         id=""
       />
-      <div class="date"></div>
+      <div class="top-container">
+        <button @click="changeStatusOfForm">Registrar nuevo producto</button>
+      </div>
     </div>
 
-    <div class="top-container">
-      <button @click="changeStatusOfForm">Registrar nuevo producto</button>
+    <div class=categoryDiv>
+      <input
+        @input="checkCategoryInput"
+        v-model="categoryName"
+        type="search"
+        @keyup.enter="getCategoriesProducts()"
+        name=""
+        placeholder="Ingrese categoria..."
+        id=""
+        class="inputCate"
+      />
     </div>
 
-    <div class="table-responsive">
+    <div v-if="(categoriesState === false)" class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
           <tr class="tableRow">
@@ -88,7 +99,12 @@
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
             </td>
             <td v-else>
-              <a @click.prevent="updateProduct(selectedProduct, selectedProduct._id)" href="#">
+              <a
+                @click.prevent="
+                  updateProduct(selectedProduct, selectedProduct._id)
+                "
+                href="#"
+              >
                 <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
               </a>
               <a href="#" @click="changeStatusOfEditor">
@@ -153,7 +169,91 @@
                 v-model="product.minimumStock"
               />
             </td>
-            
+
+            <td v-if="!editorStatus">
+              <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
+            </td>
+            <td v-else>
+              <a @click.prevent="updateProduct(product, product._id)" href="#">
+                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
+              </a>
+              <a href="#" @click="changeStatusOfEditor">
+                <i style="color: #d02941" class="bi bi-x-circle"></i>
+              </a>
+            </td>
+            <td>
+              <a @click.prevent="deleteProduct(product._id)">
+                <i class="bi bi-trash"></i
+              ></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-else class="table-responsive">
+      <table class="table table-hover table-nowrap">
+        <thead class="thead-light">
+          <tr class="tableRow">
+            <th scope="col">Producto</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Codigo</th>
+            <th scope="col">Stock mínimo</th>
+          </tr>
+        </thead>
+        <tbody class="table-body">
+          <!-- *************************SI SE BUSCA UN PRODUCTO****************************** -->
+          <tr
+            @click="setId(product._id)"
+            v-for="(product, index) in categoriesProducts"
+            :key="index"
+            v-if="foundProduct"
+          >
+            <td>
+              <span v-if="!editorStatus">{{ product.name }}</span>
+              <input name="name" v-else type="text" v-model="product.name" />
+            </td>
+
+            <td>
+              <span v-if="!editorStatus">{{
+                formatPrice(product.sellPrice)
+              }}</span>
+              <input
+                name="price"
+                v-else
+                type="text"
+                v-model="product.sellPrice"
+              />
+            </td>
+            <td>
+              <span v-if="!editorStatus">{{ product.quantity }}</span>
+              <input
+                name="quantity"
+                v-else
+                type="text"
+                v-model="product.quantity"
+              />
+            </td>
+            <td>
+              <span v-if="!editorStatus">{{ product.barCode }}</span>
+              <input
+                name="barcode"
+                v-else
+                type="text"
+                v-model="product.barCode"
+              />
+            </td>
+
+            <td>
+              <span v-if="!editorStatus">{{ product.minimumStock }}</span>
+              <input
+                name="barcode"
+                v-else
+                type="text"
+                v-model="product.minimumStock"
+              />
+            </td>
 
             <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
@@ -181,13 +281,14 @@
         <div class="form-group">
           <h3 style="text-align: center">Nuevo producto</h3>
           <input v-model="data.name" type="text" placeholder="Producto..." />
-        
+
           <input
             v-model="data.quantity"
             type="text"
             placeholder="Cantidad..."
           />
-          <select  v-model="selectedCategoryId">
+          <p>Categoria:</p>
+          <select v-model="selectedCategoryId">
             <option
               v-for="(ids, index) in categoriesIds"
               :value="ids._id"
@@ -196,7 +297,7 @@
               {{ ids.name }}
             </option>
           </select>
-          <input v-model="data.sellPrice" type="text" placeholder="Precio..." />
+          <input v-model="data.sellPrice" type="text" placeholder="Precio..." @input="formatPriceInput"/>
           <input
             v-model="data.barCode"
             type="text"
@@ -207,6 +308,7 @@
             type="text"
             placeholder="Stock mínimo..."
           />
+          <p>Fecha de vencimiento: </p>
           <input
             v-model="data.expirationDate"
             type="date"
@@ -215,10 +317,7 @@
           <button @click="changeStatusOfForm" class="btn-cancel">
             Cancelar
           </button>
-          <button
-            @click.prevent="createNewProduct"
-            class="btn-confirm"
-          >
+          <button @click.prevent="createNewProduct" class="btn-confirm">
             Confirmar
           </button>
         </div>
@@ -245,13 +344,16 @@ export default {
         quantity: "",
         barCode: "",
         expirationDate: new Date(),
-        minimumStock:""
+        minimumStock: "",
       },
       productName: "",
       selectedProduct: {},
       foundProduct: true,
       categoriesIds: [],
       selectedCategoryId: null,
+      categoriesProducts:[],
+      categoryName:'',
+      categoriesState:false
     };
   },
   methods: {
@@ -263,7 +365,6 @@ export default {
         );
         const data = result.data;
         this.products = data;
-        console.log("Todos los productos:", this.products);
       } catch (error) {
         console.log(error);
       }
@@ -305,18 +406,13 @@ export default {
     },
     async createNewProduct() {
       try {
-        if (
-          !this.data.name ||
-          !this.data.sellPrice ||
-          !this.data.quantity
-        ) {
+        if (!this.data.name || !this.data.sellPrice || !this.data.quantity) {
           window.alert("Los campos no deben estar vacíos");
         } else {
           const formattedDate = moment(this.data.expirationDate).format(
             "DD-MM-YYYY"
           );
           const newProduct = await axios.post(
-
             `http://localhost:3000/products/${this.selectedCategoryId}`,
 
             {
@@ -325,7 +421,7 @@ export default {
               quantity: this.data.quantity,
               barCode: this.data.barCode,
               expirationDate: formattedDate,
-              minimumStock:this.data.minimumStock,
+              minimumStock: this.data.minimumStock,
               businessId: "65bfdff8a75ffb8fb6be8937",
             }
           );
@@ -333,7 +429,7 @@ export default {
           this.data.sellPrice = "";
           this.data.quantity = "";
           this.data.barCode = "";
-          this.data.minimumStock=""
+          this.data.minimumStock = "";
           this.getAllProducts();
 
           setTimeout(() => {
@@ -374,13 +470,37 @@ export default {
         throw error;
       }
     },
+    async getCategoriesProducts(){
+      try {
+        const res=await axios.get(`http://localhost:3000/categoryes/filter/category/65bfdff8a75ffb8fb6be8937/${this.categoryName}`)
+        const products=res.data
+        for (const iterator of products[0]) {
+          this.categoriesProducts.push(iterator)
+        }
+        this.categoriesState=true
+        console.log(this.categoriesProducts);
+        
+      } catch (error) {
+        throw error
+      }
+    },
     // *****************************************************************************************
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.sellPrice = numeral(this.data.sellPrice).format('$0,0');
+    },
     checkInput() {
       if (this.productName === "") {
         this.foundProduct = true;
+      }
+    },
+    checkCategoryInput(){
+      if(this.categoryName === ''){
+        this.categoriesState = false
+        this.categoriesProducts=[]
       }
     },
     setId(id) {
@@ -392,16 +512,29 @@ export default {
     },
     changeStatusOfForm() {
       this.formStatus = !this.formStatus;
-      console.log("Formulario abierto/cerrado");
+      this.data.name=''
+      this.data.quantity=null
+      this.data.sellPrice=null
+      this.data.barCode=null
+      this.data.minimumStock=null
     },
   },
   mounted() {
-    this.getAllProducts(), this.getCategoryesIds();
+    this.getAllProducts(), this.getCategoryesIds()
   },
 };
 </script>
 
 <style scoped>
+.categoryDiv{
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.inputCate{
+  border: none;
+  border-radius: 0;
+}
 .top-container button {
   margin: 10px;
   border-radius: 15px;
@@ -450,25 +583,26 @@ input {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #FFFFFF;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .table-body td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
+
 
 .expenses-form {
   width: 40%;
@@ -478,10 +612,13 @@ input {
   align-items: center;
   border-radius: 5px;
   padding: 5px;
-  background-color: black;
+  background-color: white;
   position: absolute;
+  color: black;
   top: 10%;
   right: 30%;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+
 }
 
 .form-group {
@@ -493,8 +630,12 @@ input {
 
 .expenses-form {
   h3 {
-    color: white;
+    color: black;
   }
+}
+
+.expenses-form p{
+  padding-top: 10px;
 }
 
 label {
@@ -505,7 +646,7 @@ input,
 select {
   padding: 8px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #574f7a;
   font-size: 16px;
   margin-bottom: 5px;
   width: 100%;

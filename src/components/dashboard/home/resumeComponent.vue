@@ -1,7 +1,7 @@
 <template>
   <div class="info-container">
     <h4>Movimientos del dia</h4>
-    <router-link class="router" to="/dayMovements">
+    <router-link class="router" to="/movements">
       <h3>Movimientos <i class="bi bi-arrow-right"></i></h3>
     </router-link>
   </div>

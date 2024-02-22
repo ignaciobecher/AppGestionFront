@@ -2,17 +2,28 @@
   <div class="buys-container">
     <div class="searchbar-container">
       <p>Buscar egreso:</p>
-      <input type="search" name="" placeholder="Buscar por nombre" id="" />
-      <div class="date"></div>
+      <input type="search" name="" placeholder="Buscar egreso..." id="" />
+      <div class="top-container">
+        <button @click.prevent="changeFormStatus">
+          Registrar nuevo egreso
+        </button>
+      </div>
     </div>
-    <div class="top-container">
-      <button @click.prevent="changeFormStatus">Registrar nuevo egreso</button>
-      <button
-        @click="analizeData()"
-        style="margin-left: 50px; background-color: gray"
-      >
+
+    <!-- <div class="top-container">
+      <button @click="analizeData()">
         Analizar egresos con inteligencia artificial
       </button>
+    </div> -->
+    <div class="datesDiv">
+      <label for="startDate">Fecha de inicio:</label>
+      <input type="date" id="startDate" v-model="startDate" />
+
+      <label for="endDate">Fecha de fin:</label>
+      <input type="date" id="endDate" v-model="endDate" />
+
+      <button @click="getFilteredOutputs">Obtener egresos filtrados</button>
+      <button style="background-color:#d02941; margin-right: 10px;" @click="clearFilters">Quitar filtros</button>
     </div>
 
     <div class="table-responsive">
@@ -28,11 +39,58 @@
           </tr>
         </thead>
         <tbody class="table-body">
+          <!-- EGRESOS FILTRADOS -->
+          <tr
+            @click="setId(buy._id)"
+            v-for="(buy) in filteredOutputs"
+            class="tableRow"
+            v-if="filteredOutputs.length > 0"
+          >
+            <td>
+              <span>{{ formatDate(buy.createdAt) }}</span>
+            </td>
+            <td>
+              <span v-if="!editStatus">{{ buy.name }}</span>
+              <input v-else v-model="buy.name" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ buy.description }}</span>
+              <input v-else v-model="buy.description" type="text" />
+            </td>
+         
+            <td>
+              <span v-if="!editStatus">{{ formatPrice(buy.value) }}</span>
+              <input v-else v-model="buy.value" type="text" />
+            </td>
+        
+            <td v-if="!editStatus">
+              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            </td>
+            <td v-else>
+              <a @click="updateOutput(buy, buy._id)" href="#">
+                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
+              </a>
+              <a href="#">
+                <i
+                  style="color: #d02941"
+                  @click="changeEditStatus"
+                  class="bi bi-x-circle"
+                ></i>
+              </a>
+            </td>
+            <td>
+              <a @click="deleteOutput(buy._id)"> <i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+
+          <!-- TODOS LOS EGRESOS -->
           <tr
             @click="setId(buy._id)"
             v-for="(buy, index) in buysArray"
             :key="index"
             class="tableRow"
+            v-else
           >
             <td>
               <span>{{ formatDate(buy.createdAt) }}</span>
@@ -106,6 +164,7 @@
             v-model="data.value"
             type="text"
             placeholder="Ingrese un monto"
+            @input="formatPriceInput"
           />
           <!-- <input
             v-model="data.expirationDate"
@@ -128,10 +187,10 @@
         <li>Movimientos: {{ gptArray.total_transactions }}</li>
         <li>Transacciones:</li>
         <ul v-for="item in gptArray.transactions">
-          <li>Gasto: {{ item.name }} | Monto: {{formatPrice(item.value)  }}</li>
+          <li>Gasto: {{ item.name }} | Monto: {{ formatPrice(item.value) }}</li>
         </ul>
         <li>Monto promedio: {{ formatPrice(gptArray.average_value) }}</li>
-        <li>Total: {{formatPrice(gptArray.total_value) }}</li>
+        <li>Total: {{ formatPrice(gptArray.total_value) }}</li>
       </ul>
     </div>
   </div>
@@ -158,6 +217,9 @@ export default {
         expirationDate: "",
       },
       gptArray: [],
+      startDate:'',
+      endDate:'',
+      filteredOutputs:[]
     };
   },
   methods: {
@@ -253,14 +315,28 @@ export default {
           analyzedBuys.push(analyzedBuy);
         }
         const analyzedBuysText = JSON.stringify(analyzedBuys);
-        const gptResponse = await todo.default.methods.analizeText(analyzedBuysText);
-        const toJSON= JSON.parse(gptResponse)
-        this.gptArray=toJSON
+        const gptResponse = await todo.default.methods.analizeText(
+          analyzedBuysText
+        );
+        const toJSON = JSON.parse(gptResponse);
+        this.gptArray = toJSON;
 
         console.log(toJSON);
-        
       } catch (error) {
         throw error;
+      }
+    },
+    async getFilteredOutputs(){
+      try {
+        const businessId='65bfdff8a75ffb8fb6be8937'
+        const res= await axios.get(`http://localhost:3000/outputs/getOutputs/${businessId}/${this.startDate}/${this.endDate}`)
+        const outputs=res.data
+        this.filteredOutputs=outputs
+        for (const item of this.filteredOutputs) {
+          console.log(item);
+        }
+      } catch (error) {
+        throw error
       }
     },
     // ********************************************----------------**************************************
@@ -273,12 +349,22 @@ export default {
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.value = numeral(this.data.value).format('$0,0');
+    },
     changeEditStatus() {
       this.editStatus = !this.editStatus;
     },
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
     },
+    clearFilters(){
+      this.startDate=''
+      this.endDate=''
+      this.filteredOutputs.length = 0
+      this.getAllOutputs()
+    }
   },
   created() {
     this.getAllOutputs();
@@ -287,11 +373,34 @@ export default {
 </script>
 
 <style scoped>
-.gpt{
+
+
+.datesDiv {
+  display: flex;
+  margin-left: 10px;
+}
+
+.datesDiv label {
+  align-self: center;
+}
+.datesDiv input {
+  width: 20%;
+  height: auto;
+  margin-left: 10px;
+  margin-bottom: 0;
+}
+.datesDiv button {
+  width: 20%;
+  margin-left: 10px;
+  border: none;
+  background-color: #574f7a;
+  color: white;
+}
+.gpt {
   margin: 10px;
 }
 
-.gpt li{
+.gpt li {
   list-style-type: none;
 }
 .table-body input {
@@ -340,19 +449,24 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #1a1a1a;
-  border-radius: 15px;
+  background-color: #FFFFFF;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .tableRow td {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #FFFFFF;
+  color: black;
+}
+
+.table-body td {
+  background-color: #FFFFFF;
+  color: black;
 }
 
 .expenses-form {

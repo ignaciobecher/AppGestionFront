@@ -131,7 +131,7 @@ export default {
     font-size: 25px;
     text-decoration: none;
     color: white;
-    font-weight: lighter;
+    font-weight: 400;
     transition: color 0.5s, font-size 0.5s;
     width: 100%;
     padding-left: 20px;
