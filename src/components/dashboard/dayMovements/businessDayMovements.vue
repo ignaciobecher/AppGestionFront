@@ -1,4 +1,3 @@
-
 <template>
   <div
     style="
@@ -60,7 +59,7 @@
       </ul>
     </div>
 
-    <div class="secondContainer">
+    <!-- <div class="secondContainer">
       <h1>Empleados</h1>
 
       <ul v-for="(employee, index) in movements.employees" :key="index">
@@ -69,7 +68,7 @@
         <li>Mail: {{ employee.email }}</li>
         <li>Sueldo: ${{ employee.wage }}</li>
       </ul>
-    </div>
+    </div> -->
 
     <div class="secondContainer">
       <h1>Ingresos</h1>
@@ -96,7 +95,7 @@
     <div class="secondContainer">
       <h1>Productos</h1>
 
-      <ul v-for="(product, index) in movements.products" :key="index">
+      <ul v-for="(product, index) in productsArray" :key="index">
         <li>Referencia: {{ product.name }}</li>
         <li>Descripcion: {{ product.description }}</li>
         <li>Monto: {{ product.value }}</li>
@@ -118,24 +117,38 @@ export default {
         employees: [],
         inputs: [],
         outputs: [],
-        products: [],
+        productsArray: [],
       },
     };
   },
   methods: {
     async getAllMovements() {
+      const businessId = localStorage.getItem("businessId");
+
       const result = await axios.get(
-        "http://localhost:3000/business/65bfdff8a75ffb8fb6be8937/transactions/today"
+        `http://localhost:3000/business/${businessId}/transactions/today`
       );
       const allMovements = result.data;
       this.movements = allMovements;
+    },
+    async getProducts() {
+      try {
+        const businessId = localStorage.getItem("businessId");
+        const res = await axios.get(
+          `http://localhost:3000/business/products/movements/${businessId}`
+        );
+        const products = res.data;
+        this.productsArray = products;
+      } catch (error) {
+        throw error;
+      }
     },
     noMovements(movementArray) {
       return movementArray.length === 0;
     },
   },
   mounted() {
-    this.getAllMovements();
+    this.getAllMovements(), this.getProducts();
   },
 };
 </script>

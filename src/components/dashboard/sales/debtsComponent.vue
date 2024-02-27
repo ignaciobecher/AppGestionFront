@@ -234,8 +234,10 @@ export default {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllClients() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const result = await axios.get(
-          "http://localhost:3000/business/clients/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/business/clients/${businessId}`
         );
         const sales = result.data;
         this.clientsArray = sales;
@@ -280,14 +282,16 @@ export default {
         if (!this.data.name) {
           window.alert("Los campos no deben estar vacíos");
         } else {
-          const debtFormated=numeral(this.data.debt).value();
+          const debtFormated = numeral(this.data.debt).value();
+          const businessId = localStorage.getItem("businessId");
+
           const newProduct = await axios.post("http://localhost:3000/clients", {
             name: this.data.name,
             address: this.data.address,
             phoneNumber: this.data.phoneNumber,
             email: this.data.email,
             debt: debtFormated,
-            businessId: "65bfdff8a75ffb8fb6be8937",
+            businessId: businessId,
           });
           this.data.name = "";
           this.data.address = "";
@@ -306,8 +310,10 @@ export default {
     },
     async searchClient(clientName) {
       try {
+      const businessId= localStorage.getItem('businessId')
+
         const client = await axios.get(
-          `http://localhost:3000/clients/search/65bfdff8a75ffb8fb6be8937/${clientName}`
+          `http://localhost:3000/clients/search/${businessId}/${clientName}`
         );
         const clienteEncontrado = client.data;
 
@@ -333,7 +339,7 @@ export default {
     },
     formatPriceInput() {
       // Formatear el precio mientras se escribe
-      this.data.debt = numeral(this.data.debt).format('$0,0');
+      this.data.debt = numeral(this.data.debt).format("$0,0");
     },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
@@ -414,23 +420,23 @@ input {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .tableRow td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .table-body td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 

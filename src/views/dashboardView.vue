@@ -4,7 +4,7 @@
       <div class="sidebar">
         <div class="img-logo">
           <img style="width: 150px; " src="../assets/3.png" alt="" />
-          <p>Cuyo Software</p>
+          <p>{{ businessName }}</p>
         </div>
 
         <div class="nav-links">
@@ -30,6 +30,9 @@
           <a href=""
             ><i class="bi bi-person-arms-up"></i> Asistente </a
           >
+          <a @click="logoutUser" href="#"
+            ><i class="bi bi-person-arms-up"></i> Cerrar sesion </a
+          >
         </div>
       </div>
     </div>
@@ -52,6 +55,7 @@ import outPutsPage from "@/pages/outPutsPage.vue";
 import homePage from "../pages/homePage.vue";
 import salePage from "../pages/salePage.vue";
 import stockPage from "../pages/stockPage.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -70,9 +74,23 @@ export default {
       stockPage: false,
       inputPage: false,
       informPage: false,
+      businessName:''
     };
   },
   methods: {
+    async getBusinessInfo(){
+      try {
+        const businessId=localStorage.getItem('businessId')
+        const response=await axios.get(`http://localhost:3000/business/${businessId}`)
+        const business=response.data
+
+        const name=business.name
+
+        this.businessName=name
+      } catch (error) {
+        throw error
+      }
+    },
     togglePage(page) {
       this.homePage = page === "home";
       this.salesPage = page === "sales";
@@ -81,7 +99,17 @@ export default {
       this.inputPage = page === "inputs";
       this.informPage = page === "inform";
     },
+    logoutUser() {
+      // Eliminar el token del localStorage
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('businessId')
+      localStorage.removeItem('userId')
+      this.$router.push('/register');
+    },
   },
+  mounted(){
+    this.getBusinessInfo()
+  }
 };
 </script>
 
@@ -104,7 +132,7 @@ export default {
 
 .pages-container {
   background-color: #f0e7f7;
-  height: 100vh;
+  height: 100%;
 }
 
 .img-logo {

@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div class=categoryDiv>
+    <div class="categoryDiv">
       <input
         @input="checkCategoryInput"
         v-model="categoryName"
@@ -27,9 +27,21 @@
         id=""
         class="inputCate"
       />
+      <button
+        @click="changeStatusOfCategoryForm"
+        style="
+          margin-left: 10px;
+          border: none;
+          background-color: #574f7a;
+          color: white;
+          font-weight: 400;
+        "
+      >
+        Nueva categoria
+      </button>
     </div>
 
-    <div v-if="(categoriesState === false)" class="table-responsive">
+    <div v-if="categoriesState === false" class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
           <tr class="tableRow">
@@ -297,7 +309,12 @@
               {{ ids.name }}
             </option>
           </select>
-          <input v-model="data.sellPrice" type="text" placeholder="Precio..." @input="formatPriceInput"/>
+          <input
+            v-model="data.sellPrice"
+            type="text"
+            placeholder="Precio..."
+            @input="formatPriceInput"
+          />
           <input
             v-model="data.barCode"
             type="text"
@@ -308,7 +325,7 @@
             type="text"
             placeholder="Stock mínimo..."
           />
-          <p>Fecha de vencimiento: </p>
+          <p>Fecha de vencimiento:</p>
           <input
             v-model="data.expirationDate"
             type="date"
@@ -320,6 +337,23 @@
           <button @click.prevent="createNewProduct" class="btn-confirm">
             Confirmar
           </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="categoryStatus" class="register-component">
+      <div class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Nueva categoria</h3>
+          <input
+            v-model="newCategoryName"
+            type="text"
+            placeholder="Categoria..."
+          />
+          <button @click="changeStatusOfCategoryForm" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click="createCategory" class="btn-confirm">Confirmar</button>
         </div>
       </div>
     </div>
@@ -351,17 +385,21 @@ export default {
       foundProduct: true,
       categoriesIds: [],
       selectedCategoryId: null,
-      categoriesProducts:[],
-      categoryName:'',
-      categoriesState:false
+      categoriesProducts: [],
+      categoryName: "",
+      categoriesState: false,
+      newCategoryName: "",
+      categoryStatus: false,
     };
   },
   methods: {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllProducts() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const result = await axios.get(
-          "http://localhost:3000/business/products/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/business/products/${businessId}`
         );
         const data = result.data;
         this.products = data;
@@ -412,7 +450,8 @@ export default {
           const formattedDate = moment(this.data.expirationDate).format(
             "DD-MM-YYYY"
           );
-        const totalWhitoutFormat = numeral(this.data.sellPrice).value();
+          const totalWhitoutFormat = numeral(this.data.sellPrice).value();
+          const businessId = localStorage.getItem("businessId");
 
           const newProduct = await axios.post(
             `http://localhost:3000/products/${this.selectedCategoryId}`,
@@ -424,7 +463,7 @@ export default {
               barCode: this.data.barCode,
               expirationDate: formattedDate,
               minimumStock: this.data.minimumStock,
-              businessId: "65bfdff8a75ffb8fb6be8937",
+              businessId: businessId,
             }
           );
           this.data.name = "";
@@ -442,10 +481,32 @@ export default {
         console.log("Error: ", error);
       }
     },
+    async createCategory() {
+      try {
+        const businessId = localStorage.getItem("businessId");
+
+        const newCategory = await axios.post(
+          "http://localhost:3000/categoryes",
+          {
+            name: this.newCategoryName,
+            businessId: businessId,
+          }
+        );
+        if (newCategory) {
+          window.alert("Categoria creada");
+          this.changeStatusOfCategoryForm();
+          this.getCategoryesIds();
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
     async searchProduct(productName) {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const product = await axios.get(
-          `http://localhost:3000/products/65bfdff8a75ffb8fb6be8937/search/${productName}`
+          `http://localhost:3000/products/${businessId}/search/${productName}`
         );
         const productoEncontrado = product.data.product;
 
@@ -462,8 +523,10 @@ export default {
     },
     async getCategoryesIds() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const res = await axios.get(
-          "http://localhost:3000/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
+         `http://localhost:3000/categoryes/get/categoriyesIds/${businessId}`
         );
 
         const cateIds = res.data;
@@ -472,18 +535,21 @@ export default {
         throw error;
       }
     },
-    async getCategoriesProducts(){
+    async getCategoriesProducts() {
       try {
-        const res=await axios.get(`http://localhost:3000/categoryes/filter/category/65bfdff8a75ffb8fb6be8937/${this.categoryName}`)
-        const products=res.data
+      const businessId= localStorage.getItem('businessId')
+
+        const res = await axios.get(
+          `http://localhost:3000/categoryes/filter/category/${businessId}/${this.categoryName}`
+        );
+        const products = res.data;
         for (const iterator of products[0]) {
-          this.categoriesProducts.push(iterator)
+          this.categoriesProducts.push(iterator);
         }
-        this.categoriesState=true
+        this.categoriesState = true;
         console.log(this.categoriesProducts);
-        
       } catch (error) {
-        throw error
+        throw error;
       }
     },
     // *****************************************************************************************
@@ -492,17 +558,17 @@ export default {
     },
     formatPriceInput() {
       // Formatear el precio mientras se escribe
-      this.data.sellPrice = numeral(this.data.sellPrice).format('$0,0');
+      this.data.sellPrice = numeral(this.data.sellPrice).format("$0,0");
     },
     checkInput() {
       if (this.productName === "") {
         this.foundProduct = true;
       }
     },
-    checkCategoryInput(){
-      if(this.categoryName === ''){
-        this.categoriesState = false
-        this.categoriesProducts=[]
+    checkCategoryInput() {
+      if (this.categoryName === "") {
+        this.categoriesState = false;
+        this.categoriesProducts = [];
       }
     },
     setId(id) {
@@ -514,26 +580,30 @@ export default {
     },
     changeStatusOfForm() {
       this.formStatus = !this.formStatus;
-      this.data.name=''
-      this.data.quantity=null
-      this.data.sellPrice=null
-      this.data.barCode=null
-      this.data.minimumStock=null
+      this.data.name = "";
+      this.data.quantity = null;
+      this.data.sellPrice = null;
+      this.data.barCode = null;
+      this.data.minimumStock = null;
+    },
+    changeStatusOfCategoryForm() {
+      this.categoryStatus = !this.categoryStatus;
     },
   },
   mounted() {
-    this.getAllProducts(), this.getCategoryesIds()
+    this.getAllProducts(), this.getCategoryesIds();
   },
 };
 </script>
 
 <style scoped>
-.categoryDiv{
+.categoryDiv {
   margin-left: 10px;
   margin-right: 10px;
+  display: flex;
 }
 
-.inputCate{
+.inputCate {
   border: none;
   border-radius: 0;
 }
@@ -585,26 +655,25 @@ input {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .tableRow td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .table-body td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
-
 
 .expenses-form {
   width: 40%;
@@ -620,7 +689,6 @@ input {
   top: 10%;
   right: 30%;
   box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
-
 }
 
 .form-group {
@@ -636,7 +704,7 @@ input {
   }
 }
 
-.expenses-form p{
+.expenses-form p {
   padding-top: 10px;
 }
 

@@ -255,7 +255,7 @@ export default {
     async getAllCheques() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/cheques/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/cheques/${businessId}`
         );
         const cheques = response.data;
         this.chequesArray = cheques;
@@ -295,6 +295,7 @@ export default {
         const fechaCheque = moment(this.data.chequeDate);
         const nuevaFecha = fechaCheque.add(1, "day");
         const formatedDate = nuevaFecha.format("YYYY-MM-DD");
+        const businessId = localStorage.getItem("businessId");
 
         const newCheque = await axios.post("http://localhost:3000/cheques", {
           identification: this.data.identification,
@@ -302,7 +303,7 @@ export default {
           chequeNumber: this.data.chequeNumber,
           total: totalWhitoutFormat,
           chequeDate: formatedDate,
-          businessId: "65bfdff8a75ffb8fb6be8937",
+          businessId: businessId,
           chequeOwner: this.chequeOwner,
         });
         if (newCheque) {
@@ -337,7 +338,7 @@ export default {
     },
     async getFilteredCheques() {
       try {
-        const businessId = "65bfdff8a75ffb8fb6be8937";
+        const businessId = localStorage.getItem("businessId");
         const res = await axios.get(
           `http://localhost:3000/cheques/getByDay/${businessId}/${this.startDate}/${this.endDate}`
         );

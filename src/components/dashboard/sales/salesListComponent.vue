@@ -32,14 +32,14 @@
             </tr>
           </thead>
           <tbody class="table-body">
-            <!-- *****************************TODAS LA VENTAS**************************************************** -->
+            <!-- *****************************DETALLE DE VENTAS**************************************************** -->
             <tr
               @click="setId(sale._id)"
-              v-for="(sale) in salesDetailsArray.products"
+              v-for="sale in salesDetailsArray.products"
             >
-            <td scope="col">{{ sale.name }}</td>
-            <td scope="col">{{ formatPrice(sale.sellPrice) }}</td>
-          </tr>
+              <td scope="col">{{ sale.name }}</td>
+              <td scope="col">{{ formatPrice(sale.sellPrice) }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -192,8 +192,10 @@ export default {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllProducts() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const result = await axios.get(
-          "http://localhost:3000/business/sales/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/business/sales/${businessId}`
         );
         const sales = result.data;
         this.salesArray = sales;
@@ -245,6 +247,8 @@ export default {
         ) {
           window.alert("Los campos no deben estar vacíos");
         } else {
+          const businessId = localStorage.getItem("businessId");
+
           const newProduct = await axios.post(
             "http://localhost:3000/products",
             {
@@ -253,7 +257,7 @@ export default {
               sellPrice: this.data.sellPrice,
               quantity: this.data.quantity,
               barCode: this.data.barCode,
-              businessId: "65bfdff8a75ffb8fb6be8937",
+              businessId: businessId,
             }
           );
           this.data.name = "";
@@ -273,8 +277,10 @@ export default {
     },
     async searchProduct(productName) {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const product = await axios.get(
-          `http://localhost:3000/products/65bfdff8a75ffb8fb6be8937/search/${productName}`
+          `http://localhost:3000/products/${businessId}/search/${productName}`
         );
         const productoEncontrado = product.data;
 
@@ -294,7 +300,8 @@ export default {
       }
     },
     async getFilteredSales(startDate, endDate) {
-      const businessId = "65bfdff8a75ffb8fb6be8937";
+      const businessId = localStorage.getItem("businessId");
+
       try {
         const response = await axios.get(
           `http://localhost:3000/sales/getSales/business/${businessId}/${this.startDate}/${this.endDate}`
@@ -354,7 +361,7 @@ export default {
     },
     closeMessageBox() {
       this.showMessageBox = false;
-      this.salesDetailsArray=[]
+      this.salesDetailsArray = [];
     },
   },
   mounted() {

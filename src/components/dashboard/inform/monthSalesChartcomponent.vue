@@ -4,25 +4,23 @@
       <input v-model="startMonth" type="month" />
       <input v-model="endMonth" type="month" />
       <button
-        style="background-color:#149c68 ;"
+        style="background-color: #149c68"
         @click="filterSalesByMonthRange"
-        :class="{ 'blink': isFilterClicked }"
+        :class="{ blink: isFilterClicked }"
       >
         Filtrar <i class="bi bi-filter-circle"></i>
       </button>
       <button
-        style="background-color: #d02941;"
+        style="background-color: #d02941"
         @click="removeFilters"
-        :class="{ 'blink': isRemoveFiltersClicked }"
+        :class="{ blink: isRemoveFiltersClicked }"
       >
         Quitar filtros <i class="bi bi-x-circle"></i>
       </button>
     </div>
     <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
-   
   </div>
 </template>
-
 
 <script>
 import { Bar } from "vue-chartjs";
@@ -47,8 +45,9 @@ export default {
   },
   methods: {
     async getAllSalesByMonthRange(startMonth, endMonth) {
-      let url =
-        "http://localhost:3000/business/salesBySelectedMonths/65bfdff8a75ffb8fb6be8937";
+      const businessId = localStorage.getItem("businessId");
+
+      let url = `http://localhost:3000/business/salesBySelectedMonths/${businessId}`;
 
       if (startMonth && endMonth) {
         url += `?startMonth=${startMonth}&endMonth=${endMonth}`;

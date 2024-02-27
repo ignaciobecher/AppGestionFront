@@ -231,8 +231,10 @@ export default {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllOutputs() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
-          "http://localhost:3000/business/outputs/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/business/outputs/${businessId}`
         );
         const buys = response.data;
         this.buysArray = buys;
@@ -269,13 +271,14 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
         const totalWhitoutFormat = numeral(this.data.value).value();
+        const businessId= localStorage.getItem('businessId')
 
         const newSale = await axios.post("http://localhost:3000/outputs", {
           name: this.data.product,
           description: this.data.description,
           value: totalWhitoutFormat,
           quantity: this.data.quantity,
-          businessId: "65bfdff8a75ffb8fb6be8937",
+          businessId: businessId,
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
@@ -306,8 +309,10 @@ export default {
     },
     async analizeData() {
       try {
+      const businessId= localStorage.getItem('businessId')
+
         const response = await axios.get(
-          "http://localhost:3000/business/outputs/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/business/outputs/${businessId}`
         );
         const buys = response.data;
         const analyzedBuys = [];
@@ -336,7 +341,8 @@ export default {
     },
     async getFilteredOutputs() {
       try {
-        const businessId = "65bfdff8a75ffb8fb6be8937";
+        const businessId = localStorage.getItem("businessId");
+
         const res = await axios.get(
           `http://localhost:3000/outputs/getOutputs/${businessId}/${this.startDate}/${this.endDate}`
         );

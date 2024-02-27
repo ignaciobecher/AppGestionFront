@@ -1,6 +1,6 @@
 <template>
   <div class="searchbar-container">
-    <p>Bienvenido </p>
+    <p>Bienvenido {{ userName }}</p>
     <div class="input-container">
       <input placeholder="Buscar... " type="search" />
       <i class="bi bi-search"></i>
@@ -10,9 +10,28 @@
 </template>
 
 <script>
+import axios from "axios";
 import moment from "moment";
 export default {
+  data(){
+    return{
+      userName:''
+    }
+  },
   methods: {
+    async getUserInfo(){
+      try {
+        const userId=localStorage.getItem('userId')
+        const response=await axios.get(`http://localhost:3000/auth/${userId}`)
+        const user=response.data
+
+        const userName=user.username
+        this.userName=userName
+        console.log(user.username);
+      } catch (error) {
+        throw error
+      }
+    },
     getDate() {
       const date = new Date();
       this.todayDate = date;
@@ -24,6 +43,9 @@ export default {
   created() {
     this.getDate();
   },
+  mounted(){
+    this.getUserInfo()
+  }
 };
 </script>
 

@@ -98,7 +98,7 @@
               {{ provider.name }}
             </option>
           </select>
-         
+
           <input
             v-model="data.description"
             type="text"
@@ -151,15 +151,17 @@ export default {
         // expirationDate: "",
       },
       providersArray: [],
-      providerId:null
+      providerId: null,
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllBuys() {
       try {
+      const businessId= localStorage.getItem('businessId')
+
         const response = await axios.get(
-          "http://localhost:3000/business/buys/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/business/buys/${businessId}`
         );
         const buys = response.data;
         this.buysArray = buys;
@@ -200,22 +202,24 @@ export default {
           .format("YYYY-MM-DD");
 
         const totalWhitoutFormat = numeral(this.data.price).value();
+        const businessId = localStorage.getItem("businessId");
+
         const newSale = await axios.post("http://localhost:3000/buys", {
           description: this.data.description,
           price: totalWhitoutFormat,
           // quantity: this.data.quantity,
           receiptNumber: this.data.receiptNumber,
-          businessId: "65bfdff8a75ffb8fb6be8937",
-          providerId:this.providerId
+          businessId: businessId,
+          providerId: this.providerId,
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
           this.changeFormStatus();
           this.getAllBuys();
-          this.data.description=""
-          this.data.price=""
-          this.data.receiptNumber=""
-          this.providerId=""
+          this.data.description = "";
+          this.data.price = "";
+          this.data.receiptNumber = "";
+          this.providerId = "";
         } else {
           console.log("Error al cargar la venta");
         }
@@ -241,13 +245,13 @@ export default {
     async getAllProviders() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/providers/business/65bfdff8a75ffb8fb6be8937"
+          "http://localhost:3000/providers/business/${businessId}"
         );
         const providers = response.data;
 
         for (const provider of providers) {
           for (const iterator of provider.providers) {
-            this.providersArray.push(iterator)
+            this.providersArray.push(iterator);
           }
         }
       } catch (error) {
@@ -266,7 +270,7 @@ export default {
     },
     formatPriceInput() {
       // Formatear el precio mientras se escribe
-      this.data.price = numeral(this.data.price).format('$0,0');
+      this.data.price = numeral(this.data.price).format("$0,0");
     },
     changeEditStatus() {
       this.editStatus = !this.editStatus;
@@ -280,8 +284,6 @@ export default {
   },
 };
 </script>
-
-
 
 <style scoped>
 .buysContainer {
@@ -333,23 +335,23 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .tableRow td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .table-body td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
@@ -361,7 +363,7 @@ export default {
   align-items: center;
   border-radius: 5px;
   padding: 5px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   position: absolute;
   top: 10%;
   right: 30%;

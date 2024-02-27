@@ -42,24 +42,30 @@ export default {
   },
   methods: {
     async getBalance() {
+      const businessId = localStorage.getItem("businessId");
+
       const sales = await axios.get(
-        "http://localhost:3000/business/salesTotal/65bfdff8a75ffb8fb6be8937"
+        `http://localhost:3000/business/salesTotal/${businessId}`
       );
       const data = sales.data;
       console.log("Total de ventas: ", data);
       this.totalBalance = data;
     },
     async getTotalStock() {
+      const businessId = localStorage.getItem("businessId");
+
       const products = await axios.get(
-        "http://localhost:3000/business/products/65bfdff8a75ffb8fb6be8937"
+        `http://localhost:3000/business/products/${businessId}`
       );
       const data = products.data;
       this.totalStock = data.length;
     },
     async getSalesDay() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const sales = await axios.get(
-          "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/business/salesByDay/${businessId}`
         );
         const data = sales.data;
         const todayDate = new Date().toLocaleDateString();
@@ -116,13 +122,12 @@ export default {
   text-decoration: none;
 }
 
-
 .info-container h3 {
   padding: 10px;
-  transition: color 0.5s ;
+  transition: color 0.5s;
 }
 
-.info-container h3:hover{
+.info-container h3:hover {
   color: #5c39f5;
 }
 

@@ -35,17 +35,18 @@ export default {
   methods: {
     async getBalanceTotals() {
       try {
+      const businessId= localStorage.getItem('businessId')
         const outputs = await axios.get(
-          "http://localhost:3000/business/outputs/65bfdff8a75ffb8fb6be8937"
+          `"http://localhost:3000/business/outputs/${businessId}"`
         );
         const inputs = await axios.get(
-          "http://localhost:3000/inputs/65bfdff8a75ffb8fb6be8937"
+          `"http://localhost:3000/inputs/${businessId}"`
         );
         const buys = await axios.get(
-          "http://localhost:3000/business/buys/65bfdff8a75ffb8fb6be8937"
+          `"http://localhost:3000/business/buys/${businessId}"`
         );
         const sales = await axios.get(
-          "http://localhost:3000/business/sales/65bfdff8a75ffb8fb6be8937"
+          `"http://localhost:3000/business/sales/${businessId}"`
         );
 
         //Egresos

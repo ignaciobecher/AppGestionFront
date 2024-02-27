@@ -143,8 +143,9 @@ export default {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllInputs() {
       try {
+        const businessId = localStorage.getItem("businessId");
         const response = await axios.get(
-          "http://localhost:3000/inputs/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/inputs/${businessId}`
         );
         const inputs = response.data;
         this.inputsArray = inputs;
@@ -186,13 +187,15 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        const value=numeral(this.data.value).value();
+      const businessId= localStorage.getItem('businessId')
+
+        const value = numeral(this.data.value).value();
         const newSale = await axios.post("http://localhost:3000/inputs", {
           name: this.data.product,
           description: this.data.description,
           value: value,
           quantity: this.data.quantity,
-          businessId: "65bfdff8a75ffb8fb6be8937",
+          businessId: businessId,
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
@@ -229,7 +232,7 @@ export default {
     },
     formatPriceInput() {
       // Formatear el precio mientras se escribe
-      this.data.value = numeral(this.data.value).format('$0,0');
+      this.data.value = numeral(this.data.value).format("$0,0");
     },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
@@ -295,26 +298,25 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .tableRow td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .table-body td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
-
 
 .expenses-form {
   width: 40%;

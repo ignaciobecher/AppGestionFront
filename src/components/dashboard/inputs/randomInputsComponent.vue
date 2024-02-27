@@ -140,8 +140,10 @@ export default {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllInputs() {
       try {
+      const businessId= localStorage.getItem('businessId')
+
         const response = await axios.get(
-          "http://localhost:3000/random-inputs/65bfdff8a75ffb8fb6be8937"
+          `http://localhost:3000/random-inputs/${businessId}`
         );
         const inputs = response.data;
         this.inputsArray = inputs;
@@ -186,6 +188,8 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
         const totalWhitoutFormat = numeral(this.data.value).value();
+      const businessId= localStorage.getItem('businessId')
+
         const newSale = await axios.post(
           "http://localhost:3000/random-inputs",
           {
@@ -193,7 +197,7 @@ export default {
             description: this.data.description,
             value: totalWhitoutFormat,
             quantity: this.data.quantity,
-            businessId: "65bfdff8a75ffb8fb6be8937",
+            businessId: businessId,
           }
         );
         if (newSale) {

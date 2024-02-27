@@ -65,8 +65,10 @@ export default {
   },
   methods: {
     async getAllSales(startDate, endDate) {
+      const businessId= localStorage.getItem('businessId')
+
       let url =
-        "http://localhost:3000/business/salesByDay/65bfdff8a75ffb8fb6be8937";
+        `http://localhost:3000/business/salesByDay/${businessId}`
 
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;
