@@ -18,6 +18,17 @@
       </div>
     </div>
 
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre tus cuentas corrientes..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -61,7 +72,15 @@
             </td>
 
             <td>
-              <span v-if="!editorStatus">{{ client.phoneNumber }}</span>
+              <span v-if="!editorStatus"> <a
+                    :href="
+                      'https://api.whatsapp.com/send?phone=' +
+                      encodeURIComponent(client.phoneNumber) +
+                      '&text=Hola!'
+                    "
+                    target="_blank"
+                    >{{ client.phoneNumber }}</a
+                  ></span>
               <input
                 name="description"
                 v-else
@@ -128,7 +147,19 @@
             </td>
 
             <td>
-              <span v-if="!editorStatus">{{ client.phoneNumber }}</span>
+              <span v-if="!editorStatus"
+                ><td>
+                  <a
+                    :href="
+                      'https://api.whatsapp.com/send?phone=' +
+                      encodeURIComponent(client.phoneNumber) +
+                      '&text=Hola!'
+                    "
+                    target="_blank"
+                    >{{ client.phoneNumber }}</a
+                  >
+                </td>
+              </span>
               <input
                 name="description"
                 v-else
@@ -209,6 +240,7 @@
 import moment from "moment";
 import numeral from "numeral";
 import axios from "axios";
+import askHomeComponentVue from "../home/askHomeComponent.vue";
 
 export default {
   data() {
@@ -228,6 +260,9 @@ export default {
       selectedClient: {},
       foundClient: true,
       searchedClients: [],
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
@@ -310,7 +345,7 @@ export default {
     },
     async searchClient(clientName) {
       try {
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
 
         const client = await axios.get(
           `http://localhost:3000/clients/search/${businessId}/${clientName}`
@@ -332,8 +367,29 @@ export default {
         console.log("Error: ", error);
       }
     },
+    async askGpt() {
+      try {
+        this.information = this.clientsArray;
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
 
+        const response = await axios.post(
+          `http://localhost:3000/chat-gpt/${this.question}`,
+          {
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
     // *****************************************************************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
@@ -504,5 +560,25 @@ input {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
 }
 </style>

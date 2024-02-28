@@ -41,6 +41,30 @@
       </button>
     </div>
 
+    <div style="margin: 10px">
+      <input
+        style="border: none; border-radius: 0%"
+        v-model="productCode"
+        type="search"
+        @keyup.enter="getProductFromGoUpc(productCode)"
+        name=""
+        placeholder="Ingrese un codigo de barras y el asistente lo ayudara a completar..."
+        id=""
+      />
+    </div>
+
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre los productos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
+
     <div v-if="categoriesState === false" class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -364,6 +388,7 @@
 import numeral from "numeral";
 import axios from "axios";
 import moment from "moment";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -390,13 +415,16 @@ export default {
       categoriesState: false,
       newCategoryName: "",
       categoryStatus: false,
+      productCode: "",
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllProducts() {
       try {
-        const businessId = localStorage.getItem("businessId");
 
         const result = await axios.get(
           `http://localhost:3000/business/products/${businessId}`
@@ -471,6 +499,7 @@ export default {
           this.data.quantity = "";
           this.data.barCode = "";
           this.data.minimumStock = "";
+          this.productCode = "";
           this.getAllProducts();
 
           setTimeout(() => {
@@ -526,7 +555,7 @@ export default {
         const businessId = localStorage.getItem("businessId");
 
         const res = await axios.get(
-         `http://localhost:3000/categoryes/get/categoriyesIds/${businessId}`
+          `http://localhost:3000/categoryes/get/categoriyesIds/${businessId}`
         );
 
         const cateIds = res.data;
@@ -537,7 +566,7 @@ export default {
     },
     async getCategoriesProducts() {
       try {
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
 
         const res = await axios.get(
           `http://localhost:3000/categoryes/filter/category/${businessId}/${this.categoryName}`
@@ -552,7 +581,55 @@ export default {
         throw error;
       }
     },
+    async getProductFromGoUpc(barcode) {
+      try {
+        console.log("El barcode es: ", barcode);
+
+        const result = await axios.get(
+          `http://localhost:3000/globalproducts/${barcode}`
+        );
+        if (!result && !result.data.product) {
+          window.alert(
+            "No pudimos encontrar el producto en nuestra base de datos"
+          );
+          this.barCode = "";
+        } else {
+          const productData = {
+            name: result.data.product.name,
+            description: result.data.product.description,
+            category: result.data.product.category,
+            code: result.data.product.ean,
+          };
+          this.changeStatusOfForm();
+          this.data.name = productData.name;
+          this.data.barCode = productData.code;
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
+    async askGpt() {
+      try {
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        this.information = this.products;
+        const response = await axios.post(
+          `http://localhost:3000/chat-gpt/${this.question}`,
+          {
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
     // *****************************************************************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
@@ -609,13 +686,11 @@ export default {
 }
 .top-container button {
   margin: 10px;
-  border-radius: 15px;
-  padding: 10px;
   border: none;
   background-color: #149c68;
   color: white;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 400;
   transition: transform 0.3s ease;
 }
 
@@ -745,5 +820,25 @@ select {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
 }
 </style>

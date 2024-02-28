@@ -28,6 +28,17 @@
       </button>
     </div>
 
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre los egresos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -228,6 +239,7 @@
 import axios from "axios";
 import moment from "moment";
 import numeral from "numeral";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -248,6 +260,9 @@ export default {
       startDate: "",
       endDate: "",
       filteredCheques: [],
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
@@ -295,7 +310,6 @@ export default {
         const fechaCheque = moment(this.data.chequeDate);
         const nuevaFecha = fechaCheque.add(1, "day");
         const formatedDate = nuevaFecha.format("YYYY-MM-DD");
-        const businessId = localStorage.getItem("businessId");
 
         const newCheque = await axios.post("http://localhost:3000/cheques", {
           identification: this.data.identification,
@@ -346,7 +360,28 @@ export default {
         this.filteredCheques = cheques;
       } catch (error) {}
     },
+    async askGpt() {
+      try {
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        this.information = this.chequesArray;
+        const response = await axios.post(
+          `http://localhost:3000/chat-gpt/${this.question}`,
+          {
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
     // ********************************************----------------**************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     setId(id) {
       this.cheque_id = id;
     },
@@ -535,5 +570,26 @@ select {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
 }
 </style>

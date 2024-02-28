@@ -1,6 +1,6 @@
 <template>
   <div style="display: flex; background-color: #ffffff" class="backBtn">
-    <router-link to="/">
+    <router-link to="/home">
       <button
         style="
           margin: 10px;

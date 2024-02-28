@@ -3,8 +3,8 @@
     <div class="sidebar-container">
       <div class="sidebar">
         <div class="img-logo">
-          <img style="width: 150px; " src="../assets/3.png" alt="" />
-          <p>{{ businessName }}</p>
+          <p >{{ businessName }}
+          </p>
         </div>
 
         <div class="nav-links">
@@ -31,7 +31,7 @@
             ><i class="bi bi-person-arms-up"></i> Asistente </a
           >
           <a @click="logoutUser" href="#"
-            ><i class="bi bi-person-arms-up"></i> Cerrar sesion </a
+            ><i class="bi bi-x-circle"></i> Cerrar sesion </a
           >
         </div>
       </div>
@@ -101,10 +101,10 @@ export default {
     },
     logoutUser() {
       // Eliminar el token del localStorage
+      this.$router.push('/register');
       localStorage.removeItem('userToken');
       localStorage.removeItem('businessId')
       localStorage.removeItem('userId')
-      this.$router.push('/register');
     },
   },
   mounted(){
@@ -119,7 +119,7 @@ export default {
   grid-template-columns: 20% 80%;
   width: 100%;
   background-color: #f0e7f7;
-
+  height: 100vh;
 }
 
 .sidebar-container {
@@ -135,10 +135,13 @@ export default {
   height: 100%;
 }
 
+
+
 .img-logo {
   p {
-    margin-left: 10px;
+    margin-left: 20px;
     font-size: 30px;
+    font-weight: 500;
     color: white;
   }
 }

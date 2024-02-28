@@ -10,11 +10,6 @@
       </div>
     </div>
 
-    <!-- <div class="top-container">
-      <button @click="analizeData()">
-        Analizar egresos con inteligencia artificial
-      </button>
-    </div> -->
     <div class="datesDiv">
       <label for="startDate">Fecha de inicio:</label>
       <input type="date" id="startDate" v-model="startDate" />
@@ -29,6 +24,17 @@
       >
         Quitar filtros
       </button>
+    </div>
+
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre los egresos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
     </div>
 
     <div class="table-responsive">
@@ -185,19 +191,6 @@
         </div>
       </form>
     </div>
-
-    <div class="gpt">
-      <h4>Resumen</h4>
-      <ul>
-        <li>Movimientos: {{ gptArray.total_transactions }}</li>
-        <li>Transacciones:</li>
-        <ul v-for="item in gptArray.transactions">
-          <li>Gasto: {{ item.name }} | Monto: {{ formatPrice(item.value) }}</li>
-        </ul>
-        <li>Monto promedio: {{ formatPrice(gptArray.average_value) }}</li>
-        <li>Total: {{ formatPrice(gptArray.total_value) }}</li>
-      </ul>
-    </div>
   </div>
 </template>
 
@@ -225,6 +218,9 @@ export default {
       startDate: "",
       endDate: "",
       filteredOutputs: [],
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
@@ -271,7 +267,7 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
         const totalWhitoutFormat = numeral(this.data.value).value();
-        const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
 
         const newSale = await axios.post("http://localhost:3000/outputs", {
           name: this.data.product,
@@ -307,38 +303,6 @@ export default {
         console.log(error);
       }
     },
-    async analizeData() {
-      try {
-      const businessId= localStorage.getItem('businessId')
-
-        const response = await axios.get(
-          `http://localhost:3000/business/outputs/${businessId}`
-        );
-        const buys = response.data;
-        const analyzedBuys = [];
-        for (const buy of buys) {
-          const analyzedBuy = {
-            createdAt: buy.createdAt,
-            description: buy.description,
-            name: buy.name,
-            quantity: buy.quantity,
-            updatedAt: buy.updatedAt,
-            value: buy.value,
-          };
-          analyzedBuys.push(analyzedBuy);
-        }
-        const analyzedBuysText = JSON.stringify(analyzedBuys);
-        const gptResponse = await todo.default.methods.analizeText(
-          analyzedBuysText
-        );
-        const toJSON = JSON.parse(gptResponse);
-        this.gptArray = toJSON;
-
-        console.log(toJSON);
-      } catch (error) {
-        throw error;
-      }
-    },
     async getFilteredOutputs() {
       try {
         const businessId = localStorage.getItem("businessId");
@@ -355,7 +319,29 @@ export default {
         throw error;
       }
     },
+    async askGpt() {
+      try {
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        this.information = this.buysArray;
+        const response = await axios.post(
+          `http://localhost:3000/chat-gpt/${this.question}`,
+          {
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     // ********************************************----------------**************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     setId(id) {
       this.buy_id = id;
     },
@@ -547,5 +533,26 @@ input {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
 }
 </style>

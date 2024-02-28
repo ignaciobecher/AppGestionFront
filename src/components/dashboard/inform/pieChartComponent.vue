@@ -37,16 +37,16 @@ export default {
       try {
       const businessId= localStorage.getItem('businessId')
         const outputs = await axios.get(
-          `"http://localhost:3000/business/outputs/${businessId}"`
+          `http://localhost:3000/business/outputs/${businessId}`
         );
         const inputs = await axios.get(
-          `"http://localhost:3000/inputs/${businessId}"`
+          `http://localhost:3000/inputs/${businessId}`
         );
         const buys = await axios.get(
-          `"http://localhost:3000/business/buys/${businessId}"`
+          `http://localhost:3000/business/buys/${businessId}`
         );
         const sales = await axios.get(
-          `"http://localhost:3000/business/sales/${businessId}"`
+          `http://localhost:3000/business/sales/${businessId}`
         );
 
         //Egresos

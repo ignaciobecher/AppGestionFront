@@ -9,7 +9,7 @@
           type="search"
           @keyup.enter="getProductBybarCode(barcode)"
           name=""
-          placeholder="Buscar por codigo"
+          placeholder="Presione enter para buscar por codigo"
           id=""
         />
         <input v-if="searchByNameState"
@@ -17,7 +17,7 @@
           type="search"
           @keyup.enter="getProductByName()"
           name=""
-          placeholder="Buscar por nombre"
+          placeholder="Presione enter para buscar por nombre"
           id=""
         />
         <button @click="changeStateOfSearch" class="salesBtn">Buscar por {{searchMessage }}</button>
@@ -227,8 +227,8 @@ export default {
       instructions: "",
       searchByNameState: false,
       searchByCodeState: true,
-      searchMessage:'código',
-     
+      searchMessage:'nombre',
+      // productInfoInData:[]
     };
   },
   methods: {
@@ -261,6 +261,8 @@ export default {
           }
         } else {
           if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
+            this.getProductFromGoUpc(barcode)
+            this.data.name=
             this.data.barCode = barcode;
             this.changeStatusOfForm();
           }
@@ -425,6 +427,23 @@ export default {
         throw error;
       }
     },
+    async getProductFromGoUpc(barcode){
+      try {
+        console.log('El barcode es: ',barcode);
+
+        const result= await axios.get(`http://localhost:3000/globalproducts/${barcode}`)
+        console.log(result.data.product);
+        const productData={
+          name:result.data.product.name,
+          description:result.data.product.description,
+          category:result.data.product.category,
+        }
+        this.data.name=productData.name
+
+      } catch (error) {
+        throw error
+      }
+    },
     // **********************LLAMADAS A LA API******************************************************************
     removeFromCart(index) {
       const removedProduct = this.carrito[index];
@@ -509,11 +528,11 @@ export default {
       if(this.searchByCodeState === true){
         this.searchByNameState=true
         this.searchByCodeState=false
-        this.searchMessage='nombre'
+        this.searchMessage='código'
       }else{
         this.searchByNameState=false
         this.searchByCodeState=true
-        this.searchMessage='código'
+        this.searchMessage='nombre'
       }
     }
   },

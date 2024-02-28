@@ -8,6 +8,17 @@
       </div>
     </div>
 
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre los ingresos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -134,13 +145,16 @@ export default {
         value: "",
         expirationDate: "",
       },
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllInputs() {
       try {
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
 
         const response = await axios.get(
           `http://localhost:3000/random-inputs/${businessId}`
@@ -188,7 +202,7 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
         const totalWhitoutFormat = numeral(this.data.value).value();
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
 
         const newSale = await axios.post(
           "http://localhost:3000/random-inputs",
@@ -226,8 +240,29 @@ export default {
         console.log(error);
       }
     },
+    async askGpt() {
+      try {
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        this.information = this.inputsArray;
+        const response = await axios.post(
+          `http://localhost:3000/chat-gpt/${this.question}`,
+          {
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
 
     // ********************************************----------------**************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     setId(id) {
       this.input_Id = id;
     },
@@ -388,5 +423,26 @@ input {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
 }
 </style>

@@ -18,6 +18,18 @@
         Quitar filtros
       </button>
     </div>
+    
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre tus ventas..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
     <div v-if="showMessageBox" class="message-box">
       <div class="close-btn" @click="closeMessageBox">
         <i style="color: red" class="bi bi-x-circle-fill"></i>
@@ -160,6 +172,7 @@
 import moment from "moment";
 import numeral from "numeral";
 import axios from "axios";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -186,6 +199,9 @@ export default {
       salesDetailsArray: [],
       showMessageBox: false,
       message: "",
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
@@ -327,7 +343,33 @@ export default {
         throw error;
       }
     },
+    async askGpt() {
+      try {
+        const sales = await axios.get(
+          `http://localhost:3000/sales/products/sales/details/${businessId}`
+        );
+        const products = sales.data;
+        this.information = products;
+
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        const response = await axios.post(
+          `http://localhost:3000/chat-gpt/${this.question}`,
+          {
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
     // *****************************************************************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
@@ -552,5 +594,25 @@ input {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
 }
 </style>
