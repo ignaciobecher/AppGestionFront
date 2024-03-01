@@ -6,6 +6,7 @@
           <p >{{ businessName }}
           </p>
         </div>
+        <p style="color: white; margin-left: 20px; font-size: 10px;">{{bussId}}</p>
 
         <div class="nav-links">
           <a href="#" @click="togglePage('home')"
@@ -28,7 +29,7 @@
             ><i class="bi bi-bar-chart"></i> Informe</a
           >
           <a href=""
-            ><i class="bi bi-person-arms-up"></i> Asistente </a
+            ><i class="bi bi-info"></i>Mis datos</a
           >
           <a @click="logoutUser" href="#"
             ><i class="bi bi-x-circle"></i> Cerrar sesion </a
@@ -74,7 +75,8 @@ export default {
       stockPage: false,
       inputPage: false,
       informPage: false,
-      businessName:''
+      businessName:'',
+      bussId:''
     };
   },
   methods: {
@@ -85,7 +87,8 @@ export default {
         const business=response.data
 
         const name=business.name
-
+        const id=business.businessId
+        this.bussId=businessId
         this.businessName=name
       } catch (error) {
         throw error
@@ -133,6 +136,8 @@ export default {
 .pages-container {
   background-color: #f0e7f7;
   height: 100%;
+  overflow-y: auto;
+
 }
 
 

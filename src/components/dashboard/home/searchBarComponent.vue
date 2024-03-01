@@ -3,8 +3,6 @@
     <p>Bienvenido {{ userName }}</p>
 
     <div class="input-container">
-      <!-- <input placeholder="Buscar... " type="search" />
-      <i class="bi bi-search"></i> -->
     </div>
     <div class="date">
       <img style="width: 100px" src="../../../assets/3.png" alt="" />
@@ -32,7 +30,7 @@ export default {
 
         const userName = user.username;
         this.userName = userName;
-        console.log(user.username);
+        console.log(user.businessId);
       } catch (error) {
         throw error;
       }

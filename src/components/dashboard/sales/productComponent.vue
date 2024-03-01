@@ -1,29 +1,30 @@
 <template>
   <div class="mainContainer">
-
-      <!-- BUSCADOR POR CODIGO DE BARRAS -->
-      <div class="searchbar-container" >
-        <p>Buscar producto:</p>
-        <input v-if="searchByCodeState"
-          v-model="barcode"
-          type="search"
-          @keyup.enter="getProductBybarCode(barcode)"
-          name=""
-          placeholder="Presione enter para buscar por codigo"
-          id=""
-        />
-        <input v-if="searchByNameState"
-          v-model="productName"
-          type="search"
-          @keyup.enter="getProductByName()"
-          name=""
-          placeholder="Presione enter para buscar por nombre"
-          id=""
-        />
-        <button @click="changeStateOfSearch" class="salesBtn">Buscar por {{searchMessage }}</button>
-      </div>
-
- 
+    <!-- BUSCADOR POR CODIGO DE BARRAS -->
+    <div class="searchbar-container">
+      <p>Buscar producto:</p>
+      <input
+        v-if="searchByCodeState"
+        v-model="barcode"
+        type="search"
+        @keyup.enter="getProductBybarCode(barcode)"
+        name=""
+        placeholder="Presione enter para buscar por codigo"
+        id=""
+      />
+      <input
+        v-if="searchByNameState"
+        v-model="productName"
+        type="search"
+        @keyup.enter="getProductByName()"
+        name=""
+        placeholder="Presione enter para buscar por nombre"
+        id=""
+      />
+      <button @click="changeStateOfSearch" class="salesBtn">
+        Buscar por {{ searchMessage }}
+      </button>
+    </div>
 
     <!-- INSTRUCTIVO -->
     <div v-if="instructionsState">
@@ -125,14 +126,27 @@
           <h1>${{ total }}</h1>
         </div>
       </div>
-      <div class="buttons">
-        <button @click="cancelSale" class="btnCancel">Cancelar</button>
-        <input
-          class="btnConfirm"
-          @click="createSale"
-          type="submit"
-          value="Vender"
-        />
+      <div style="display: flex" class="btn-and-change-container">
+        <div class="buttons">
+          <button @click="cancelSale" class="btnCancel">Cancelar</button>
+          <input
+            class="btnConfirm"
+            @click="createSale"
+            type="submit"
+            value="Vender"
+          />
+        </div>
+        <div class="change-container">
+          <h5>Cambio</h5>
+          <input
+            @keyup.enter="changeTotal"
+            v-model="pay"
+            type="number"
+            placeholder="Pago"
+          />
+          <input @keyup.enter="changeTotal" type="text" v-model="totalForChange">
+          <label for="">Vuelto: ${{ change }}</label>
+        </div>
       </div>
     </div>
 
@@ -181,8 +195,6 @@
       </div>
     </div>
 
-   
-
     <div v-if="succesMessageVisible" class="alert alert-success" role="alert">
       <h4 class="alert-heading">
         VENTA EXITOSA <i class="bi bi-check-circle-fill"></i>
@@ -227,14 +239,16 @@ export default {
       instructions: "",
       searchByNameState: false,
       searchByCodeState: true,
-      searchMessage:'nombre',
-      // productInfoInData:[]
+      searchMessage: "nombre",
+      change: "",
+      pay: "",
+      totalForChange:0
     };
   },
   methods: {
     async getProductBybarCode(barcode) {
       try {
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
 
         const response = await axios.get(
           `http://localhost:3000/products/cate/${businessId}/${barcode}`
@@ -261,9 +275,8 @@ export default {
           }
         } else {
           if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
-            this.getProductFromGoUpc(barcode)
-            this.data.name=
-            this.data.barCode = barcode;
+            this.getProductFromGoUpc(barcode);
+            this.data.name = this.data.barCode = barcode;
             this.changeStatusOfForm();
           }
         }
@@ -273,7 +286,7 @@ export default {
     },
     async getProductByName() {
       try {
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
 
         const response = await axios.get(
           `http://localhost:3000/products/${businessId}/search/${this.productName}`
@@ -314,7 +327,7 @@ export default {
         if (!this.data.name || !this.data.sellPrice) {
           window.alert("Los campos no deben estar vacíos");
         } else {
-      const businessId= localStorage.getItem('businessId')
+          const businessId = localStorage.getItem("businessId");
 
           const sellPriceFormated = numeral(this.data.sellPrice).value();
           const newProduct = await axios.post(
@@ -349,7 +362,7 @@ export default {
       for (const product of this.productsIds) {
         arrayOfIds.push(product);
       }
-      const businessId= localStorage.getItem('businessId')
+      const businessId = localStorage.getItem("businessId");
 
       const saleData = {
         total: this.total,
@@ -357,6 +370,7 @@ export default {
         productIds: arrayOfIds,
         paymentMethod: this.paymentMethod,
       };
+
       if (this.clientId && this.clientId !== "General") {
         saleData.clientId = this.clientId;
       }
@@ -367,6 +381,9 @@ export default {
 
       try {
         const sale = await axios.post("http://localhost:3000/sales", saleData);
+
+        this.totalForChange=this.total
+        console.log('Cambio: ',this.totalForChange);
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
@@ -392,6 +409,8 @@ export default {
           this.paymentMethod = "Efectivo";
           this.clientId = "General";
           this.showSuccesMessage();
+        console.log('Cambio despues : ',this.totalForChange);
+
         } else {
           console.log("Error al realizar la venta");
         }
@@ -401,7 +420,7 @@ export default {
     },
     async getBusinessData() {
       try {
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
 
         const res = await axios.get(
           `http://localhost:3000/business/${businessId}`
@@ -415,7 +434,7 @@ export default {
     },
     async getCategoryesIds() {
       try {
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
 
         const res = await axios.get(
           `http://localhost:3000/categoryes/get/categoriyesIds/${businessId}`
@@ -427,24 +446,37 @@ export default {
         throw error;
       }
     },
-    async getProductFromGoUpc(barcode){
+    async getProductFromGoUpc(barcode) {
       try {
-        console.log('El barcode es: ',barcode);
+        console.log("El barcode es: ", barcode);
 
-        const result= await axios.get(`http://localhost:3000/globalproducts/${barcode}`)
+        const result = await axios.get(
+          `http://localhost:3000/globalproducts/${barcode}`
+        );
         console.log(result.data.product);
-        const productData={
-          name:result.data.product.name,
-          description:result.data.product.description,
-          category:result.data.product.category,
-        }
-        this.data.name=productData.name
-
+        const productData = {
+          name: result.data.product.name,
+          description: result.data.product.description,
+          category: result.data.product.category,
+        };
+        this.data.name = productData.name;
       } catch (error) {
-        throw error
+        throw error;
       }
     },
     // **********************LLAMADAS A LA API******************************************************************
+    changeTotal() {
+      try {
+        this.change = this.totalForChange - this.pay;
+        setTimeout(() => {
+          this.change=0
+          this.totalForChange=0
+          this.pay=0
+        }, 10000);
+      } catch (error) {
+        throw error;
+      }
+    },
     removeFromCart(index) {
       const removedProduct = this.carrito[index];
       this.total -= this.getTotalProductPrice(removedProduct);
@@ -524,17 +556,17 @@ export default {
       printWindow.document.close();
       printWindow.print();
     },
-    changeStateOfSearch(){
-      if(this.searchByCodeState === true){
-        this.searchByNameState=true
-        this.searchByCodeState=false
-        this.searchMessage='código'
-      }else{
-        this.searchByNameState=false
-        this.searchByCodeState=true
-        this.searchMessage='nombre'
+    changeStateOfSearch() {
+      if (this.searchByCodeState === true) {
+        this.searchByNameState = true;
+        this.searchByCodeState = false;
+        this.searchMessage = "código";
+      } else {
+        this.searchByNameState = false;
+        this.searchByCodeState = true;
+        this.searchMessage = "nombre";
       }
-    }
+    },
   },
   computed: {
     getTotalProductPrice() {
@@ -554,6 +586,19 @@ export default {
 </script>
 
 <style scoped>
+.btn-and-change-container {
+  display: flex;
+  justify-content: space-between; /* Alinea los elementos a los extremos */
+}
+.change-container {
+  width: 300px;
+  background-color: white;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  margin-top: -30px;
+}
 .searchSwitch button {
   margin: 10px;
   border-radius: 15px;
@@ -695,8 +740,9 @@ export default {
 }
 .buttons {
   margin: 10px;
-  width: 100%;
+  width: 50%;
   display: flex;
+  flex-direction: column;
   grid-row: 4;
 }
 

@@ -10,7 +10,20 @@
           Registrar nueva compra
         </button>
       </div>
-      <div class="date"></div>
+      <div class="date">
+        <button
+          style="
+            border: none;
+            border-radius: 0%;
+            background-color: #ffffff;
+            box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+            font-weight: bold;
+          "
+          @click.prevent="changeSupplierFormStatus"
+        >
+          Registrar nuevo proveedor
+        </button>
+      </div>
     </div>
     <div class="assistentComponent">
       <h4>Asistente virtual</h4>
@@ -21,6 +34,12 @@
       />
       <button @click="askGpt">Consultar</button>
       <p v-html="formattedResponse()"></p>
+    </div>
+
+    <div class="ocr-container">
+      <h4>Cargar factura con foto</h4>
+      <input type="file" ref="fileInput" />
+      <button @click="analizeFile">Subir Archivo</button>
     </div>
 
     <div class="table-responsive">
@@ -137,6 +156,39 @@
         </div>
       </form>
     </div>
+
+    <div v-if="supplierForm" class="register-component">
+      <form action="" class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Nuevo proveedor</h3>
+
+          <input
+            v-model="supplierData.name"
+            type="text"
+            placeholder="Nombre..."
+          />
+
+          <input
+            v-model="supplierData.email"
+            type="email"
+            placeholder="Email..."
+          />
+
+          <input
+            v-model="supplierData.phone"
+            type="number"
+            placeholder="Telefono..."
+          />
+
+          <button @click.prevent="changeSupplierFormStatus" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click.prevent="createProvider" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -154,6 +206,7 @@ export default {
       editFormStatus: false,
       buy_id: null,
       data: {
+        tittle: "",
         // product: "",
         description: "",
         // quantity: "",
@@ -167,6 +220,13 @@ export default {
       question: "",
       respuesta: "",
       information: [],
+      visionDataArray: [],
+      supplierForm: false,
+      supplierData: {
+        name: "",
+        email: "",
+        phone: "",
+      },
     };
   },
   methods: {
@@ -178,7 +238,6 @@ export default {
         );
         const buys = response.data;
         this.buysArray = buys;
-        console.log(buys);
       } catch (error) {
         console.log(error);
       }
@@ -271,7 +330,22 @@ export default {
         throw error;
       }
     },
-
+    async createProvider() {
+      try {
+        const provider = await axios.post("http://localhost:3000/providers", {
+          name: this.supplierData.name,
+          telephone: this.supplierData.phone,
+          email: this.supplierData.email,
+          businessId: businessId,
+        });
+        this.changeSupplierFormStatus();
+        this.supplierData.name = "";
+        this.supplierData.email = "";
+        this.supplierData.phone = "";
+      } catch (error) {
+        throw error
+      }
+    },
     async askGpt() {
       try {
         console.log("Pregunta: ", this.question);
@@ -286,6 +360,48 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async analizeFile() {
+      try {
+        const file = this.$refs.fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await axios.post(
+          `http://localhost:3000/chat-gpt/google/ocr`,
+          formData
+          // {
+          //   headers: {
+          //     "Content-Type": "multipart/form-data",
+          //   },
+          // }
+        );
+
+        const prompt =
+          "Formatealo en JSON y devuelvelo formateado en clave valor como description,date,total,tittle,buyer,seller,email,paymentMethod,from,to,identificationNumber,products y lo que consideres relevante crear(si ese campo no tiene elementos, omitelo), siempre devuelvelo sin caracteres especiales, debe volver listo para ser consumido en el front.Devuelve la respuesta como un JSON listo para ser enviado al front end, sin caracteres especiales. No debe tener caracteres especiales, debe ser devuelto listo para ser consumido en el frontend.Siempre devuelve el JSON listo para ser consumido, nunca te olvides de formatearlo, que no tenga caracteres especiales. El json debe estar en el siguiente formato:{'clave':'valor'}.NUNCA LO DEVUELVA AL JSON ENVUELTO EN TEMPLATE STRINGS ";
+
+        const formatTest = await axios.post(
+          `http://localhost:3000/chat-gpt/vision/format`,
+          {
+            message: prompt,
+            information: response.data,
+          }
+        );
+
+        const data = formatTest.data;
+        this.visionDataArray = data;
+
+        this.data.tittle = this.visionDataArray.title;
+        this.data.description = this.visionDataArray.title;
+        this.data.price = this.visionDataArray.total;
+        this.data.receiptNumber = this.visionDataArray.identificationNumber;
+
+        this.changeFormStatus()
+
+        console.log(this.data);
       } catch (error) {
         throw error;
       }
@@ -315,6 +431,9 @@ export default {
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
     },
+    changeSupplierFormStatus() {
+      this.supplierForm = !this.supplierForm;
+    },
   },
   created() {
     this.getAllBuys(), this.getAllProviders();
@@ -323,6 +442,14 @@ export default {
 </script>
 
 <style scoped>
+.ocr-container {
+  background-color: #ffffff;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  margin-left: 10px;
+  margin-top: 10px;
+  margin-right: 10px;
+  padding: 10px;
+}
 .buysContainer {
   margin-left: 10px;
 }
@@ -355,12 +482,9 @@ export default {
 }
 
 .top-container button {
-  border-radius: 15px;
-  padding: 10px;
   border: none;
   background-color: #149c68;
   color: white;
-  font-size: 18px;
   font-weight: bold;
   transition: transform 0.3s ease;
 }

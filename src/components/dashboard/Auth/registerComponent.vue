@@ -16,6 +16,15 @@
           />
         </div>
         <div class="form-group">
+          <label for="username">Número de identificación de negocio:</label>
+          <input
+            type="text"
+            id="username"
+            v-model="formData.businessId"
+            required
+          />
+        </div>
+        <div class="form-group">
           <label for="email">Correo electrónico:</label>
           <input
             autocomplete="email"
@@ -75,7 +84,7 @@
 
 <script>
 import axios from "axios";
-import { useRouter } from "vue-router";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -84,6 +93,7 @@ export default {
         username: "",
         email: "",
         password: "",
+        businessId:""
       },
       error: "",
       loginState: true,
@@ -94,14 +104,13 @@ export default {
   methods: {
     async registerUser() {
       try {
-        const businessId = localStorage.getItem("businessId");
         const user = await axios.post(
-          `http://localhost:3000/auth/register/${businessId}`,
+          `http://localhost:3000/auth/register/${this.formData.businessId}`,
           {
             username: this.formData.username,
             password: this.formData.password,
             email: this.formData.email,
-            businessId: businessId,
+            businessId: this.formData.businessId,
           }
         );
 
@@ -155,11 +164,11 @@ export default {
 .main-container {
   background-color: #f0e7f7;
   height: 100vh;
-  padding-top: 120px;
+  padding-top: 50px;
 }
 .register-user {
   max-width: 400px;
-  height: 420px;
+  height: 520px;
   margin: 0 auto;
   padding: 20px;
   background-color: #ffffff;
