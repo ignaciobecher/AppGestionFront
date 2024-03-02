@@ -354,8 +354,9 @@ export default {
         console.log("Pregunta: ", this.question);
         console.log("Informacion: ", this.information);
         const response = await axios.post(
-          `http://localhost:3000/chat-gpt/${this.question}`,
+          `http://localhost:3000/chat-gpt`,
           {
+            message:this.question,
             info: this.information,
           }
         );
@@ -614,5 +615,23 @@ input {
   font-size: 20px;
   font-weight: 500;
   color: white;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .datesDiv{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .datesDiv input{
+    width: 95vw;
+  }
+
+  .datesDiv button{
+    width: 95vw;
+    margin-top: 10px;
+  }
+
 }
 </style>

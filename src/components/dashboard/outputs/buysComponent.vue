@@ -352,8 +352,9 @@ export default {
         console.log("Informacion: ", this.information);
         this.information = this.buysArray;
         const response = await axios.post(
-          `http://localhost:3000/chat-gpt/${this.question}`,
+          `http://localhost:3000/chat-gpt`,
           {
+            message:this.question,
             info: this.information,
           }
         );
@@ -400,7 +401,7 @@ export default {
         this.data.receiptNumber = this.visionDataArray.identificationNumber;
 
         this.changeFormStatus()
-
+        
         console.log(this.data);
       } catch (error) {
         throw error;
@@ -450,9 +451,7 @@ export default {
   margin-right: 10px;
   padding: 10px;
 }
-.buysContainer {
-  margin-left: 10px;
-}
+
 .table-body input {
   width: 100%;
 }
@@ -603,5 +602,100 @@ select {
   font-size: 20px;
   font-weight: 500;
   color: white;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .datesDiv{
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .datesDiv input{
+    width: 95vw;
+  }
+
+  .datesDiv button{
+    width: 95vw;
+    margin-top: 10px;
+  }
+  .searchbar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  }
+
+  .searchbar-container input{
+    width: 95vw;
+    margin-left: 10px;
+    border-radius: 0%;
+  }
+ 
+  .searchbar-container button{
+    width: 95vw;
+    border-radius: 0%;
+  }
+
+  .date button{
+    margin-left: 10px;
+  }
+  .expenses-form {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  background-color: white;
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  color: black;
+}
+
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.expenses-form {
+  h3 {
+    color: black;
+  }
+}
+
+
+
+.btn-cancel,
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 0%;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  color: black;
+  margin-bottom: 5px;
+  background-color: #d02941;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.btn-confirm {
+  background-color: #149c68;
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
 }
 </style>

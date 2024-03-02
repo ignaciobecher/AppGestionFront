@@ -39,8 +39,9 @@ export default {
         console.log('Informacion: ',this.information);
 
         const response = await axios.post(
-          `http://localhost:3000/chat-gpt/${this.question}`,
+          `http://localhost:3000/chat-gpt/`,
           {
+            message:this.question,
             info: this.information,
           }
         );

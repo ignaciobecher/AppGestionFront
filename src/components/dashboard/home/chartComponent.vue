@@ -21,7 +21,7 @@
       </button>
     </div>
 
-    <div>
+    <div style="margin-right: 10px;">
       <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
     </div>
   </div>
@@ -183,7 +183,7 @@ export default {
 .mainContainer{
   background-color:#ffffff ;
   box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
-  margin-left: 10px;
+  margin: 10px;
 }
 
 #my-chart-id {
@@ -194,5 +194,19 @@ export default {
 .btns button {
   background-color: #b28cc4;
   margin-top: 10px;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .mainContainer{
+  background-color:#ffffff ;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  margin-right: 10px;
+}
+
+
+#my-chart-id {
+  background-color: #ffffff;
+}
 }
 </style>

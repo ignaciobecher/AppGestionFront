@@ -3,28 +3,19 @@
     <div class="info-container">
       <h4><i class="bi bi-cash"></i> Balance actual</h4>
       <h3>{{ formatPrice(totalBalance) }}</h3>
-      <div class="button-container">
-        <button>Asistente virtual</button>
-        <br />
-      </div>
+     
     </div>
 
     <div class="info-container">
       <h4><i class="bi bi-box"></i> Stock actual</h4>
-      <h3>{{ totalStock }}</h3>
-      <div class="button-container">
-        <button>Asistente virtual</button>
-        <br />
-      </div>
+      <h3>{{ totalStock }} productos</h3>
+     
     </div>
 
     <div class="info-container">
       <h4><i class="bi bi-bag"></i>Ventas de hoy</h4>
-      <h3>{{ todaySales }}</h3>
-      <div class="button-container">
-        <button>Asistente virtual</button>
-        <br />
-      </div>
+      <h3>{{ todaySales }} ventas</h3>
+      
     </div>
   </div>
   
@@ -111,11 +102,7 @@ export default {
   color: white;
 }
 
-/* .info-container:hover {
-  color: #5c39f5;
-  background-color: #292a31 !important;
-  border: 1px solid white;
-} */
+
 
 .info-container .router {
   color: black;
@@ -144,5 +131,13 @@ export default {
 .info-container a {
   text-decoration: underline;
   color: black;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .informContainer{
+    display: flex !important;
+    flex-direction: column !important;
+  }
 }
 </style>

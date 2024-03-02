@@ -126,4 +126,12 @@ export default {
   color:  #242445 
 }
 
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .mainBtns{
+    display: flex;
+    flex-direction: column;
+    margin-top: 80px;
+  }
+}
 </style>

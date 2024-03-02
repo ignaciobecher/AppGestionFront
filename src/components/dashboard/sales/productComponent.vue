@@ -468,6 +468,7 @@ export default {
     changeTotal() {
       try {
         this.change = this.totalForChange - this.pay;
+        this.change=this.change * (-1)
         setTimeout(() => {
           this.change=0
           this.totalForChange=0
@@ -840,5 +841,45 @@ select {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .searchbar-container{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .searchbar-container input{
+    width: 95vw;
+  }
+
+  .searchbar-container .salesBtn{
+    width: 95vw;
+    padding-left: 0;
+    margin-left: 10px;
+  }
+
+  .btn-and-change-container{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .change-container{
+    display: flex;
+    margin-top: 20px;
+    align-items: flex-start;
+    width: 100vw;
+  }
+  .btn-and-change-container button{
+    border-radius: 0%;
+    width: 95vw;
+  }
+
+  .btn-and-change-container input{
+    width: 95vw;
+    border-radius: 0%;
+  }
 }
 </style>

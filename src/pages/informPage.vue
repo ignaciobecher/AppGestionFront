@@ -1,24 +1,26 @@
 <template>
-  <informContainer class="resume"></informContainer>
-  <div class="assistentComponent">
-    <h4>Asistente virtual</h4>
-    <input
-      type="text"
-      v-model="question"
-      placeholder="Ingresa tu consulta sobre los ingresos..."
-    />
-    <button @click="askGpt">Consultar</button>
-    <p v-html="formattedResponse()"></p>
-  </div>
+  <div class="main-container">
+    <informContainer class="resume"></informContainer>
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre los ingresos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
 
-  <div class="secondContainer">
-    <pieChart class="chart"></pieChart>
-    <div class="graphics">
-      <columnChart v-show="dayChart"></columnChart>
-      <monthSalesChart v-show="monthChart"></monthSalesChart>
-      <button class="visibilityBtn" @click="changeChartVisibility">
-        Mes/Día
-      </button>
+    <div class="secondContainer">
+      <pieChart class="chart"></pieChart>
+      <div class="graphics">
+        <columnChart v-show="dayChart"></columnChart>
+        <monthSalesChart v-show="monthChart"></monthSalesChart>
+        <button class="visibilityBtn" @click="changeChartVisibility">
+          Mes/Día
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -59,10 +61,11 @@ export default {
         );
         const salesData = sales.data;
 
-        this.information = this.salesData;
+      
         const response = await axios.post(
-          `http://localhost:3000/chat-gpt/${this.question}`,
+          `http://localhost:3000/chat-gpt`,
           {
+            message:this.question,
             info: this.information,
           }
         );
@@ -135,5 +138,23 @@ export default {
   font-weight: 500;
   color: white;
   margin-top: 10px;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px) {
+  /* .main-container{
+    display: flex;
+    flex-direction: column;
+  } */
+
+  .secondContainer{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .graphics{
+    margin-top: 10px;
+    margin-left: 10px;
+  }
 }
 </style>

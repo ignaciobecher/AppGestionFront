@@ -51,4 +51,19 @@ export default {
 }
 
 
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .resume{
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .graphics{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+}
+
+
 </style>

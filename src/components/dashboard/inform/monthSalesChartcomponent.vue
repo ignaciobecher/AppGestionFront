@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-container">
     <div class="inputsContainer">
       <input v-model="startMonth" type="month" />
       <input v-model="endMonth" type="month" />
@@ -128,6 +128,13 @@ export default {
   }
   to {
     opacity: 0.5;
+  }
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .main-container{
+    margin-top: 10px;
   }
 }
 </style>

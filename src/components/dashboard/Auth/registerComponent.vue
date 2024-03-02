@@ -13,6 +13,7 @@
             id="username"
             v-model="formData.username"
             required
+            autocomplete="username"
           />
         </div>
         <div class="form-group">

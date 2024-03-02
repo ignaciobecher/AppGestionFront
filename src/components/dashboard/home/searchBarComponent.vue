@@ -4,9 +4,9 @@
 
     <div class="input-container">
     </div>
-    <div class="date">
+    <!-- <div class="date">
       <img style="width: 100px" src="../../../assets/3.png" alt="" />
-    </div>
+    </div> -->
   </div>
 </template>
 

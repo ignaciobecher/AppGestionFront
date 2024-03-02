@@ -175,4 +175,11 @@ export default {
     opacity: 0.5;
   }
 }
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .main-container{
+    margin-top: 10px;
+  }
+}
 </style>
