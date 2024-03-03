@@ -1,18 +1,40 @@
 <template>
   <div class="searchbar-container">
-    <p>Bienvenido </p>
+    <p>Bienvenido {{ userName }}</p>
+
     <div class="input-container">
-      <input placeholder="Buscar... " type="search" />
-      <i class="bi bi-search"></i>
     </div>
-    <div class="date"></div>
+    <!-- <div class="date">
+      <img style="width: 100px" src="../../../assets/3.png" alt="" />
+    </div> -->
   </div>
 </template>
 
 <script>
+import axios from "axios";
 import moment from "moment";
 export default {
+  data() {
+    return {
+      userName: "",
+    };
+  },
   methods: {
+    async getUserInfo() {
+      try {
+        const userId = localStorage.getItem("userId");
+        const response = await axios.get(
+          `https://api-gestion-ahil..onrender.com/auth/${userId}`
+        );
+        const user = response.data;
+
+        const userName = user.username;
+        this.userName = userName;
+        console.log(user.businessId);
+      } catch (error) {
+        throw error;
+      }
+    },
     getDate() {
       const date = new Date();
       this.todayDate = date;
@@ -23,6 +45,9 @@ export default {
   },
   created() {
     this.getDate();
+  },
+  mounted() {
+    this.getUserInfo();
   },
 };
 </script>
@@ -44,7 +69,7 @@ export default {
 
 .input-container {
   position: relative;
-  margin-left: 500px; /* Puedes ajustar este valor según sea necesario */
+  margin-left: 400px; /* Puedes ajustar este valor según sea necesario */
 }
 
 .input-container input {
@@ -63,6 +88,6 @@ export default {
 }
 
 .date {
-  margin-left: 170px;
+  margin-left: 200px;
 }
 </style>

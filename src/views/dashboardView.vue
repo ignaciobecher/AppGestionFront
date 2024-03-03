@@ -1,11 +1,62 @@
 <template>
+  <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light" v-if="isMobile">
+    <a class="navbar-brand" href="#">{{businessName}}</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#" @click="togglePage('home')">Inicio </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" @click="togglePage('sales')">Ventas</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#" @click="togglePage('inputs')"
+            >Ingresos</a
+          >
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#" @click="togglePage('buys')">Gastos</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#" @click="togglePage('stock')"
+            >Productos</a
+          >
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#" @click="togglePage('inform')">Informe</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" @click="logoutUser">Cerrar sesión</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
   <div class="dashboard-container">
-    <div class="sidebar-container">
+    <div class="sidebar-container" v-if="!isMobile">
       <div class="sidebar">
         <div class="img-logo">
-          <img style="width: 150px; " src="../assets/3.png" alt="" />
-          <p>Cuyo Software</p>
+          <p>{{ businessName }}</p>
         </div>
+        <p style="color: white; margin-left: 20px; font-size: 10px">
+          {{ bussId }}
+        </p>
 
         <div class="nav-links">
           <a href="#" @click="togglePage('home')"
@@ -27,9 +78,10 @@
           <a href="#" @click="togglePage('inform')"
             ><i class="bi bi-bar-chart"></i> Informe</a
           >
-          <a href=""
-            ><i class="bi bi-person-arms-up"></i> Asistente </a
-          >
+          <a href=""><i class="bi bi-info"></i>Mis datos</a>
+          <a @click="logoutUser" href="#"
+            ><i class="bi bi-x-circle"></i> Cerrar sesion
+          </a>
         </div>
       </div>
     </div>
@@ -52,6 +104,7 @@ import outPutsPage from "@/pages/outPutsPage.vue";
 import homePage from "../pages/homePage.vue";
 import salePage from "../pages/salePage.vue";
 import stockPage from "../pages/stockPage.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -70,9 +123,27 @@ export default {
       stockPage: false,
       inputPage: false,
       informPage: false,
+      businessName: "",
+      bussId: "",
     };
   },
   methods: {
+    async getBusinessInfo() {
+      try {
+        const businessId = localStorage.getItem("businessId");
+        const response = await axios.get(
+          `http://localhost:3000/business/${businessId}`
+        );
+        const business = response.data;
+
+        const name = business.name;
+        const id = business.businessId;
+        this.bussId = businessId;
+        this.businessName = name;
+      } catch (error) {
+        throw error;
+      }
+    },
     togglePage(page) {
       this.homePage = page === "home";
       this.salesPage = page === "sales";
@@ -81,6 +152,20 @@ export default {
       this.inputPage = page === "inputs";
       this.informPage = page === "inform";
     },
+    logoutUser() {
+      // Eliminar el token del localStorage
+      this.$router.push("/register");
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("businessId");
+      localStorage.removeItem("userId");
+    },
+  },
+  mounted() {
+    this.getBusinessInfo(),
+      (this.isMobile = window.innerWidth <= 768),
+      window.addEventListener("resize", () => {
+        this.isMobile = window.innerWidth <= 768;
+      });
   },
 };
 </script>
@@ -91,7 +176,7 @@ export default {
   grid-template-columns: 20% 80%;
   width: 100%;
   background-color: #f0e7f7;
-
+  height: 100vh;
 }
 
 .sidebar-container {
@@ -104,13 +189,15 @@ export default {
 
 .pages-container {
   background-color: #f0e7f7;
-  height: 100vh;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .img-logo {
   p {
-    margin-left: 10px;
+    margin-left: 20px;
     font-size: 30px;
+    font-weight: 500;
     color: white;
   }
 }
@@ -147,5 +234,21 @@ export default {
 
 .active {
   color: #5c39f5 !important;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px) {
+  .dashboard-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    background-color: #f0e7f7;
+  }
+
+  .pages-container {
+    background-color: #f0e7f7;
+  }
+
+ 
 }
 </style>

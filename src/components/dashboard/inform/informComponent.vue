@@ -3,30 +3,22 @@
     <div class="info-container">
       <h4><i class="bi bi-cash"></i> Balance actual</h4>
       <h3>{{ formatPrice(totalBalance) }}</h3>
-      <div class="button-container">
-        <button>Asistente virtual</button>
-        <br />
-      </div>
+     
     </div>
 
     <div class="info-container">
       <h4><i class="bi bi-box"></i> Stock actual</h4>
-      <h3>{{ totalStock }}</h3>
-      <div class="button-container">
-        <button>Asistente virtual</button>
-        <br />
-      </div>
+      <h3>{{ totalStock }} productos</h3>
+     
     </div>
 
     <div class="info-container">
       <h4><i class="bi bi-bag"></i>Ventas de hoy</h4>
-      <h3>{{ todaySales }}</h3>
-      <div class="button-container">
-        <button>Asistente virtual</button>
-        <br />
-      </div>
+      <h3>{{ todaySales }} ventas</h3>
+      
     </div>
   </div>
+  
 </template>
 
 <script>
@@ -42,24 +34,30 @@ export default {
   },
   methods: {
     async getBalance() {
+      const businessId = localStorage.getItem("businessId");
+
       const sales = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/salesTotal/65bfdff8a75ffb8fb6be8937"
+        `https://api-gestion-ahil.onrender.com/business/salesTotal/${businessId}`
       );
       const data = sales.data;
       console.log("Total de ventas: ", data);
       this.totalBalance = data;
     },
     async getTotalStock() {
+      const businessId = localStorage.getItem("businessId");
+
       const products = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/products/65bfdff8a75ffb8fb6be8937"
+        `https://api-gestion-ahil.onrender.com/business/products/${businessId}`
       );
       const data = products.data;
       this.totalStock = data.length;
     },
     async getSalesDay() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`
         );
         const data = sales.data;
         const todayDate = new Date().toLocaleDateString();
@@ -104,11 +102,7 @@ export default {
   color: white;
 }
 
-/* .info-container:hover {
-  color: #5c39f5;
-  background-color: #292a31 !important;
-  border: 1px solid white;
-} */
+
 
 .info-container .router {
   color: black;
@@ -116,13 +110,12 @@ export default {
   text-decoration: none;
 }
 
-
 .info-container h3 {
   padding: 10px;
-  transition: color 0.5s ;
+  transition: color 0.5s;
 }
 
-.info-container h3:hover{
+.info-container h3:hover {
   color: #5c39f5;
 }
 
@@ -138,5 +131,13 @@ export default {
 .info-container a {
   text-decoration: underline;
   color: black;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .informContainer{
+    display: flex !important;
+    flex-direction: column !important;
+  }
 }
 </style>

@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div class=categoryDiv>
+    <div class="categoryDiv">
       <input
         @input="checkCategoryInput"
         v-model="categoryName"
@@ -27,9 +27,45 @@
         id=""
         class="inputCate"
       />
+      <button
+        @click="changeStatusOfCategoryForm"
+        style="
+          margin-left: 10px;
+          border: none;
+          background-color: #574f7a;
+          color: white;
+          font-weight: 400;
+        "
+      >
+        Nueva categoria
+      </button>
     </div>
 
-    <div v-if="(categoriesState === false)" class="table-responsive">
+    <div style="margin: 10px">
+      <input
+        style="border: none; border-radius: 0%"
+        v-model="productCode"
+        type="search"
+        @keyup.enter="getProductFromGoUpc(productCode)"
+        name=""
+        placeholder="Ingrese un codigo de barras y el asistente lo ayudara a completar..."
+        id=""
+      />
+    </div>
+
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre los productos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
+
+    <div v-if="categoriesState === false" class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
           <tr class="tableRow">
@@ -297,7 +333,12 @@
               {{ ids.name }}
             </option>
           </select>
-          <input v-model="data.sellPrice" type="text" placeholder="Precio..." @input="formatPriceInput"/>
+          <input
+            v-model="data.sellPrice"
+            type="text"
+            placeholder="Precio..."
+            @input="formatPriceInput"
+          />
           <input
             v-model="data.barCode"
             type="text"
@@ -308,7 +349,7 @@
             type="text"
             placeholder="Stock mínimo..."
           />
-          <p>Fecha de vencimiento: </p>
+          <p>Fecha de vencimiento:</p>
           <input
             v-model="data.expirationDate"
             type="date"
@@ -323,6 +364,23 @@
         </div>
       </div>
     </div>
+
+    <div v-if="categoryStatus" class="register-component">
+      <div class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Nueva categoria</h3>
+          <input
+            v-model="newCategoryName"
+            type="text"
+            placeholder="Categoria..."
+          />
+          <button @click="changeStatusOfCategoryForm" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click="createCategory" class="btn-confirm">Confirmar</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -330,6 +388,7 @@
 import numeral from "numeral";
 import axios from "axios";
 import moment from "moment";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -351,17 +410,24 @@ export default {
       foundProduct: true,
       categoriesIds: [],
       selectedCategoryId: null,
-      categoriesProducts:[],
-      categoryName:'',
-      categoriesState:false
+      categoriesProducts: [],
+      categoryName: "",
+      categoriesState: false,
+      newCategoryName: "",
+      categoryStatus: false,
+      productCode: "",
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllProducts() {
       try {
+
         const result = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/products/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/products/${businessId}`
         );
         const data = result.data;
         this.products = data;
@@ -412,7 +478,8 @@ export default {
           const formattedDate = moment(this.data.expirationDate).format(
             "DD-MM-YYYY"
           );
-        const totalWhitoutFormat = numeral(this.data.sellPrice).value();
+          const totalWhitoutFormat = numeral(this.data.sellPrice).value();
+          const businessId = localStorage.getItem("businessId");
 
           const newProduct = await axios.post(
             `https://api-gestion-ahil.onrender.com/products/${this.selectedCategoryId}`,
@@ -424,7 +491,7 @@ export default {
               barCode: this.data.barCode,
               expirationDate: formattedDate,
               minimumStock: this.data.minimumStock,
-              businessId: "65bfdff8a75ffb8fb6be8937",
+              businessId: businessId,
             }
           );
           this.data.name = "";
@@ -432,6 +499,7 @@ export default {
           this.data.quantity = "";
           this.data.barCode = "";
           this.data.minimumStock = "";
+          this.productCode = "";
           this.getAllProducts();
 
           setTimeout(() => {
@@ -442,10 +510,32 @@ export default {
         console.log("Error: ", error);
       }
     },
+    async createCategory() {
+      try {
+        const businessId = localStorage.getItem("businessId");
+
+        const newCategory = await axios.post(
+          "https://api-gestion-ahil.onrender.com/categoryes",
+          {
+            name: this.newCategoryName,
+            businessId: businessId,
+          }
+        );
+        if (newCategory) {
+          window.alert("Categoria creada");
+          this.changeStatusOfCategoryForm();
+          this.getCategoryesIds();
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
     async searchProduct(productName) {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const product = await axios.get(
-          `https://api-gestion-ahil.onrender.com/products/65bfdff8a75ffb8fb6be8937/search/${productName}`
+          `https://api-gestion-ahil.onrender.com/products/${businessId}/search/${productName}`
         );
         const productoEncontrado = product.data.product;
 
@@ -462,8 +552,10 @@ export default {
     },
     async getCategoryesIds() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const res = await axios.get(
-          "https://api-gestion-ahil.onrender.com/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/categoryes/get/categoriyesIds/${businessId}`
         );
 
         const cateIds = res.data;
@@ -472,37 +564,89 @@ export default {
         throw error;
       }
     },
-    async getCategoriesProducts(){
+    async getCategoriesProducts() {
       try {
-        const res=await axios.get(`https://api-gestion-ahil.onrender.com/categoryes/filter/category/65bfdff8a75ffb8fb6be8937/${this.categoryName}`)
-        const products=res.data
+        const businessId = localStorage.getItem("businessId");
+
+        const res = await axios.get(
+          `https://api-gestion-ahil.onrender.com/categoryes/filter/category/${businessId}/${this.categoryName}`
+        );
+        const products = res.data;
         for (const iterator of products[0]) {
-          this.categoriesProducts.push(iterator)
+          this.categoriesProducts.push(iterator);
         }
-        this.categoriesState=true
+        this.categoriesState = true;
         console.log(this.categoriesProducts);
-        
       } catch (error) {
-        throw error
+        throw error;
+      }
+    },
+    async getProductFromGoUpc(barcode) {
+      try {
+        console.log("El barcode es: ", barcode);
+
+        const result = await axios.get(
+          `https://api-gestion-ahil.onrender.com/globalproducts/${barcode}`
+        );
+        if (!result && !result.data.product) {
+          window.alert(
+            "No pudimos encontrar el producto en nuestra base de datos"
+          );
+          this.barCode = "";
+        } else {
+          const productData = {
+            name: result.data.product.name,
+            description: result.data.product.description,
+            category: result.data.product.category,
+            code: result.data.product.ean,
+          };
+          this.changeStatusOfForm();
+          this.data.name = productData.name;
+          this.data.barCode = productData.code;
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
+    async askGpt() {
+      try {
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        this.information = this.products;
+        const response = await axios.post(
+          `https://api-gestion-ahil.onrender.com/chat-gpt`,
+          {
+            message:this.question,
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
       }
     },
     // *****************************************************************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
     formatPriceInput() {
       // Formatear el precio mientras se escribe
-      this.data.sellPrice = numeral(this.data.sellPrice).format('$0,0');
+      this.data.sellPrice = numeral(this.data.sellPrice).format("$0,0");
     },
     checkInput() {
       if (this.productName === "") {
         this.foundProduct = true;
       }
     },
-    checkCategoryInput(){
-      if(this.categoryName === ''){
-        this.categoriesState = false
-        this.categoriesProducts=[]
+    checkCategoryInput() {
+      if (this.categoryName === "") {
+        this.categoriesState = false;
+        this.categoriesProducts = [];
       }
     },
     setId(id) {
@@ -514,11 +658,14 @@ export default {
     },
     changeStatusOfForm() {
       this.formStatus = !this.formStatus;
-      this.data.name=''
-      this.data.quantity=null
-      this.data.sellPrice=null
-      this.data.barCode=null
-      this.data.minimumStock=null
+      this.data.name = "";
+      this.data.quantity = null;
+      this.data.sellPrice = null;
+      this.data.barCode = null;
+      this.data.minimumStock = null;
+    },
+    changeStatusOfCategoryForm() {
+      this.categoryStatus = !this.categoryStatus;
     },
   },
   mounted() {
@@ -528,24 +675,23 @@ export default {
 </script>
 
 <style scoped>
-.categoryDiv{
+.categoryDiv {
   margin-left: 10px;
   margin-right: 10px;
+  display: flex;
 }
 
-.inputCate{
+.inputCate {
   border: none;
   border-radius: 0;
 }
 .top-container button {
   margin: 10px;
-  border-radius: 15px;
-  padding: 10px;
   border: none;
   background-color: #149c68;
   color: white;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 400;
   transition: transform 0.3s ease;
 }
 
@@ -585,23 +731,23 @@ input {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .tableRow td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .table-body td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
@@ -620,7 +766,6 @@ input {
   top: 10%;
   right: 30%;
   box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
-
 }
 
 .form-group {
@@ -636,7 +781,7 @@ input {
   }
 }
 
-.expenses-form p{
+.expenses-form p {
   padding-top: 10px;
 }
 
@@ -677,5 +822,117 @@ select {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
+}
+
+@media screen and (max-width: 768px){
+  .datesDiv{
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .datesDiv input{
+    width: 95vw;
+  }
+
+  .datesDiv button{
+    width: 95vw;
+    margin-top: 10px;
+  }
+  .searchbar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  }
+
+  .searchbar-container input{
+    width: 95vw;
+    margin-left: 10px;
+    border-radius: 0%;
+  }
+ 
+  .searchbar-container button{
+    width: 95vw;
+    border-radius: 0%;
+  }
+
+ 
+  .expenses-form {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  background-color: white;
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  color: black;
+}
+
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.expenses-form {
+  h3 {
+    color: black;
+  }
+}
+
+
+
+.btn-cancel,
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 0%;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  color: black;
+  margin-bottom: 5px;
+  background-color: #d02941;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.btn-confirm {
+  background-color: #149c68;
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
 }
 </style>

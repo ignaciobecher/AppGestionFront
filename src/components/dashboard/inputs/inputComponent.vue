@@ -10,6 +10,17 @@
       </div>
     </div>
 
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre tus ingresos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -137,14 +148,18 @@ export default {
         value: "",
         expirationDate: "",
       },
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllInputs() {
       try {
+        const businessId = localStorage.getItem("businessId");
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/inputs/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/inputs/${businessId}`
         );
         const inputs = response.data;
         this.inputsArray = inputs;
@@ -186,13 +201,15 @@ export default {
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
-        const value=numeral(this.data.value).value();
+        const businessId = localStorage.getItem("businessId");
+
+        const value = numeral(this.data.value).value();
         const newSale = await axios.post("https://api-gestion-ahil.onrender.com/inputs", {
           name: this.data.product,
           description: this.data.description,
           value: value,
           quantity: this.data.quantity,
-          businessId: "65bfdff8a75ffb8fb6be8937",
+          businessId: businessId,
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
@@ -220,7 +237,29 @@ export default {
         console.log(error);
       }
     },
+    async askGpt() {
+      try {
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        this.information=this.inputsArray
+        const response = await axios.post(
+          `https://api-gestion-ahil.onrender.com/chat-gpt`,
+          {
+            message:this.question,
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
     // ********************************************----------------**************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     setId(id) {
       this.input_Id = id;
     },
@@ -229,7 +268,7 @@ export default {
     },
     formatPriceInput() {
       // Formatear el precio mientras se escribe
-      this.data.value = numeral(this.data.value).format('$0,0');
+      this.data.value = numeral(this.data.value).format("$0,0");
     },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
@@ -295,23 +334,23 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .tableRow td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .table-body td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
@@ -381,4 +420,101 @@ input {
   font-size: 20px;
   font-weight: bold;
 }
+
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .searchbar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  }
+
+  .searchbar-container input{
+    width: 90vw;
+    margin-left: 10px;
+  }
+ 
+  .searchbar-container button{
+    width: 90vw;
+    border-radius: 0%;
+  }
+
+  .expenses-form {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  background-color: white;
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  color: black;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.expenses-form {
+  h3 {
+    color: black;
+  }
+}
+
+
+
+.btn-cancel,
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 0%;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  color: black;
+  margin-bottom: 5px;
+  background-color: #d02941;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.btn-confirm {
+  background-color: #149c68;
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+}
+
 </style>

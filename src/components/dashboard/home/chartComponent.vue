@@ -21,7 +21,7 @@
       </button>
     </div>
 
-    <div>
+    <div style="margin-right: 10px;">
       <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
     </div>
   </div>
@@ -47,6 +47,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale
 );
+import registerComponent from "../Auth/registerComponent.vue";
+
 export default {
   name: "BarChart",
   components: { Bar },
@@ -64,8 +66,9 @@ export default {
   methods: {
     async getSalesDay() {
       try {
+      const businessId= localStorage.getItem('businessId')
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`
         );
         const data = sales.data;
 
@@ -94,8 +97,9 @@ export default {
 
     async getQuantityOfProductsSold() {
       try {
+      const businessId= localStorage.getItem('businessId')
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`
         );
         const data = sales.data;
 
@@ -131,8 +135,9 @@ export default {
     },
 
     async getTotalOfSales(startDate, endDate) {
+      const businessId= localStorage.getItem('businessId')
       let url =
-        "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937";
+        `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`;
 
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;
@@ -178,7 +183,7 @@ export default {
 .mainContainer{
   background-color:#ffffff ;
   box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
-  margin-left: 10px;
+  margin: 10px;
 }
 
 #my-chart-id {
@@ -189,5 +194,19 @@ export default {
 .btns button {
   background-color: #b28cc4;
   margin-top: 10px;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .mainContainer{
+  background-color:#ffffff ;
+  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+  margin-right: 10px;
+}
+
+
+#my-chart-id {
+  background-color: #ffffff;
+}
 }
 </style>

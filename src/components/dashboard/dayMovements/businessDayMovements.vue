@@ -8,7 +8,7 @@
     "
     class="backBtn"
   >
-    <router-link to="/">
+    <router-link to="/home">
       <button
         style="
           margin: 10px;
@@ -33,7 +33,7 @@
       <h1>Ventas</h1>
 
       <ul v-for="(sale, index) in movements.sales" :key="index">
-        <li>Total: ${{ sale.total }}</li>
+        <li>Total: {{ formatPrice(sale.total) }}</li>
         <li>Método de pago: {{ sale.paymentMethod }}</li>
       </ul>
     </div>
@@ -45,7 +45,7 @@
         <li>Nombre: {{ buy.name }}</li>
         <li>Cantidad: {{ buy.quantity }}</li>
         <li>Descripción: {{ buy.description }}</li>
-        <li>Precio: ${{ buy.price }}</li>
+        <li>Precio: {{ formatPrice(buy.price) }}</li>
       </ul>
     </div>
 
@@ -56,11 +56,11 @@
         <li>Nombre: {{ client.name }}</li>
         <li>Direccion: {{ client.address }}</li>
         <li>Mail: {{ client.email }}</li>
-        <li>Deuda: ${{ client.debt }}</li>
+        <li>Deuda: {{ formatPrice(client.debt) }}</li>
       </ul>
     </div>
 
-    <div class="secondContainer">
+    <!-- <div class="secondContainer">
       <h1>Empleados</h1>
 
       <ul v-for="(employee, index) in movements.employees" :key="index">
@@ -69,7 +69,7 @@
         <li>Mail: {{ employee.email }}</li>
         <li>Sueldo: ${{ employee.wage }}</li>
       </ul>
-    </div>
+    </div> -->
 
     <div class="secondContainer">
       <h1>Ingresos</h1>
@@ -77,8 +77,8 @@
       <ul v-for="(input, index) in movements.inputs" :key="index">
         <li>Referencia: {{ input.name }}</li>
         <li>Descripcion: {{ input.description }}</li>
-        <li>Monto: {{ input.value }}</li>
-        <li>Cantidad: ${{ input.quantity }}</li>
+        <li>Monto: {{ formatPrice(input.value) }}</li>
+        <li>Cantidad: {{ input.quantity }}</li>
       </ul>
     </div>
 
@@ -88,25 +88,26 @@
       <ul v-for="(output, index) in movements.outputs" :key="index">
         <li>Referencia: {{ output.name }}</li>
         <li>Descripcion: {{ output.description }}</li>
-        <li>Monto: {{ output.value }}</li>
-        <li>Cantidad: ${{ output.quantity }}</li>
+        <li>Monto: {{ formatPrice(output.value) }}</li>
+        <li>Cantidad: {{ output.quantity }}</li>
       </ul>
     </div>
 
     <div class="secondContainer">
       <h1>Productos</h1>
 
-      <ul v-for="(product, index) in movements.products" :key="index">
+      <ul v-for="(product, index) in productsArray" :key="index">
         <li>Referencia: {{ product.name }}</li>
         <li>Descripcion: {{ product.description }}</li>
-        <li>Monto: {{ product.value }}</li>
-        <li>Cantidad: ${{ product.quantity }}</li>
+        <li>Precio:  {{formatPrice(product.sellPrice)  }}</li>
+        <li>Cantidad: {{ product.quantity }}</li>
       </ul>
     </div>
   </div>
 </template>
 
 <script>
+import numeral from "numeral";
 import axios, { all } from "axios";
 export default {
   data() {
@@ -118,24 +119,41 @@ export default {
         employees: [],
         inputs: [],
         outputs: [],
-        products: [],
+        productsArray: [],
       },
     };
   },
   methods: {
     async getAllMovements() {
+      const businessId = localStorage.getItem("businessId");
+
       const result = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/65bfdff8a75ffb8fb6be8937/transactions/today"
+        `https://api-gestion-ahil.onrender.com/business/${businessId}/transactions/today`
       );
       const allMovements = result.data;
       this.movements = allMovements;
+    },
+    async getProducts() {
+      try {
+        const businessId = localStorage.getItem("businessId");
+        const res = await axios.get(
+          `https://api-gestion-ahil.onrender.com/business/products/movements/${businessId}`
+        );
+        const products = res.data;
+        this.productsArray = products;
+      } catch (error) {
+        throw error;
+      }
+    },
+    formatPrice(price) {
+      return numeral(price).format("$0,0.00");
     },
     noMovements(movementArray) {
       return movementArray.length === 0;
     },
   },
   mounted() {
-    this.getAllMovements();
+    this.getAllMovements(), this.getProducts();
   },
 };
 </script>

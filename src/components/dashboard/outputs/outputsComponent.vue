@@ -10,11 +10,6 @@
       </div>
     </div>
 
-    <!-- <div class="top-container">
-      <button @click="analizeData()">
-        Analizar egresos con inteligencia artificial
-      </button>
-    </div> -->
     <div class="datesDiv">
       <label for="startDate">Fecha de inicio:</label>
       <input type="date" id="startDate" v-model="startDate" />
@@ -29,6 +24,17 @@
       >
         Quitar filtros
       </button>
+    </div>
+
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre los egresos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
     </div>
 
     <div class="table-responsive">
@@ -185,19 +191,6 @@
         </div>
       </form>
     </div>
-
-    <div class="gpt">
-      <h4>Resumen</h4>
-      <ul>
-        <li>Movimientos: {{ gptArray.total_transactions }}</li>
-        <li>Transacciones:</li>
-        <ul v-for="item in gptArray.transactions">
-          <li>Gasto: {{ item.name }} | Monto: {{ formatPrice(item.value) }}</li>
-        </ul>
-        <li>Monto promedio: {{ formatPrice(gptArray.average_value) }}</li>
-        <li>Total: {{ formatPrice(gptArray.total_value) }}</li>
-      </ul>
-    </div>
   </div>
 </template>
 
@@ -225,14 +218,19 @@ export default {
       startDate: "",
       endDate: "",
       filteredOutputs: [],
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllOutputs() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/outputs/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/outputs/${businessId}`
         );
         const buys = response.data;
         this.buysArray = buys;
@@ -269,13 +267,14 @@ export default {
           .add(1, "days")
           .format("YYYY-MM-DD");
         const totalWhitoutFormat = numeral(this.data.value).value();
+        const businessId = localStorage.getItem("businessId");
 
         const newSale = await axios.post("https://api-gestion-ahil.onrender.com/outputs", {
           name: this.data.product,
           description: this.data.description,
           value: totalWhitoutFormat,
           quantity: this.data.quantity,
-          businessId: "65bfdff8a75ffb8fb6be8937",
+          businessId: businessId,
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
@@ -304,39 +303,10 @@ export default {
         console.log(error);
       }
     },
-    async analizeData() {
-      try {
-        const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/outputs/65bfdff8a75ffb8fb6be8937"
-        );
-        const buys = response.data;
-        const analyzedBuys = [];
-        for (const buy of buys) {
-          const analyzedBuy = {
-            createdAt: buy.createdAt,
-            description: buy.description,
-            name: buy.name,
-            quantity: buy.quantity,
-            updatedAt: buy.updatedAt,
-            value: buy.value,
-          };
-          analyzedBuys.push(analyzedBuy);
-        }
-        const analyzedBuysText = JSON.stringify(analyzedBuys);
-        const gptResponse = await todo.default.methods.analizeText(
-          analyzedBuysText
-        );
-        const toJSON = JSON.parse(gptResponse);
-        this.gptArray = toJSON;
-
-        console.log(toJSON);
-      } catch (error) {
-        throw error;
-      }
-    },
     async getFilteredOutputs() {
       try {
-        const businessId = "65bfdff8a75ffb8fb6be8937";
+        const businessId = localStorage.getItem("businessId");
+
         const res = await axios.get(
           `https://api-gestion-ahil.onrender.com/outputs/getOutputs/${businessId}/${this.startDate}/${this.endDate}`
         );
@@ -349,7 +319,30 @@ export default {
         throw error;
       }
     },
+    async askGpt() {
+      try {
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        this.information = this.buysArray;
+        const response = await axios.post(
+          `https://api-gestion-ahil.onrender.com/chat-gpt`,
+          {
+            message:this.question,
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     // ********************************************----------------**************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     setId(id) {
       this.buy_id = id;
     },
@@ -541,5 +534,113 @@ input {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .datesDiv{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .datesDiv input{
+    width: 95vw;
+  }
+
+  .datesDiv button{
+    width: 95vw;
+    margin-top: 10px;
+  }
+  .searchbar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  }
+
+  .searchbar-container input{
+    width: 95vw;
+  }
+ 
+  .searchbar-container button{
+    width: 95vw;
+  }
+
+  .expenses-form {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  background-color: white;
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  color: black;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.expenses-form {
+  h3 {
+    color: black;
+  }
+}
+
+
+
+.btn-cancel,
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 0%;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  color: black;
+  margin-bottom: 5px;
+  background-color: #d02941;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.btn-confirm {
+  background-color: #149c68;
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
 }
 </style>

@@ -17,7 +17,9 @@ export default {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
-*{font-family: 'Ubuntu', sans-serif;}
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+*{font-family: "Montserrat", sans-serif;}
 
 .side{
   width: 20%;

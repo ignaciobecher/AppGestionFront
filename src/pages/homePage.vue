@@ -10,7 +10,7 @@
 
     <div class="graphics">
       <chart></chart>
-     
+      <askHomeComponent></askHomeComponent>
     </div>
   </div>
 </template>
@@ -19,11 +19,13 @@
 import searchbar from "../components/dashboard/home/searchBarComponent.vue";
 import resume from "../components/dashboard/home/resumeComponent.vue";
 import chart from "../components/dashboard/home/chartComponent.vue";
+import askHomeComponent from "@/components/dashboard/home/askHomeComponent.vue";
 export default {
   components: {
     resume,
     searchbar,
     chart,
+    askHomeComponent
   },
 };
 </script>
@@ -44,6 +46,24 @@ export default {
 }
 
 .graphics {
-  width: 50%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
+
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .resume{
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .graphics{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+}
+
+
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div style="display: flex; background-color: #ffffff" class="backBtn">
-    <router-link to="/">
+    <router-link to="/home">
       <button
         style="
           margin: 10px;
@@ -17,10 +17,11 @@
         ></i>
       </button>
     </router-link>
-    <h4 style="color: white; margin-top: 15px; color: black;">Productos por acabarse</h4>
+    <h4 style="color: white; margin-top: 15px; color: black">
+      Productos por acabarse
+    </h4>
   </div>
   <div class="mainContainer">
-   
     <div style="display: flex; margin-left: 10px">
       <!-- <h4 style="margin-top: 8px;">Ingrese cantidad mínima</h4>
       <input v-model="minimumStock" placeholder="Cantidad minima..." style="margin-left: 10px; border-radius: 15px; padding: 10px; font-size: 15px; font-weight: bold;" type="number" />
@@ -35,7 +36,7 @@
             <th scope="col">Cantidad</th>
           </tr>
         </thead>
-        <tbody class="table-body">
+        <tbody v-if="missingProducts.length > 0" class="table-body">
           <tr v-for="product in missingProducts" class="tableRow">
             <td>
               <span>{{ product.name }}</span>
@@ -45,6 +46,7 @@
             </td>
           </tr>
         </tbody>
+        <h4 style="color: black;" v-else>No hay productos faltantes</h4>
       </table>
     </div>
   </div>
@@ -62,8 +64,9 @@ export default {
   methods: {
     async getMissingStock() {
       try {
+        const businessId = localStorage.getItem("businessId");
         const res = await axios.get(
-          `https://api-gestion-ahil.onrender.com/products/missing/stock/65bfdff8a75ffb8fb6be8937`
+          `https://api-gestion-ahil.onrender.com/products/missing/stock/${businessId}`
         );
         const stock = res.data;
 
@@ -94,7 +97,6 @@ export default {
   padding: 5px;
   border: 1px solid white;
   box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
-
 }
 
 .tableRow th {

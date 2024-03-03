@@ -18,6 +18,18 @@
         Quitar filtros
       </button>
     </div>
+    
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre tus ventas..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
     <div v-if="showMessageBox" class="message-box">
       <div class="close-btn" @click="closeMessageBox">
         <i style="color: red" class="bi bi-x-circle-fill"></i>
@@ -32,14 +44,14 @@
             </tr>
           </thead>
           <tbody class="table-body">
-            <!-- *****************************TODAS LA VENTAS**************************************************** -->
+            <!-- *****************************DETALLE DE VENTAS**************************************************** -->
             <tr
               @click="setId(sale._id)"
-              v-for="(sale) in salesDetailsArray.products"
+              v-for="sale in salesDetailsArray.products"
             >
-            <td scope="col">{{ sale.name }}</td>
-            <td scope="col">{{ formatPrice(sale.sellPrice) }}</td>
-          </tr>
+              <td scope="col">{{ sale.name }}</td>
+              <td scope="col">{{ formatPrice(sale.sellPrice) }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -160,6 +172,7 @@
 import moment from "moment";
 import numeral from "numeral";
 import axios from "axios";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -186,14 +199,19 @@ export default {
       salesDetailsArray: [],
       showMessageBox: false,
       message: "",
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllProducts() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const result = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/sales/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/sales/${businessId}`
         );
         const sales = result.data;
         this.salesArray = sales;
@@ -245,6 +263,8 @@ export default {
         ) {
           window.alert("Los campos no deben estar vacíos");
         } else {
+          const businessId = localStorage.getItem("businessId");
+
           const newProduct = await axios.post(
             "https://api-gestion-ahil.onrender.com/products",
             {
@@ -253,7 +273,7 @@ export default {
               sellPrice: this.data.sellPrice,
               quantity: this.data.quantity,
               barCode: this.data.barCode,
-              businessId: "65bfdff8a75ffb8fb6be8937",
+              businessId: businessId,
             }
           );
           this.data.name = "";
@@ -273,8 +293,10 @@ export default {
     },
     async searchProduct(productName) {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const product = await axios.get(
-          `https://api-gestion-ahil.onrender.com/products/65bfdff8a75ffb8fb6be8937/search/${productName}`
+          `https://api-gestion-ahil.onrender.com/products/${businessId}/search/${productName}`
         );
         const productoEncontrado = product.data;
 
@@ -294,7 +316,8 @@ export default {
       }
     },
     async getFilteredSales(startDate, endDate) {
-      const businessId = "65bfdff8a75ffb8fb6be8937";
+      const businessId = localStorage.getItem("businessId");
+
       try {
         const response = await axios.get(
           `https://api-gestion-ahil.onrender.com/sales/getSales/business/${businessId}/${this.startDate}/${this.endDate}`
@@ -320,7 +343,34 @@ export default {
         throw error;
       }
     },
+    async askGpt() {
+      try {
+        const sales = await axios.get(
+          `https://api-gestion-ahil.onrender.com/sales/products/sales/details/${businessId}`
+        );
+        const products = sales.data;
+        this.information = products;
+
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        const response = await axios.post(
+          `https://api-gestion-ahil.onrender.com/chat-gpt`,
+          {
+            message:this.question,
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
     // *****************************************************************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
@@ -354,7 +404,7 @@ export default {
     },
     closeMessageBox() {
       this.showMessageBox = false;
-      this.salesDetailsArray=[]
+      this.salesDetailsArray = [];
     },
   },
   mounted() {
@@ -545,5 +595,43 @@ input {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .datesDiv{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .datesDiv input{
+    width: 95vw;
+  }
+
+  .datesDiv button{
+    width: 95vw;
+    margin-top: 10px;
+  }
+
 }
 </style>

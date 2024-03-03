@@ -1,7 +1,7 @@
 <template>
   <div class="info-container">
     <h4>Movimientos del dia</h4>
-    <router-link class="router" to="/dayMovements">
+    <router-link class="router" to="/movements">
       <h3>Movimientos <i class="bi bi-arrow-right"></i></h3>
     </router-link>
   </div>
@@ -36,24 +36,30 @@ export default {
   },
   methods: {
     async getBalance() {
+      const businessId= localStorage.getItem('businessId')
+
       const sales = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/salesTotal/65bfdff8a75ffb8fb6be8937"
+        `https://api-gestion-ahil.onrender.com/business/salesTotal/${businessId}`
       );
       const data = sales.data;
       console.log(data);
       this.totalBalance = data;
     },
     async getTotalStock() {
+      const businessId= localStorage.getItem('businessId')
+
       const products = await axios.get(
-        "https://api-gestion-ahil.onrender.com/business/products/65bfdff8a75ffb8fb6be8937"
+       `https://api-gestion-ahil.onrender.com/business/products/${businessId}`
       );
       const data = products.data;
       this.totalStock = data.length;
     },
     async getSalesDay() {
       try {
+      const businessId= localStorage.getItem('businessId')
+
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`
         );
         const data = sales.data;
         const todayDate = new Date().toLocaleDateString();

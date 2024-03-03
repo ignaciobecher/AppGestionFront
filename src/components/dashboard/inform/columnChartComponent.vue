@@ -65,8 +65,10 @@ export default {
   },
   methods: {
     async getAllSales(startDate, endDate) {
+      const businessId= localStorage.getItem('businessId')
+
       let url =
-        "https://api-gestion-ahil.onrender.com/business/salesByDay/65bfdff8a75ffb8fb6be8937";
+        `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`
 
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;
@@ -171,6 +173,13 @@ export default {
   }
   to {
     opacity: 0.5;
+  }
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .main-container{
+    margin-top: 10px;
   }
 }
 </style>

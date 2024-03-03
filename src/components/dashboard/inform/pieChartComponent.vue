@@ -35,17 +35,18 @@ export default {
   methods: {
     async getBalanceTotals() {
       try {
+      const businessId= localStorage.getItem('businessId')
         const outputs = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/outputs/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/outputs/${businessId}`
         );
         const inputs = await axios.get(
-          "https://api-gestion-ahil.onrender.com/inputs/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/inputs/${businessId}`
         );
         const buys = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/buys/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/buys/${businessId}`
         );
         const sales = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/sales/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/sales/${businessId}`
         );
 
         //Egresos

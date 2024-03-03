@@ -1,18 +1,54 @@
 <template>
   <div class="mainContainer">
+    <!-- BUSCADOR POR CODIGO DE BARRAS -->
     <div class="searchbar-container">
       <p>Buscar producto:</p>
       <input
+        v-if="searchByCodeState"
         v-model="barcode"
         type="search"
         @keyup.enter="getProductBybarCode(barcode)"
         name=""
-        placeholder="Buscar por codigo"
+        placeholder="Presione enter para buscar por codigo"
         id=""
       />
+      <input
+        v-if="searchByNameState"
+        v-model="productName"
+        type="search"
+        @keyup.enter="getProductByName()"
+        name=""
+        placeholder="Presione enter para buscar por nombre"
+        id=""
+      />
+      <button @click="changeStateOfSearch" class="salesBtn">
+        Buscar por {{ searchMessage }}
+      </button>
     </div>
+
+    <!-- INSTRUCTIVO -->
     <div v-if="instructionsState">
-      <p style="color: black; margin-left: 10px; font-weight: bold;">Para realizar una <span style=" color: green;">venta</span> presiona <span style="background-color: green; padding: 2px; border-radius: 5px; color: white;">F4</span>. Para <span style=" color: red;">Cancelar</span>, presiona <span style="background-color: red; padding: 2px; border-radius: 5px; color: white;">Escape</span> </p>
+      <p style="color: black; margin-left: 10px; font-weight: bold">
+        Para realizar una <span style="color: green">venta</span> presiona
+        <span
+          style="
+            background-color: green;
+            padding: 2px;
+            border-radius: 5px;
+            color: white;
+          "
+          >F4</span
+        >. Para <span style="color: red">Cancelar</span>, presiona
+        <span
+          style="
+            background-color: red;
+            padding: 2px;
+            border-radius: 5px;
+            color: white;
+          "
+          >Escape</span
+        >
+      </p>
     </div>
     <div>
       <div class="inputsTitle">
@@ -60,31 +96,37 @@
             <p>Precio unitario</p>
             <p>Precio total</p>
           </div>
-          <div
-            class="product-container"
-            v-for="(product, index) in carrito"
-            :key="index"
-          >
-            <p>{{ product.name }}</p>
-            <div class="btn">
-              <button @click="decreaseQuantity(product)">-</button>
-              <p>{{ product.sellQuantity }}</p>
-              <button @click="increaseQuantity(product)">+</button>
+          <div class="product-container-wrapper">
+            <div
+              class="product-container"
+              v-for="(product, index) in carrito"
+              :key="index"
+            >
+              <p>{{ product.name }}</p>
+              <div class="btn">
+                <button @click="decreaseQuantity(product)">-</button>
+                <p>{{ product.sellQuantity }}</p>
+                <button @click="increaseQuantity(product)">+</button>
+              </div>
+              <p>${{ product.sellPrice }}</p>
+              <p>${{ getTotalProductPrice(product) }}</p>
+              <p>
+                <i
+                  @click="removeFromCart(index)"
+                  class="bi bi-x-circle-fill"
+                ></i>
+              </p>
             </div>
-            <p>${{ product.sellPrice }}</p>
-            <p>${{ getTotalProductPrice(product) }}</p>
-            <p>
-              <i @click="removeFromCart(index)" class="bi bi-x-circle-fill"></i>
-            </p>
           </div>
         </div>
-
-        <div class="totalClass">
-          <div class="total">
-            <h2>Total:</h2>
-            <h1>${{ total }}</h1>
-          </div>
+      </div>
+      <div class="totalClass">
+        <div class="total">
+          <h2>Total:</h2>
+          <h1>${{ total }}</h1>
         </div>
+      </div>
+      <div style="display: flex" class="btn-and-change-container">
         <div class="buttons">
           <button @click="cancelSale" class="btnCancel">Cancelar</button>
           <input
@@ -93,6 +135,17 @@
             type="submit"
             value="Vender"
           />
+        </div>
+        <div class="change-container">
+          <h5>Cambio</h5>
+          <input
+            @keyup.enter="changeTotal"
+            v-model="pay"
+            type="number"
+            placeholder="Pago"
+          />
+          <input @keyup.enter="changeTotal" type="text" v-model="totalForChange">
+          <label for="">Vuelto: ${{ change }}</label>
         </div>
       </div>
     </div>
@@ -111,6 +164,7 @@
             v-model="data.sellPrice"
             type="text"
             placeholder="Ingrese un precio"
+            @input="formatPriceInput"
           />
           <select v-model="selectedCategoryId">
             <option
@@ -149,19 +203,19 @@
         Hiciste una venta, podes ver sus estadisticas en el sitio de resumen
       </p>
     </div>
-
-    
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import numeral from "numeral";
 
 export default {
   data() {
     return {
       totalQuantity: 1,
       barcode: "",
+      productName: "",
       productsIds: [],
       carrito: [],
       total: 0,
@@ -183,17 +237,61 @@ export default {
       selectedCategoryId: null,
       instructionsState: false,
       instructions: "",
+      searchByNameState: false,
+      searchByCodeState: true,
+      searchMessage: "nombre",
+      change: "",
+      pay: "",
+      totalForChange:0
     };
   },
   methods: {
     async getProductBybarCode(barcode) {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
-
-          `https://api-gestion-ahil.onrender.com/products/cate/65bfdff8a75ffb8fb6be8937/${barcode}`
-
+          `https://api-gestion-ahil.onrender.com/products/cate/${businessId}/${barcode}`
         );
         this.barcode = "";
+
+        if (response && response.data && response.data.product) {
+          const productoEncontrado = response.data.product;
+          console.log("El producto encontrado es: ", productoEncontrado);
+
+          if (productoEncontrado.sellPrice !== undefined) {
+            this.total += productoEncontrado.sellPrice;
+            const existingProduct = this.carrito.find(
+              (product) => product._id === productoEncontrado._id
+            );
+
+            if (existingProduct) {
+              existingProduct.sellQuantity += 1;
+            } else {
+              productoEncontrado.sellQuantity = 1;
+              this.carrito.push(productoEncontrado);
+              this.productsIds.push(productoEncontrado._id);
+            }
+          }
+        } else {
+          if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
+            this.getProductFromGoUpc(barcode);
+            this.data.name = this.data.barCode = barcode;
+            this.changeStatusOfForm();
+          }
+        }
+      } catch (error) {
+        console.error("Error al obtener el producto:", error);
+      }
+    },
+    async getProductByName() {
+      try {
+        const businessId = localStorage.getItem("businessId");
+
+        const response = await axios.get(
+          `https://api-gestion-ahil.onrender.com/products/${businessId}/search/${this.productName}`
+        );
+        this.productName = "";
 
         if (response && response.data && response.data.product) {
           const productoEncontrado = response.data.product;
@@ -217,7 +315,6 @@ export default {
           }
         } else {
           if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
-            this.data.barCode = barcode;
             this.changeStatusOfForm();
           }
         }
@@ -230,19 +327,22 @@ export default {
         if (!this.data.name || !this.data.sellPrice) {
           window.alert("Los campos no deben estar vacíos");
         } else {
-          const newProduct = await axios.post(
+          const businessId = localStorage.getItem("businessId");
 
+          const sellPriceFormated = numeral(this.data.sellPrice).value();
+          const newProduct = await axios.post(
             `https://api-gestion-ahil.onrender.com/products/${this.selectedCategoryId}`,
             {
               name: this.data.name,
-              sellPrice: this.data.sellPrice,
+              sellPrice: sellPriceFormated,
               barCode: this.data.barCode,
               expirationDate: new Date(),
-              businessId: "65bfdff8a75ffb8fb6be8937",
+              businessId: businessId,
+              quantity: 10,
             }
           );
-          console.log(newProduct);
           newProduct.data.sellQuantity = 1;
+          this.productsIds.push(newProduct.data._id);
           this.total += newProduct.data.sellPrice;
           this.carrito.push(newProduct.data);
           this.data.name = "";
@@ -257,18 +357,20 @@ export default {
         console.log("Error: ", error);
       }
     },
-
     async createSale() {
       let arrayOfIds = [];
       for (const product of this.productsIds) {
         arrayOfIds.push(product);
       }
+      const businessId = localStorage.getItem("businessId");
+
       const saleData = {
         total: this.total,
-        businessId: "65bfdff8a75ffb8fb6be8937",
+        businessId: businessId,
         productIds: arrayOfIds,
         paymentMethod: this.paymentMethod,
       };
+
       if (this.clientId && this.clientId !== "General") {
         saleData.clientId = this.clientId;
       }
@@ -278,34 +380,37 @@ export default {
       }
 
       try {
-
         const sale = await axios.post("https://api-gestion-ahil.onrender.com/sales", saleData);
 
+        this.totalForChange=this.total
+        console.log('Cambio: ',this.totalForChange);
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
-            const client =await axios.get(`https://api-gestion-ahil.onrender.com/clients/searcher/${this.clientId}`)
-            const debtOfClient=client.data.debt
+            const client = await axios.get(
+              `https://api-gestion-ahil.onrender.com/clients/searcher/${this.clientId}`
+            );
+            const debtOfClient = client.data.debt;
             const newDebt = debtOfClient + this.total;
-            console.log('Deuda del cliente',debtOfClient);
-            await axios.put(`https://api-gestion-ahil.onrender.com/clients/${this.clientId}`,{
-              debt:newDebt
-            })
+            await axios.put(`https://api-gestion-ahil.onrender.com/clients/${this.clientId}`, {
+              debt: newDebt,
+            });
           }
           for (const product of this.carrito) {
-
             await axios.patch(`https://api-gestion-ahil.onrender.com/products/${product._id}`, {
-              quantity: product.quantity - product.sellQuantity, 
-
+              quantity: product.quantity - product.sellQuantity,
             });
           }
 
+          this.printReceipt();
           this.carrito = [];
           this.arrayOfIds = [];
           this.total = 0;
           this.paymentMethod = "Efectivo";
           this.clientId = "General";
           this.showSuccesMessage();
+        console.log('Cambio despues : ',this.totalForChange);
+
         } else {
           console.log("Error al realizar la venta");
         }
@@ -315,8 +420,10 @@ export default {
     },
     async getBusinessData() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const res = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/${businessId}`
         );
         const business = res.data;
         this.clients = business.clients;
@@ -327,8 +434,10 @@ export default {
     },
     async getCategoryesIds() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const res = await axios.get(
-          "https://api-gestion-ahil.onrender.com/categoryes/get/categoriyesIds/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/categoryes/get/categoriyesIds/${businessId}`
         );
 
         const cateIds = res.data;
@@ -337,7 +446,38 @@ export default {
         throw error;
       }
     },
+    async getProductFromGoUpc(barcode) {
+      try {
+        console.log("El barcode es: ", barcode);
+
+        const result = await axios.get(
+          `https://api-gestion-ahil.onrender.com/globalproducts/${barcode}`
+        );
+        console.log(result.data.product);
+        const productData = {
+          name: result.data.product.name,
+          description: result.data.product.description,
+          category: result.data.product.category,
+        };
+        this.data.name = productData.name;
+      } catch (error) {
+        throw error;
+      }
+    },
     // **********************LLAMADAS A LA API******************************************************************
+    changeTotal() {
+      try {
+        this.change = this.totalForChange - this.pay;
+        this.change=this.change * (-1)
+        setTimeout(() => {
+          this.change=0
+          this.totalForChange=0
+          this.pay=0
+        }, 10000);
+      } catch (error) {
+        throw error;
+      }
+    },
     removeFromCart(index) {
       const removedProduct = this.carrito[index];
       this.total -= this.getTotalProductPrice(removedProduct);
@@ -348,6 +488,10 @@ export default {
       setTimeout(() => {
         this.instructionsState = false;
       }, 20000);
+    },
+    formatPriceInput() {
+      // Formatear el precio mientras se escribe
+      this.data.sellPrice = numeral(this.data.sellPrice).format("$0,0");
     },
     showSuccesMessage() {
       this.succesMessageVisible = true;
@@ -384,6 +528,46 @@ export default {
     changeStatusOfForm() {
       this.formStatus = !this.formStatus;
     },
+    generateReceiptContent() {
+      let receiptHTML = "<h1>Ticket de Venta</h1>";
+      receiptHTML += "<p>Cliente: " + this.clientId + "</p>";
+      receiptHTML += "<ul>";
+      this.carrito.forEach((product) => {
+        receiptHTML +=
+          "<li>" +
+          product.name +
+          " - Cantidad: " +
+          product.sellQuantity +
+          " - Precio Unitario: $" +
+          product.sellPrice +
+          " - Precio Total: $" +
+          product.sellQuantity * product.sellPrice +
+          "</li>";
+      });
+      receiptHTML += "</ul>";
+      receiptHTML += "<p>Total: $" + this.total + "</p>";
+      return receiptHTML;
+    },
+    printReceipt() {
+      const receiptContent = this.generateReceiptContent();
+
+      // Abrir el diálogo de impresión del navegador
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(receiptContent);
+      printWindow.document.close();
+      printWindow.print();
+    },
+    changeStateOfSearch() {
+      if (this.searchByCodeState === true) {
+        this.searchByNameState = true;
+        this.searchByCodeState = false;
+        this.searchMessage = "código";
+      } else {
+        this.searchByNameState = false;
+        this.searchByCodeState = true;
+        this.searchMessage = "nombre";
+      }
+    },
   },
   computed: {
     getTotalProductPrice() {
@@ -403,6 +587,30 @@ export default {
 </script>
 
 <style scoped>
+.btn-and-change-container {
+  display: flex;
+  justify-content: space-between; /* Alinea los elementos a los extremos */
+}
+.change-container {
+  width: 300px;
+  background-color: white;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  margin-top: -30px;
+}
+.searchSwitch button {
+  margin: 10px;
+  border-radius: 15px;
+  padding: 10px;
+  border: none;
+  background-color: #149c68;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
 .productSale {
   background-color: #ffffff;
   height: 400px;
@@ -410,8 +618,6 @@ export default {
   display: grid;
   grid-template-rows: 10vh auto 20vh 15vh;
   box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
-  overflow-y: auto;
-
 }
 .inputsTitle {
   display: grid;
@@ -468,6 +674,18 @@ export default {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   font-weight: bold;
+  border-bottom: 1px solid #ccc;
+}
+
+.product-container > * {
+  border-right: 1px solid #ccc; /* Añade una línea divisoria a la derecha de cada elemento hijo */
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+.product-container-wrapper {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .btn {
@@ -503,23 +721,19 @@ export default {
 }
 
 .searchbar-container input {
-  margin-left: 20px; /* Ajustar márgenes si es necesario */
+  margin-left: 10px; /* Ajustar márgenes si es necesario */
+  margin-right: 10px;
   width: 50%;
-  border-radius: 15px;
-  border: 1px solid #574f7a;
   padding: 10px;
 }
 
 .salesBtn {
-  margin-left: 190px; /* Ajustar márgenes si es necesario */
   color: white;
   font-size: 15px;
   font-weight: bold;
-  border-radius: 15px;
   border: 1px solid white;
   padding: 10px;
   background-color: #574f7a;
-  transition: transform 0.3s ease;
 }
 
 .salesBtn:hover {
@@ -527,8 +741,9 @@ export default {
 }
 .buttons {
   margin: 10px;
-  width: 100%;
+  width: 50%;
   display: flex;
+  flex-direction: column;
   grid-row: 4;
 }
 
@@ -626,5 +841,45 @@ select {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .searchbar-container{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .searchbar-container input{
+    width: 95vw;
+  }
+
+  .searchbar-container .salesBtn{
+    width: 95vw;
+    padding-left: 0;
+    margin-left: 10px;
+  }
+
+  .btn-and-change-container{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .change-container{
+    display: flex;
+    margin-top: 20px;
+    align-items: flex-start;
+    width: 100vw;
+  }
+  .btn-and-change-container button{
+    border-radius: 0%;
+    width: 95vw;
+  }
+
+  .btn-and-change-container input{
+    width: 95vw;
+    border-radius: 0%;
+  }
 }
 </style>

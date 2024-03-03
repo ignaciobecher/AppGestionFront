@@ -10,7 +10,36 @@
           Registrar nueva compra
         </button>
       </div>
-      <div class="date"></div>
+      <div class="date">
+        <button
+          style="
+            border: none;
+            border-radius: 0%;
+            background-color: #ffffff;
+            box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+            font-weight: bold;
+          "
+          @click.prevent="changeSupplierFormStatus"
+        >
+          Registrar nuevo proveedor
+        </button>
+      </div>
+    </div>
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre los ingresos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
+    <div class="ocr-container">
+      <h4>Cargar factura con foto</h4>
+      <input type="file" ref="fileInput" />
+      <button @click="analizeFile">Subir Archivo</button>
     </div>
 
     <div class="table-responsive">
@@ -127,6 +156,39 @@
         </div>
       </form>
     </div>
+
+    <div v-if="supplierForm" class="register-component">
+      <form action="" class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Nuevo proveedor</h3>
+
+          <input
+            v-model="supplierData.name"
+            type="text"
+            placeholder="Nombre..."
+          />
+
+          <input
+            v-model="supplierData.email"
+            type="email"
+            placeholder="Email..."
+          />
+
+          <input
+            v-model="supplierData.phone"
+            type="number"
+            placeholder="Telefono..."
+          />
+
+          <button @click.prevent="changeSupplierFormStatus" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click.prevent="createProvider" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -134,6 +196,7 @@
 import axios from "axios";
 import moment from "moment";
 import numeral from "numeral";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -143,6 +206,7 @@ export default {
       editFormStatus: false,
       buy_id: null,
       data: {
+        tittle: "",
         // product: "",
         description: "",
         // quantity: "",
@@ -151,7 +215,18 @@ export default {
         // expirationDate: "",
       },
       providersArray: [],
-      providerId:null
+      providerId: null,
+
+      question: "",
+      respuesta: "",
+      information: [],
+      visionDataArray: [],
+      supplierForm: false,
+      supplierData: {
+        name: "",
+        email: "",
+        phone: "",
+      },
     };
   },
   methods: {
@@ -159,11 +234,10 @@ export default {
     async getAllBuys() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/business/buys/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/business/buys/${businessId}`
         );
         const buys = response.data;
         this.buysArray = buys;
-        console.log(buys);
       } catch (error) {
         console.log(error);
       }
@@ -200,13 +274,15 @@ export default {
           .format("YYYY-MM-DD");
 
         const totalWhitoutFormat = numeral(this.data.price).value();
+        const businessId = localStorage.getItem("businessId");
+
         const newSale = await axios.post("https://api-gestion-ahil.onrender.com/buys", {
           description: this.data.description,
           price: totalWhitoutFormat,
           // quantity: this.data.quantity,
           receiptNumber: this.data.receiptNumber,
-          businessId: "65bfdff8a75ffb8fb6be8937",
-          providerId:this.providerId
+          businessId: businessId,
+          providerId: this.providerId,
         });
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
@@ -241,7 +317,7 @@ export default {
     async getAllProviders() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/providers/business/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/providers/business/${businessId}`
         );
         const providers = response.data;
 
@@ -254,7 +330,89 @@ export default {
         throw error;
       }
     },
+    async createProvider() {
+      try {
+        const provider = await axios.post("https://api-gestion-ahil.onrender.com/providers", {
+          name: this.supplierData.name,
+          telephone: this.supplierData.phone,
+          email: this.supplierData.email,
+          businessId: businessId,
+        });
+        this.changeSupplierFormStatus();
+        this.supplierData.name = "";
+        this.supplierData.email = "";
+        this.supplierData.phone = "";
+      } catch (error) {
+        throw error
+      }
+    },
+    async askGpt() {
+      try {
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        this.information = this.buysArray;
+        const response = await axios.post(
+          `https://api-gestion-ahil.onrender.com/chat-gpt`,
+          {
+            message:this.question,
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async analizeFile() {
+      try {
+        const file = this.$refs.fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await axios.post(
+          `https://api-gestion-ahil.onrender.com/chat-gpt/google/ocr`,
+          formData
+          // {
+          //   headers: {
+          //     "Content-Type": "multipart/form-data",
+          //   },
+          // }
+        );
+
+        const prompt =
+          "Formatealo en JSON y devuelvelo formateado en clave valor como description,date,total,tittle,buyer,seller,email,paymentMethod,from,to,identificationNumber,products y lo que consideres relevante crear(si ese campo no tiene elementos, omitelo), siempre devuelvelo sin caracteres especiales, debe volver listo para ser consumido en el front.Devuelve la respuesta como un JSON listo para ser enviado al front end, sin caracteres especiales. No debe tener caracteres especiales, debe ser devuelto listo para ser consumido en el frontend.Siempre devuelve el JSON listo para ser consumido, nunca te olvides de formatearlo, que no tenga caracteres especiales. El json debe estar en el siguiente formato:{'clave':'valor'}.NUNCA LO DEVUELVA AL JSON ENVUELTO EN TEMPLATE STRINGS ";
+
+        const formatTest = await axios.post(
+          `https://api-gestion-ahil.onrender.com/chat-gpt/vision/format`,
+          {
+            message: prompt,
+            information: response.data,
+          }
+        );
+
+        const data = formatTest.data;
+        this.visionDataArray = data;
+
+        this.data.tittle = this.visionDataArray.title;
+        this.data.description = this.visionDataArray.title;
+        this.data.price = this.visionDataArray.total;
+        this.data.receiptNumber = this.visionDataArray.identificationNumber;
+
+        this.changeFormStatus()
+        
+        console.log(this.data);
+      } catch (error) {
+        throw error;
+      }
+    },
+
     // ********************************************----------------**************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
+
     setId(id) {
       this.buy_id = id;
     },
@@ -266,13 +424,16 @@ export default {
     },
     formatPriceInput() {
       // Formatear el precio mientras se escribe
-      this.data.price = numeral(this.data.price).format('$0,0');
+      this.data.price = numeral(this.data.price).format("$0,0");
     },
     changeEditStatus() {
       this.editStatus = !this.editStatus;
     },
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
+    },
+    changeSupplierFormStatus() {
+      this.supplierForm = !this.supplierForm;
     },
   },
   created() {
@@ -284,9 +445,15 @@ export default {
 
 
 <style scoped>
-.buysContainer {
+.ocr-container {
+  background-color: #ffffff;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   margin-left: 10px;
+  margin-top: 10px;
+  margin-right: 10px;
+  padding: 10px;
 }
+
 .table-body input {
   width: 100%;
 }
@@ -316,12 +483,9 @@ export default {
 }
 
 .top-container button {
-  border-radius: 15px;
-  padding: 10px;
   border: none;
   background-color: #149c68;
   color: white;
-  font-size: 18px;
   font-weight: bold;
   transition: transform 0.3s ease;
 }
@@ -333,23 +497,23 @@ export default {
 .table-responsive {
   margin: 10px;
   /* background-color: #1a1a1a; */
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
   padding: 5px;
 }
 
 .tableRow th {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .tableRow td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
 .table-body td {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   color: black;
 }
 
@@ -361,7 +525,7 @@ export default {
   align-items: center;
   border-radius: 5px;
   padding: 5px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   position: absolute;
   top: 10%;
   right: 30%;
@@ -419,5 +583,121 @@ select {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .datesDiv{
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .datesDiv input{
+    width: 95vw;
+  }
+
+  .datesDiv button{
+    width: 95vw;
+    margin-top: 10px;
+  }
+  .searchbar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  }
+
+  .searchbar-container input{
+    width: 95vw;
+    margin-left: 10px;
+    border-radius: 0%;
+  }
+ 
+  .searchbar-container button{
+    width: 95vw;
+    border-radius: 0%;
+  }
+
+  .date button{
+    margin-left: 10px;
+  }
+  .expenses-form {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  background-color: white;
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  color: black;
+}
+
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.expenses-form {
+  h3 {
+    color: black;
+  }
+}
+
+
+
+.btn-cancel,
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 0%;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  color: black;
+  margin-bottom: 5px;
+  background-color: #d02941;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.btn-confirm {
+  background-color: #149c68;
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
 }
 </style>

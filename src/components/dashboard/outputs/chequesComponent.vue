@@ -28,6 +28,17 @@
       </button>
     </div>
 
+    <div class="assistentComponent">
+      <h4>Asistente virtual</h4>
+      <input
+        type="text"
+        v-model="question"
+        placeholder="Ingresa tu consulta sobre los egresos..."
+      />
+      <button @click="askGpt">Consultar</button>
+      <p v-html="formattedResponse()"></p>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -228,6 +239,7 @@
 import axios from "axios";
 import moment from "moment";
 import numeral from "numeral";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -248,6 +260,9 @@ export default {
       startDate: "",
       endDate: "",
       filteredCheques: [],
+      question: "",
+      respuesta: "",
+      information: [],
     };
   },
   methods: {
@@ -255,7 +270,7 @@ export default {
     async getAllCheques() {
       try {
         const response = await axios.get(
-          "https://api-gestion-ahil.onrender.com/cheques/65bfdff8a75ffb8fb6be8937"
+          `https://api-gestion-ahil.onrender.com/cheques/${businessId}`
         );
         const cheques = response.data;
         this.chequesArray = cheques;
@@ -302,7 +317,7 @@ export default {
           chequeNumber: this.data.chequeNumber,
           total: totalWhitoutFormat,
           chequeDate: formatedDate,
-          businessId: "65bfdff8a75ffb8fb6be8937",
+          businessId: businessId,
           chequeOwner: this.chequeOwner,
         });
         if (newCheque) {
@@ -337,7 +352,7 @@ export default {
     },
     async getFilteredCheques() {
       try {
-        const businessId = "65bfdff8a75ffb8fb6be8937";
+        const businessId = localStorage.getItem("businessId");
         const res = await axios.get(
           `https://api-gestion-ahil.onrender.com/cheques/getByDay/${businessId}/${this.startDate}/${this.endDate}`
         );
@@ -345,7 +360,29 @@ export default {
         this.filteredCheques = cheques;
       } catch (error) {}
     },
+    async askGpt() {
+      try {
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+        this.information = this.chequesArray;
+        const response = await axios.post(
+          `https://api-gestion-ahil.onrender.com/chat-gpt`,
+          {
+            message:this.question,
+            info: this.information,
+          }
+        );
+        const data = response.data;
+
+        this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
     // ********************************************----------------**************************************
+    formattedResponse() {
+      return this.respuesta.split("*").join("*<br/><br/>");
+    },
     setId(id) {
       this.cheque_id = id;
     },
@@ -534,5 +571,117 @@ select {
   color: black;
   font-size: 20px;
   font-weight: bold;
+}
+
+.assistentComponent {
+  background-color: #ffffff;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+  max-height: 212px;
+}
+
+.assistentComponent button {
+  width: 50%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
+}
+
+/* //RESPONSIVE PARA TELEFONO-****************************************************************** */
+@media screen and (max-width: 768px){
+  .datesDiv{
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .datesDiv input{
+    width: 95vw;
+  }
+
+  .datesDiv button{
+    width: 95vw;
+    margin-top: 10px;
+  }
+  .searchbar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  }
+
+  .searchbar-container input{
+    width: 95vw;
+    margin-left: 10px;
+    border-radius: 0%;
+  }
+ 
+  .searchbar-container button{
+    width: 95vw;
+    border-radius: 0%;
+  }
+
+  .expenses-form {
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  background-color: white;
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  color: black;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.expenses-form {
+  h3 {
+    color: black;
+  }
+}
+
+
+
+.btn-cancel,
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 0%;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  color: black;
+  margin-bottom: 5px;
+  background-color: #d02941;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.btn-confirm {
+  background-color: #149c68;
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
 }
 </style>
