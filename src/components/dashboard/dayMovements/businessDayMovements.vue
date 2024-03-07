@@ -140,6 +140,7 @@ export default {
         );
         const products = res.data;
         this.productsArray = products;
+        console.log(this.productsArray);
       } catch (error) {
         throw error;
       }

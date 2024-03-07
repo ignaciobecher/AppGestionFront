@@ -1,5 +1,5 @@
 <template>
-  <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light" v-if="isMobile">
+  <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light" >
     <a class="navbar-brand" href="#">{{businessName}}</a>
     <button
       class="navbar-toggler"
@@ -49,7 +49,7 @@
   </nav>
 
   <div class="dashboard-container">
-    <div class="sidebar-container" v-if="!isMobile">
+    <div  id="main" class="sidebar-container" >
       <div class="sidebar">
         <div class="img-logo">
           <p>{{ businessName }}</p>
@@ -160,13 +160,13 @@ export default {
       localStorage.removeItem("userId");
     },
   },
-  mounted() {
-    this.getBusinessInfo(),
-      (this.isMobile = window.innerWidth <= 768),
-      window.addEventListener("resize", () => {
-        this.isMobile = window.innerWidth <= 768;
-      });
-  },
+  // mounted() {
+  //   this.getBusinessInfo(),
+  //     (this.isMobile = window.innerWidth <= 768),
+  //     window.addEventListener("resize", () => {
+  //       this.isMobile = window.innerWidth <= 768;
+  //     });
+  // },
 };
 </script>
 
@@ -233,6 +233,14 @@ export default {
   color: #5c39f5 !important;
 }
 
+#navbar{
+  display: none;
+}
+
+#main{
+  display: block;
+}
+
 /* //RESPONSIVE PARA TELEFONO-****************************************************************** */
 @media screen and (max-width: 768px) {
   .dashboard-container {
@@ -246,6 +254,13 @@ export default {
     background-color: #f0e7f7;
   }
 
+  #navbar{
+    display: block;
+  }
+
+  #main{
+    display: none;
+  }
  
 }
 </style>

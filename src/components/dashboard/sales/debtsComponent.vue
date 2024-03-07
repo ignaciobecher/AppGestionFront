@@ -1,5 +1,6 @@
 <template>
   <div class="stock-container">
+    <!-- BARRA DE BUSQUEDA -->
     <div class="searchbar-container">
       <p>Buscar cliente:</p>
       <input
@@ -18,6 +19,7 @@
       </div>
     </div>
 
+    <!-- ASISTENTE VIRTUAL -->
     <div class="assistentComponent">
       <h4>Asistente virtual</h4>
       <input
@@ -29,6 +31,7 @@
       <p v-html="formattedResponse()"></p>
     </div>
 
+    <!-- TABLA DE DATOS -->
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -38,6 +41,11 @@
             <th scope="col">Email</th>
             <th scope="col">Teléfono</th>
             <th scope="col">Deuda</th>
+            <th scope="col">
+              <button @click="changeStatusOfPayment" class="registerBtn">
+                Registrar pago
+              </button>
+            </th>
           </tr>
         </thead>
         <tbody class="table-body">
@@ -72,15 +80,17 @@
             </td>
 
             <td>
-              <span v-if="!editorStatus"> <a
-                    :href="
-                      'https://api.whatsapp.com/send?phone=' +
-                      encodeURIComponent(client.phoneNumber) +
-                      '&text=Hola!'
-                    "
-                    target="_blank"
-                    >{{ client.phoneNumber }}</a
-                  ></span>
+              <span v-if="!editorStatus">
+                <a
+                  :href="
+                    'https://api.whatsapp.com/send?phone=' +
+                    encodeURIComponent(client.phoneNumber) +
+                    '&text=Hola!'
+                  "
+                  target="_blank"
+                  >{{ client.phoneNumber }}</a
+                ></span
+              >
               <input
                 name="description"
                 v-else
@@ -99,6 +109,15 @@
             </td>
             <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
+              <a
+                style="margin-left: 20px"
+                @click.prevent="deleteClient(client._id)"
+              >
+                <i class="bi bi-trash"></i
+              ></a>
+              <a style="margin-left: 20px">
+                <i class="bi bi-search" @click="changeStatusOfDetails"></i
+              ></a>
             </td>
             <td v-else>
               <a @click.prevent="updateClient(client, client._id)" href="#">
@@ -107,11 +126,6 @@
               <a href="#" @click="changeStatusOfEditor">
                 <i style="color: #d02941" class="bi bi-x-circle"></i>
               </a>
-            </td>
-            <td>
-              <a @click.prevent="deleteClient(client._id)">
-                <i class="bi bi-trash"></i
-              ></a>
             </td>
           </tr>
 
@@ -179,6 +193,15 @@
 
             <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
+              <a
+                style="margin-left: 20px"
+                @click.prevent="deleteClient(client._id)"
+              >
+                <i class="bi bi-trash"></i
+              ></a>
+              <a style="margin-left: 20px">
+                <i class="bi bi-search" @click="changeStatusOfDetails"></i
+              ></a>
             </td>
             <td v-else>
               <a @click.prevent="updateClient(client, client._id)" href="#">
@@ -188,16 +211,12 @@
                 <i style="color: #d02941" class="bi bi-x-circle"></i>
               </a>
             </td>
-            <td>
-              <a @click.prevent="deleteClient(client._id)">
-                <i class="bi bi-trash"></i
-              ></a>
-            </td>
           </tr>
         </tbody>
       </table>
     </div>
 
+    <!-- REGISTRAR NUEVO CLIENTE -->
     <div v-if="formStatus" class="register-component">
       <div class="expenses-form">
         <div class="form-group">
@@ -233,6 +252,79 @@
         </div>
       </div>
     </div>
+
+    <!-- REGISTRAR NUEVO PAGO -->
+    <div v-if="paymentStatus" class="register-component">
+      <div class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Registrar pago</h3>
+          <select v-model="clientId">
+            <option>Seleccionar cliente</option>
+            <option
+              v-for="(client, index) in clientsArray"
+              :key="index"
+              :value="client._id"
+            >
+              {{ client.name }}
+            </option>
+          </select>
+
+          <input
+            v-model="paymentsData.paymentsDescription"
+            type="text"
+            placeholder="Descripcion..."
+          />
+
+          <input
+            v-model="paymentsData.payments"
+            type="number"
+            placeholder="Monto..."
+          />
+
+          <button @click="changeStatusOfPayment" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click="registerPayment()" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- *****************************DETALLE DE PAGOS**************************************************** -->
+
+    <div v-if="showMessageBox" class="message-box">
+      <div class="close-btn">
+        <i
+          style="color: red"
+          class="bi bi-x-circle-fill"
+          @click="changeStatusOfDetails"
+        ></i>
+      </div>
+      <h4>Pagos del cliente</h4>
+      <div class="table-responsive">
+        <table class="table table-hover table-nowrap">
+          <thead class="thead-light">
+            <tr class="tableRow">
+              <th scope="col">Monto</th>
+              <th scope="col">Referencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(payment, index) in globalPaymentsArray.payments"
+              :key="index"
+              class="table-body"
+            >
+              <td scope="col">${{ payment === null ? 'No se cargo monto' : payment }}</td>
+              <td scope="col">
+                {{ globalPaymentsArray.paymentsDescription[index] ==='' ? 'No hay datos' :globalPaymentsArray.paymentsDescription[index] }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -241,6 +333,7 @@ import moment from "moment";
 import numeral from "numeral";
 import axios from "axios";
 import askHomeComponentVue from "../home/askHomeComponent.vue";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -263,6 +356,16 @@ export default {
       question: "",
       respuesta: "",
       information: [],
+      paymentStatus: false,
+      paymentsData: {
+        payments: null,
+        paymentsDescription: "",
+      },
+      clientId: null,
+      showMessageBox: false,
+      globalPaymentsArray: [],
+      globalDescriptionsArray: {},
+
     };
   },
   methods: {
@@ -276,7 +379,23 @@ export default {
         );
         const sales = result.data;
         this.clientsArray = sales;
-        console.log(this.clientsArray);
+
+        const paymentsArray = [];
+        for (const client of this.clientsArray) {
+          for (const item of client.payments) {
+            paymentsArray.push(item);
+          }
+        }
+
+        const workingDescriptions = [];
+        for (const client of this.clientsArray) {
+          for (const item of client.paymentsDescription) {
+            workingDescriptions.push(item);
+          }
+        }
+        this.globalPaymentsArray.payments = paymentsArray;
+        this.globalPaymentsArray.paymentsDescription = workingDescriptions;
+        console.log(this.globalPaymentsArray);
       } catch (error) {
         console.log(error);
       }
@@ -373,16 +492,32 @@ export default {
         console.log("Pregunta: ", this.question);
         console.log("Informacion: ", this.information);
 
-        const response = await axios.post(
-          `http://localhost:3000/chat-gpt`,
-          {
-            message:this.question,
-            info: this.information,
-          }
-        );
+        const response = await axios.post(`http://localhost:3000/chat-gpt`, {
+          message: this.question,
+          info: this.information,
+        });
         const data = response.data;
 
         this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async registerPayment() {
+      try {
+        console.log(this.clientId);
+        const res = await axios.post(
+          `http://localhost:3000/clients/register/payment/${this.clientId}`,
+          {
+            payments: this.paymentsData.payments,
+            paymentsDescription: this.paymentsData.paymentsDescription,
+          }
+        );
+
+        this.changeStatusOfPayment();
+        this.getAllClients();
+        this.paymentsData.payments = null;
+        this.paymentsData.paymentsDescription = "";
       } catch (error) {
         throw error;
       }
@@ -422,6 +557,12 @@ export default {
         this.foundClient = true;
       }
     },
+    changeStatusOfPayment() {
+      this.paymentStatus = !this.paymentStatus;
+    },
+    changeStatusOfDetails() {
+      this.showMessageBox = !this.showMessageBox;
+    },
   },
   mounted() {
     this.getAllClients();
@@ -430,6 +571,43 @@ export default {
 </script>
 
 <style scoped>
+.message-box {
+  position: fixed;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  background-color: #f0f0f0;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 400px;
+  height: 400px;
+  overflow-y: auto;
+}
+
+.message-content {
+  text-align: center;
+}
+
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+}
+.registerBtn {
+  border: none;
+  background-color: #574f7a;
+  color: white;
+  font-weight: 500;
+  padding: 5px;
+  transition: transform 0.3s ease;
+}
+
+.registerBtn:hover {
+  transform: scale(1.1);
+}
+
 .top-container button {
   margin: 10px;
   padding: 10px;
@@ -581,78 +759,83 @@ input {
   font-weight: 500;
   color: white;
 }
+select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  margin-bottom: 5px;
+
+  width: 100%;
+}
 
 /* //RESPONSIVE PARA TELEFONO-****************************************************************** */
-@media screen and (max-width: 768px){
+@media screen and (max-width: 768px) {
   .searchbar-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
   }
 
-  .searchbar-container input{
+  .searchbar-container input {
     width: 95vw;
   }
- 
-  .searchbar-container button{
+
+  .searchbar-container button {
     width: 95vw;
   }
 
   .expenses-form {
-  width: 80%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 5px;
-  background-color: white;
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  color: black;
-}
-
-.form-group {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.expenses-form {
-  h3 {
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+    background-color: white;
+    position: absolute;
+    top: 10%;
+    right: 10%;
     color: black;
   }
+
+  .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .expenses-form {
+    h3 {
+      color: black;
+    }
+  }
+
+  .btn-cancel,
+  .btn-confirm {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 0%;
+  }
+
+  .btn-cancel {
+    background-color: #ccc;
+    color: black;
+    margin-bottom: 5px;
+    background-color: #d02941;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .btn-confirm {
+    background-color: #149c68;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+  }
 }
-
-
-
-.btn-cancel,
-.btn-confirm {
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 0%;
-}
-
-.btn-cancel {
-  background-color: #ccc;
-  color: black;
-  margin-bottom: 5px;
-  background-color: #d02941;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.btn-confirm {
-  background-color: #149c68;
-  color: black;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-}
-
 </style>

@@ -9,6 +9,13 @@
           <input v-model="data.name" type="text" required />
         </div>
         <div class="form-group">
+          <label for="name">Rubro:</label>
+          <input v-model="data.rubro" type="text" required />
+        </div><div class="form-group">
+          <label for="name">Teléfono:</label>
+          <input v-model="data.phone" type="text" required />
+        </div>
+        <div class="form-group">
           <label for="address">Dirección:</label>
           <input v-model="data.address" type="text" required />
         </div>
@@ -17,6 +24,10 @@
           <input v-model="data.email" type="email" required />
         </div>
      
+        <div class="form-group">
+          <label for="email">Ciudad:</label>
+          <input v-model="data.city" type="text" required />
+        </div>
           <button type="submit">Crear negocio</button>
         
       </form>
@@ -32,7 +43,10 @@ export default {
       data:{
         name:'',
         address:'',
-        email:''
+        email:'',
+        rubro:'',
+        phone:'',
+        city:''
       }
     }
   },
@@ -42,12 +56,21 @@ export default {
         const newBusiness=await axios.post('http://localhost:3000/business',{
           name:this.data.name,
           address:this.data.address,
-          email:this.data.email
+          email:this.data.email,
+          telephone:this.data.phone,
+          rubro:this.data.rubro,
+          city:this.data.city
         })
-        console.log(newBusiness);
 
         const businessId=newBusiness.data._id
         localStorage.setItem('businessId',businessId)
+
+        const email= await axios.post(`http://localhost:3000/email`,{
+          email:this.data.email,
+          businessId:businessId
+        })
+        window.alert('Gracias por registrar tu negocio en Adminia, en tu mail te indicamos el siguiente paso')
+
         this.$router.push("/register");
         this.data.name=''
         this.data.address=''
@@ -66,6 +89,7 @@ export default {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
+  background-color: #f0e7f7;
 }
 
 .register-business {
@@ -107,6 +131,7 @@ h2 {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 100%;
 }
 
 .login-form button:hover {
