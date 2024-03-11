@@ -90,7 +90,9 @@
 
 <script>
 import axios from "axios";
+import SimpleCrypto from "simple-crypto-js";
 const businessId = localStorage.getItem("businessId");
+export const secretKey=SimpleCrypto.generateRandom(256)
 
 export default {
   data() {
@@ -132,22 +134,30 @@ export default {
     },
     async loginUser() {
       try {
+        const simpleCrypto=new SimpleCrypto(secretKey)
         localStorage.removeItem("userToken");
         localStorage.removeItem("businessId");
         localStorage.removeItem("userId");
+        localStorage.removeItem('role')
         const user = await axios.post("http://localhost:3000/auth/login", {
           email: this.formData.email,
           password: this.formData.password,
         });
         const userData = user.data;
+        console.log(userData);
 
         if (userData.token) {
           localStorage.setItem("userToken", userData.token);
           this.$router.push("/home");
           const businessId = userData.user.businessId;
           const userId = userData.user._id;
+          const role=userData.user.role
+          const cipherRole=simpleCrypto.encrypt(role)
+
           localStorage.setItem("userId", userId);
           localStorage.setItem("businessId", businessId);
+          localStorage.setItem('role',cipherRole)
+          
         } else {
           window.alert("Credenciales incorrectas");
           localStorage.removeItem("userToken");
@@ -156,7 +166,6 @@ export default {
         throw error;
       }
     },
-
     showRegister() {
       this.loginState = false;
       this.registerState = true;

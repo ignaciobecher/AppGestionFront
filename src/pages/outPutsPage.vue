@@ -37,12 +37,16 @@
     <div
       v-if="selector"
       class="pDescription"
-      style="text-align: center; margin-top: 50px"
+      style="text-align: center; margin-top: 20px;display: grid;grid-template-columns: 1fr 1fr 1fr;"
     >
       <p>
-        En este apartado se encuentran divididos los gastos de tu negocio, por
-        un lado tener los egresos de dinero y por el otro tus compras hechas,
-        como tambien tus cheques.
+        En egresos encontras los egresos de dinero de tu negocio
+      </p>
+      <p>
+        En el apartado cheques encontras los cheques propios y de terceros registrados
+      </p>
+      <p>
+        En compras podes ver las facturas y las compras hechas por el negocio
       </p>
     </div>
 

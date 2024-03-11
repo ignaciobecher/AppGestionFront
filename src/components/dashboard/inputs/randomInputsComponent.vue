@@ -2,7 +2,15 @@
   <div class="inputsContainer">
     <div class="searchbar-container">
       <p>Buscar ingreso vario:</p>
-      <input type="search" name="" placeholder="Buscar ingreso..." id="" />
+      <input
+        @input="checkInput"
+        v-model="inputName"
+        type="search"
+        name=""
+        @keyup.enter="getInputsByName(inputName)"
+        placeholder="Buscar ingreso..."
+        id=""
+      />
       <div class="top-container">
         <button @click="changeFormStatus">Registrar ingreso vario</button>
       </div>
@@ -31,10 +39,62 @@
             <!-- <th scope="col">Fecha de Vencimiento</th> -->
           </tr>
         </thead>
-        <tbody class="table-body">
+        <!-- TODOS LOS INPUTS  -->
+        <tbody v-if="!foundInput" class="table-body">
           <tr
             @click="setId(input._id)"
             v-for="(input, index) in inputsArray"
+            :key="index"
+            class="tableRow"
+          >
+            <td>
+              <span>{{ formatDate(input.createdAt) }}</span>
+            </td>
+            <td>
+              <span v-if="!editStatus">{{ input.reference }}</span>
+              <input v-else v-model="input.reference" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ input.description }}</span>
+              <input v-else v-model="input.description" type="text" />
+            </td>
+            <td>
+              <span v-if="!editStatus">{{ input.quantity }}</span>
+              <input v-else v-model="input.quantity" type="text" />
+            </td>
+            <td>
+              <span v-if="!editStatus">{{ formatPrice(input.value) }}</span>
+              <input v-else v-model="input.value" type="text" />
+            </td>
+
+            <td v-if="!editStatus">
+              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            </td>
+            <td v-else>
+              <a @click="updateInput(input, input._id)" href="#">
+                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
+              </a>
+              <a href="#">
+                <i
+                  style="color: #d02941"
+                  @click="changeEditStatus"
+                  class="bi bi-x-circle"
+                ></i>
+              </a>
+            </td>
+            <td>
+              <a @click="deleteInput(input._id)">
+                <i class="bi bi-trash"></i
+              ></a>
+            </td>
+          </tr>
+        </tbody>
+        <!-- //INPUTS FILTRADOS -->
+        <tbody v-else class="table-body">
+          <tr
+            @click="setId(input._id)"
+            v-for="(input, index) in filteredClients"
             :key="index"
             class="tableRow"
           >
@@ -130,6 +190,7 @@
 import axios from "axios";
 import moment from "moment";
 import numeral from "numeral";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -148,14 +209,15 @@ export default {
       question: "",
       respuesta: "",
       information: [],
+      inputName: "",
+      foundInput: false,
+      filteredClients: [],
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllInputs() {
       try {
-        const businessId = localStorage.getItem("businessId");
-
         const response = await axios.get(
           `http://localhost:3000/random-inputs/${businessId}`
         );
@@ -245,13 +307,10 @@ export default {
         console.log("Pregunta: ", this.question);
         console.log("Informacion: ", this.information);
         this.information = this.inputsArray;
-        const response = await axios.post(
-          `http://localhost:3000/chat-gpt`,
-          {
-            message:this.question,
-            info: this.information,
-          }
-        );
+        const response = await axios.post(`http://localhost:3000/chat-gpt`, {
+          message: this.question,
+          info: this.information,
+        });
         const data = response.data;
 
         this.respuesta = data;
@@ -259,10 +318,29 @@ export default {
         throw error;
       }
     },
+    async getInputsByName() {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/random-inputs/getByName/${businessId}/${this.inputName}`
+        );
+        const data = response.data;
+        this.filteredClients = data;
 
+        if (data && data.length > 0) {
+          this.foundInput = true;
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
     // ********************************************----------------**************************************
     formattedResponse() {
       return this.respuesta.split("*").join("*<br/><br/>");
+    },
+    checkInput() {
+      if (this.inputName === "") {
+        this.foundInput = false;
+      }
     },
     setId(id) {
       this.input_Id = id;
@@ -448,77 +526,74 @@ input {
 }
 
 /* //RESPONSIVE CECLULAR********************************************************************* */
-@media screen and (max-width: 768px){
+@media screen and (max-width: 768px) {
   .searchbar-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
   }
 
-  .searchbar-container input{
+  .searchbar-container input {
     width: 90vw;
     margin-left: 10px;
   }
- 
-  .searchbar-container button{
+
+  .searchbar-container button {
     width: 90vw;
     border-radius: 0%;
   }
 
   .expenses-form {
-  width: 80%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 5px;
-  background-color: white;
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  color: black;
-}
-
-.form-group {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.expenses-form {
-  h3 {
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+    background-color: white;
+    position: absolute;
+    top: 10%;
+    right: 10%;
     color: black;
   }
-}
 
+  .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
 
+  .expenses-form {
+    h3 {
+      color: black;
+    }
+  }
 
-.btn-cancel,
-.btn-confirm {
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 0%;
-}
+  .btn-cancel,
+  .btn-confirm {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 0%;
+  }
 
-.btn-cancel {
-  background-color: #ccc;
-  color: black;
-  margin-bottom: 5px;
-  background-color: #d02941;
-  font-size: 20px;
-  font-weight: bold;
-}
+  .btn-cancel {
+    background-color: #ccc;
+    color: black;
+    margin-bottom: 5px;
+    background-color: #d02941;
+    font-size: 20px;
+    font-weight: bold;
+  }
 
-.btn-confirm {
-  background-color: #149c68;
-  color: black;
-  font-size: 20px;
-  font-weight: bold;
-}
-
+  .btn-confirm {
+    background-color: #149c68;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+  }
 }
 </style>

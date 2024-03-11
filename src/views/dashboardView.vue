@@ -1,6 +1,6 @@
 <template>
-  <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light" >
-    <a class="navbar-brand" href="#">{{businessName}}</a>
+  <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">{{ businessName }}</a>
     <button
       class="navbar-toggler"
       type="button"
@@ -41,6 +41,9 @@
         <li class="nav-item">
           <a class="nav-link" href="#" @click="togglePage('inform')">Informe</a>
         </li>
+        <a href="#" @click="togglePage('note')">
+          <i class="bi bi-card-checklist"></i>Notas</a
+        >
         <li class="nav-item">
           <a class="nav-link" href="#" @click="logoutUser">Cerrar sesión</a>
         </li>
@@ -49,7 +52,7 @@
   </nav>
 
   <div class="dashboard-container">
-    <div  id="main" class="sidebar-container" >
+    <div id="main" class="sidebar-container">
       <div class="sidebar">
         <div class="img-logo">
           <p>{{ businessName }}</p>
@@ -59,26 +62,47 @@
         </p>
 
         <div class="nav-links">
-          <a href="#" @click="togglePage('home')"
-            ><i class="bi bi-house"></i> Inicio
-          </a>
-          <a href="#" @click="togglePage('sales')"
-            ><i class="bi bi-cart"></i> Ventas</a
+          <a id="homeId" class="nav-link" href="#" @click="togglePage('home')">
+            <i class="bi bi-house"></i> Inicio</a
           >
-          <a href="#" @click="togglePage('inputs')"
-            ><i class="bi bi-arrow-down-left-circle"></i> Ingresos</a
+          <a id="saleId" class="nav-link" href="#" @click="togglePage('sales')">
+            <i class="bi bi-cart"></i> Ventas</a
           >
-          <a href="#" @click="togglePage('buys')"
-            ><i class="bi bi-arrow-up-right-circle"></i> Gastos</a
+          <a
+            id="inputId"
+            class="nav-link"
+            href="#"
+            @click="togglePage('inputs')"
           >
-          <a href="#" @click="togglePage('stock')"
-            ><i class="bi bi-box-seam"></i> Productos</a
+            <i class="bi bi-arrow-down-left-circle"></i> Ingresos</a
           >
 
-          <a href="#" @click="togglePage('inform')"
+          <a
+            id="outputId"
+            class="nav-link"
+            href="#"
+            @click="togglePage('buys')"
+          >
+            <i class="bi bi-arrow-up-right-circle"></i> Gastos</a
+          >
+
+          <a
+            id="productId"
+            class="nav-link"
+            href="#"
+            @click="togglePage('stock')"
+            ><i class="bi bi-box-seam"></i> Productos</a
+          >
+          <a
+            id="informId"
+            class="nav-link"
+            href="#"
+            @click="togglePage('inform')"
             ><i class="bi bi-bar-chart"></i> Informe</a
           >
-          <a href=""><i class="bi bi-info"></i>Mis datos</a>
+          <a id="noteId" class="nav-link" href="#" @click="togglePage('note')">
+            <i class="bi bi-card-checklist"></i> Notas</a
+          >
           <a @click="logoutUser" href="#"
             ><i class="bi bi-x-circle"></i> Cerrar sesion
           </a>
@@ -93,11 +117,13 @@
       <out-puts-page v-if="outPage"></out-puts-page>
       <stock-page v-if="stockPage"></stock-page>
       <inform-page v-if="informPage"></inform-page>
+      <notes-page v-if="notePage"></notes-page>
     </div>
   </div>
 </template>
 
 <script>
+import notesPage from "@/pages/notesPage.vue";
 import informPage from "../pages/informPage.vue";
 import inputsPage from "@/pages/inputsPage.vue";
 import outPutsPage from "@/pages/outPutsPage.vue";
@@ -105,6 +131,8 @@ import homePage from "../pages/homePage.vue";
 import salePage from "../pages/salePage.vue";
 import stockPage from "../pages/stockPage.vue";
 import axios from "axios";
+import SimpleCrypto from "simple-crypto-js";
+import { secretKey } from "@/components/dashboard/Auth/registerComponent.vue";
 
 export default {
   components: {
@@ -114,6 +142,7 @@ export default {
     stockPage,
     inputsPage,
     informPage,
+    notesPage,
   },
   data() {
     return {
@@ -123,8 +152,10 @@ export default {
       stockPage: false,
       inputPage: false,
       informPage: false,
+      notePage: false,
       businessName: "",
       bussId: "",
+      userRole: "",
     };
   },
   methods: {
@@ -144,6 +175,37 @@ export default {
         throw error;
       }
     },
+    checkRoles() {
+      try {
+        const simpleCrypto = new SimpleCrypto(secretKey);
+        const role = localStorage.getItem("role");
+        const decipherRole = simpleCrypto.decrypt(role);
+        console.log("Role:", decipherRole);
+        this.userRole = decipherRole;
+
+        const informBtn = document.querySelector("#informId");
+        const salesBtn = document.querySelector("#saleId");
+        const outputsBtn = document.querySelector("#outputId");
+        const inputsBtn = document.querySelector("#inputId");
+        const productsBtn = document.querySelector("#productId");
+        const notesBtn = document.querySelector("#noteId");
+        const homeBtn = document.querySelector("#homeId");
+
+        if (decipherRole === "administrador") {
+          informBtn.classList.add("disabled");
+        } else if (decipherRole === "user") {
+          homeBtn.classList.add("disabled");
+          outputsBtn.classList.add("disabled");
+          inputsBtn.classList.add("disabled");
+          informBtn.classList.add("disabled");
+          notesBtn.classList.add("disabled");
+          informBtn.classList.add("disabled");
+          this.homePage = false;
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
     togglePage(page) {
       this.homePage = page === "home";
       this.salesPage = page === "sales";
@@ -151,6 +213,7 @@ export default {
       this.stockPage = page === "stock";
       this.inputPage = page === "inputs";
       this.informPage = page === "inform";
+      this.notePage = page === "note";
     },
     logoutUser() {
       // Eliminar el token del localStorage
@@ -158,15 +221,12 @@ export default {
       localStorage.removeItem("userToken");
       localStorage.removeItem("businessId");
       localStorage.removeItem("userId");
+      localStorage.removeItem("role");
     },
   },
-  // mounted() {
-  //   this.getBusinessInfo(),
-  //     (this.isMobile = window.innerWidth <= 768),
-  //     window.addEventListener("resize", () => {
-  //       this.isMobile = window.innerWidth <= 768;
-  //     });
-  // },
+  mounted() {
+    this.getBusinessInfo(), this.checkRoles();
+  },
 };
 </script>
 
@@ -233,11 +293,11 @@ export default {
   color: #5c39f5 !important;
 }
 
-#navbar{
+#navbar {
   display: none;
 }
 
-#main{
+#main {
   display: block;
 }
 
@@ -254,13 +314,12 @@ export default {
     background-color: #f0e7f7;
   }
 
-  #navbar{
+  #navbar {
     display: block;
   }
 
-  #main{
+  #main {
     display: none;
   }
- 
 }
 </style>

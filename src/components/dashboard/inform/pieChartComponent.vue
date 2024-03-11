@@ -64,10 +64,10 @@ export default {
         this.inputTotal = totalInputsValue;
 
         //Compras
-        const totalBuysValue = buys.data.reduce(
-          (total, buy) => total + buy.price,
-          0
-        );
+        let totalBuysValue=0 
+        for (const item of buys.data) {
+          totalBuysValue+=parseFloat(item.total)
+        }
         this.buysTotal = totalBuysValue;
 
         //Ventas

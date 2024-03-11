@@ -7,7 +7,7 @@
         v-model="productName"
         type="search"
         name=""
-        @keyup.enter="searchProduct(productName)"        
+        @keyup.enter="searchProduct(productName)"
         placeholder="Ingrese un producto..."
         id=""
       />
@@ -44,31 +44,7 @@
       </button>
     </div>
 
-    <!-- <div class="categoryDiv">
-      <input
-        @input="checkCategoryInput"
-        v-model="categoryName"
-        type="search"
-        @keyup.enter="getCategoriesProducts()"
-        name=""
-        placeholder="Ingrese categoria..."
-        id=""
-        class="inputCate"
-      />
-      <button
-        @click="changeStatusOfCategoryForm"
-        style="
-          margin-left: 10px;
-          border: none;
-          background-color: #574f7a;
-          color: white;
-          font-weight: 400;
-        "
-      >
-        Nueva categoria
-      </button>
-    </div> -->
-
+    
     <div style="margin: 10px">
       <input
         style="border: none; border-radius: 0%"
@@ -81,15 +57,27 @@
       />
     </div>
 
+    <!-- ASISTENTE VIRTUAL -->
     <div class="assistentComponent">
-      <h4>Asistente virtual</h4>
-      <input
-        type="text"
-        v-model="question"
-        placeholder="Ingresa tu consulta sobre los productos..."
-      />
-      <button @click="askGpt">Consultar</button>
-      <p v-html="formattedResponse()"></p>
+      
+      <div class="innerAssistent">
+        <h4>Asistente virtual</h4>
+        <input
+          type="text"
+          v-model="question"
+          placeholder="Ingresa tu consulta sobre los productos..."
+        />
+        <button @click="askGpt">Consultar</button>
+        <p v-html="formattedResponse()"></p>
+      </div>
+
+      <div class="calculadora">
+        <h5>Calcular porcentajes</h5>
+        <input type="number" v-model="valorBase" placeholder="Valor base" />
+        <input type="number" v-model="porcentaje" placeholder="Porcentaje" />
+        <p>Resultado: {{ calcularPorcentaje }}</p>
+      </div>
+      
     </div>
 
     <!-- TRAER PRODUCTOS*************************************************** -->
@@ -102,6 +90,10 @@
             <th scope="col">Cantidad</th>
             <th scope="col">Codigo</th>
             <th scope="col">Stock mínimo</th>
+            <th scope="col">Vencimiento</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+
           </tr>
         </thead>
         <tbody class="table-body">
@@ -236,6 +228,10 @@
                 v-model="product.minimumStock"
               />
             </td>
+            
+            <td>
+              <span>{{formatDate(product.expirationDate)  }}</span>
+            </td>
 
             <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
@@ -255,7 +251,7 @@
             </td>
           </tr>
         </tbody>
-      </table>
+      </table> 
     </div>
 
     <!-- TRAER LAS CATEGORIAS ******************************************************* -->
@@ -420,6 +416,7 @@
 import numeral from "numeral";
 import axios from "axios";
 import moment from "moment";
+
 const businessId = localStorage.getItem("businessId");
 
 export default {
@@ -451,6 +448,8 @@ export default {
       question: "",
       respuesta: "",
       information: [],
+      valorBase: null,
+      porcentaje: null,
     };
   },
   methods: {
@@ -613,7 +612,7 @@ export default {
         }
         const arrayProductos = res.data;
         this.categoriesState = true;
-        this.arrayProductos=[]
+        this.arrayProductos = [];
         this.categoriesProducts = [];
 
         for (const product of arrayProductos) {
@@ -621,8 +620,6 @@ export default {
             this.categoriesProducts.push(item);
           }
         }
-        console.log('Productos:',this.categoriesProducts);
-        console.log('Name:',this.categoryName);
       } catch (error) {
         console.log("Error al obtener productos por categoría: ", error);
       }
@@ -632,7 +629,7 @@ export default {
         this.categoriesProducts = [];
         this.categoryName = "";
         this.categoriesState = false;
-        
+
         this.getAllProducts();
       } catch (error) {
         throw error;
@@ -721,9 +718,17 @@ export default {
     changeStatusOfCategoryForm() {
       this.categoryStatus = !this.categoryStatus;
     },
+    formatDate(date) {
+      return moment(date).format("DD/MM/YYYY");
+    },
   },
   mounted() {
     this.getAllProducts(), this.getCategoryesIds();
+  },
+  computed: {
+    calcularPorcentaje() {
+      return (this.valorBase * (this.porcentaje / 100))+this.valorBase;
+    },
   },
 };
 </script>
@@ -883,6 +888,17 @@ select {
   margin-top: 10px;
   padding: 10px;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  
+  display: flex;
+  flex-direction: row;
+}
+.calculadora {
+  width: 15%;
+  margin-left: 10px;
+}
+
+.innerAssistent{
+  width: 80%;
   overflow-y: auto;
   max-height: 212px;
 }

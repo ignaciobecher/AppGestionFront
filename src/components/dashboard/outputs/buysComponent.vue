@@ -1,30 +1,97 @@
 <template>
   <div class="buysContainer">
-    <h1>Compras</h1>
+    <h1 style="margin-left: 10px">Compras</h1>
+    <!-- MOSTRAR FACTURA -->
+    <div v-if="mostrarFactura" class="receiptContainer">
+      <!-- Contenido de la factura -->
+      <div class="closeButton">
+        <i @click="changeStatusOfFactura" class="bi bi-x-lg"></i>
+      </div>
+      <h4>Datos del Comprobante</h4>
+      <p><strong>Fecha:</strong> {{ formatDate(singleBuyObject.createdAt) }}</p>
+      <p><strong>Proveedor:</strong> {{ singleBuyObject.seller }}</p>
+      <p><strong>Email:</strong> {{ singleBuyObject.email }}</p>
+      <p>
+        <strong>Numero factura:</strong> {{ singleBuyObject.receiptNumber }}
+      </p>
+      <p><strong>Descripcion:</strong> {{ singleBuyObject.description }}</p>
+      <p>
+        <strong>Monto Total:</strong> {{ formatPrice(singleBuyObject.total) }}
+      </p>
 
-    <div class="searchbar-container">
-      <p>Buscar compra:</p>
-      <input type="search" name="" placeholder="Buscar por nombre" id="" />
-      <div class="top-container">
-        <button @click.prevent="changeFormStatus">
-          Registrar nueva compra
-        </button>
+      <h5>Productos:</h5>
+      <div style="display: flex; flex-direction: row">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Código de barras</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(product, index) in singleBuyObject.productsObj"
+              :key="index"
+            >
+              <td>{{ product.name }}</td>
+              <td>{{ formatPrice(product.price) }}</td>
+              <td>{{ product.codebar }}</td>
+              <td>{{ product.cantidad }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="date">
-        <button
-          style="
-            border: none;
-            border-radius: 0%;
-            background-color: #ffffff;
-            box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
-            font-weight: bold;
-          "
-          @click.prevent="changeSupplierFormStatus"
-        >
-          Registrar nuevo proveedor
-        </button>
-      </div>
+      <button style="border: none; background-color: #574f7a; font-weight: 500; color: white;padding: 5px;" @click="openNewTab">Generar factura</button>
     </div>
+
+    <!-- CREAR NUEVA FACTURA -->
+    <div v-if="crearFactura" class="receiptContainer">
+      <div class="closeButton">
+        <i @click="changeFactura" class="bi bi-x-lg"></i>
+      </div>
+      <h4>Datos del Comprobante</h4>
+      <p><strong>Fecha:</strong> {{ formatDate(receiptObject.createdAt) }}</p>
+      <p><strong>Proveedor:</strong> {{ receiptObject.seller }}</p>
+      <p><strong>Email:</strong> {{ receiptObject.email }}</p>
+      <p><strong>Numero factura:</strong> {{ receiptObject.receiptNumber }}</p>
+      <p><strong>Descripcion:</strong> {{ receiptObject.description }}</p>
+      <p><strong>Nro factura:</strong> {{ receiptObject.receiptNumber }}</p>
+      <p><strong>Monto Total:</strong> {{ receiptObject.total }}</p>
+
+      <h5>Productos:</h5>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Código de barras</th>
+            <th>Cantidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(product, index) in receiptObject.products" :key="index">
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.codebar }}</td>
+            <td>{{ product.cantidad }}</td>
+          </tr>
+        </tbody>
+        <select v-model="providerId" name="" id="">
+          <option
+            v-for="(provider, index) in providersArray"
+            :key="index"
+            :value="provider._id"
+          >
+            {{ provider.name }}
+          </option>
+        </select>
+        <button @click="createNewBuy">Crear</button>
+      </table>
+    </div>
+
+    <!-- ASISTENTE VIRTUAL -->
     <div class="assistentComponent">
       <h4>Asistente virtual</h4>
       <input
@@ -36,12 +103,14 @@
       <p v-html="formattedResponse()"></p>
     </div>
 
+    <!-- CARGAR FOTO -->
     <div class="ocr-container">
       <h4>Cargar factura con foto</h4>
       <input type="file" ref="fileInput" />
       <button @click="analizeFile">Subir Archivo</button>
     </div>
 
+    <!-- TABLA DE DATOS -->
     <div class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -69,7 +138,7 @@
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ buy.description }}</span>
+              <span v-if="!editStatus">{{ buy.title }}</span>
               <input v-else v-model="buy.description" type="text" />
             </td>
             <!-- <td>
@@ -77,8 +146,8 @@
               <input v-else v-model="buy.quantity" type="text" />
             </td> -->
             <td>
-              <span v-if="!editStatus">{{ formatPrice(buy.price) }}</span>
-              <input v-else v-model="buy.price" type="text" />
+              <span v-if="!editStatus">${{ buy.total }}</span>
+              <input v-else v-model="buy.total" type="text" />
             </td>
             <td>
               <span v-if="!editStatus">{{ buy.receiptNumber }}</span>
@@ -108,11 +177,17 @@
             <td>
               <a @click="deleteBuy(buy._id)"> <i class="bi bi-trash"></i></a>
             </td>
+            <td @click="getOneBuy" class="searchIcon">
+              <a>
+                <i class="bi bi-search"></i>
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
 
+    <!-- REGISTRAR COMPRA -->
     <div v-if="editFormStatus" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
@@ -141,7 +216,7 @@
           />
 
           <input
-            v-model="data.price"
+            v-model="data.total"
             type="text"
             placeholder="Monto total..."
             @input="formatPriceInput"
@@ -157,6 +232,7 @@
       </form>
     </div>
 
+    <!-- REGISTRAR PROVEEDOR -->
     <div v-if="supplierForm" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
@@ -210,7 +286,7 @@ export default {
         // product: "",
         description: "",
         // quantity: "",
-        price: "",
+        total: "",
         receiptNumber: null,
         // expirationDate: "",
       },
@@ -227,10 +303,17 @@ export default {
         email: "",
         phone: "",
       },
+      receiptObject: {},
+      singleBuyObject: {},
+      mostrarFactura: false,
+      crearFactura: false,
+      valorBase: null,
+      porcentaje: null,
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
+
     async getAllBuys() {
       try {
         const response = await axios.get(
@@ -267,27 +350,32 @@ export default {
     },
     async createNewBuy() {
       try {
-        console.log(this.data);
         const formattedExpirationDate = moment
           .utc(this.data.expirationDate)
           .add(1, "days")
           .format("YYYY-MM-DD");
 
-        const totalWhitoutFormat = numeral(this.data.price).value();
         const businessId = localStorage.getItem("businessId");
+        const totalWhitoutFormat = numeral(this.receiptObject.total).value();
 
         const newSale = await axios.post("http://localhost:3000/buys", {
-          description: this.data.description,
-          price: totalWhitoutFormat,
-          // quantity: this.data.quantity,
-          receiptNumber: this.data.receiptNumber,
+          buyer: this.receiptObject.buyer,
+          seller: this.receiptObject.from,
+          total: totalWhitoutFormat,
+          title: this.receiptObject.title,
+          description: this.receiptObject.description,
+          email: this.receiptObject.email,
+          receiptNumber: this.receiptObject.receiptNumber,
+          paymentMethod: this.receiptObject.paymentMethod,
           businessId: businessId,
           providerId: this.providerId,
+          productsObj: this.receiptObject.products,
         });
         if (newSale) {
-          console.log("Compra cargada con exito", newSale);
-          this.changeFormStatus();
+          this.$refs.fileInput.value = null;
+          this.changeFactura();
           this.getAllBuys();
+          this.receiptObject = {};
           this.data.description = "";
           this.data.price = "";
           this.data.receiptNumber = "";
@@ -343,7 +431,7 @@ export default {
         this.supplierData.email = "";
         this.supplierData.phone = "";
       } catch (error) {
-        throw error
+        throw error;
       }
     },
     async askGpt() {
@@ -351,13 +439,10 @@ export default {
         console.log("Pregunta: ", this.question);
         console.log("Informacion: ", this.information);
         this.information = this.buysArray;
-        const response = await axios.post(
-          `http://localhost:3000/chat-gpt`,
-          {
-            message:this.question,
-            info: this.information,
-          }
-        );
+        const response = await axios.post(`http://localhost:3000/chat-gpt`, {
+          message: this.question,
+          info: this.information,
+        });
         const data = response.data;
 
         this.respuesta = data;
@@ -382,27 +467,41 @@ export default {
         );
 
         const prompt =
-          "Formatealo en JSON y devuelvelo formateado en clave valor como description,date,total,tittle,buyer,seller,email,paymentMethod,from,to,identificationNumber,products y lo que consideres relevante crear(si ese campo no tiene elementos, omitelo), siempre devuelvelo sin caracteres especiales, debe volver listo para ser consumido en el front.Devuelve la respuesta como un JSON listo para ser enviado al front end, sin caracteres especiales. No debe tener caracteres especiales, debe ser devuelto listo para ser consumido en el frontend.Siempre devuelve el JSON listo para ser consumido, nunca te olvides de formatearlo, que no tenga caracteres especiales. El json debe estar en el siguiente formato:{'clave':'valor'}.NUNCA LO DEVUELVA AL JSON ENVUELTO EN TEMPLATE STRINGS ";
+          "Formatealo en JSON y devuelvelo formateado en clave valor como description,date,total,tittle,buyer,seller,email,paymentMethod,from,to,receiptNumbera,products(en products debes poner los productos/servicios por los que se haya pagado, el products debe ser un objeto que contenga cada producto con su 'name','price' 'codebar' y 'cantidad') y lo que consideres relevante crear(si ese campo no tiene elementos, omitelo), siempre devuelvelo sin caracteres especiales, debe volver listo para ser consumido en el front.Devuelve la respuesta como un JSON listo para ser enviado al front end, sin caracteres especiales. No debe tener caracteres especiales, debe ser devuelto listo para ser consumido en el frontend.Siempre devuelve el JSON listo para ser consumido, nunca te olvides de formatearlo, que no tenga caracteres especiales. El json debe estar en el siguiente formato:{'clave':'valor'}.NUNCA LO DEVUELVA AL JSON ENVUELTO EN TEMPLATE STRINGS ";
 
+        const promptExtension =
+          "el total debe ser formateado sin decimales, devuelveme el numero redondeado y sin decimales ni signos de dinero.Todos los campos deben estar compuestos de solamente un valor, excepto el products, que si puede tener varios.El title debe ser algo alusivo e identificatorio sobre la factura.El email debe ser el email del vendedor.Si la factura no tiene productos, deja el campo productos vacio.Seller sera el negocio que emite el comprobante, en seller solo debe ir el nombre del negocio que emite.El receipt number debe ser solamente un numero, sin espacios ni caracteres especiales";
         const formatTest = await axios.post(
           `http://localhost:3000/chat-gpt/vision/format`,
           {
-            message: prompt,
+            message: prompt + promptExtension,
             information: response.data,
           }
         );
 
         const data = formatTest.data;
-        this.visionDataArray = data;
+        this.receiptObject = data;
+        console.log(this.receiptObject);
 
-        this.data.tittle = this.visionDataArray.title;
-        this.data.description = this.visionDataArray.title;
-        this.data.price = this.visionDataArray.total;
-        this.data.receiptNumber = this.visionDataArray.identificationNumber;
+        this.crearFactura = true;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async getOneBuy() {
+      try {
+        this.singleBuyObject = {};
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        const response = await axios.get(
+          `http://localhost:3000/buys/${this.buy_id}`
+        );
+        const data = response.data;
+        this.singleBuyObject = data;
+        this.buy_id = "";
 
-        this.changeFormStatus()
-        
-        console.log(this.data);
+        // Abre una nueva pestaña y muestra la factura
+
+        this.changeStatusOfFactura();
       } catch (error) {
         throw error;
       }
@@ -412,9 +511,15 @@ export default {
     formattedResponse() {
       return this.respuesta.split("*").join("*<br/><br/>");
     },
-
+    changeStatusOfFactura() {
+      this.mostrarFactura = !this.mostrarFactura;
+    },
+    changeFactura() {
+      this.crearFactura = !this.crearFactura;
+    },
     setId(id) {
       this.buy_id = id;
+      console.log(this.buy_id);
     },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
@@ -435,14 +540,96 @@ export default {
     changeSupplierFormStatus() {
       this.supplierForm = !this.supplierForm;
     },
+    openNewTab() {
+      const facturaHTML = `
+      <div class="receiptContainer">
+        <!-- Contenido de la factura -->
+        <h4>Datos del Comprobante</h4>
+        <p><strong>Fecha:</strong> ${this.formatDate(this.singleBuyObject.createdAt)}</p>
+        <p><strong>Proveedor:</strong> ${this.singleBuyObject.seller}</p>
+        <p><strong>Email:</strong> ${this.singleBuyObject.email}</p>
+        <p><strong>Numero factura:</strong> ${this.singleBuyObject.receiptNumber}</p>
+        <p><strong>Descripcion:</strong> ${this.singleBuyObject.description}</p>
+        <p><strong>Monto Total:</strong> ${this.formatPrice(this.singleBuyObject.total)}</p>
+        <h5>Productos:</h5>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Código de barras</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${this.singleBuyObject.productsObj
+              .map(
+                (product) => `
+              <tr>
+                <td>${product.name}</td>
+                <td>${this.formatPrice(product.price)}</td>
+                <td>${product.codebar}</td>
+                <td>${product.cantidad}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+
+      </div>
+    `;
+      const newTab = window.open();
+      newTab.document.write(facturaHTML);
+    },
   },
   created() {
     this.getAllBuys(), this.getAllProviders();
   },
+  computed: {
+    calcularPorcentaje() {
+      return this.valorBase * (this.porcentaje / 100);
+    },
+  },
 };
 </script>
-
 <style scoped>
+.calculadora {
+  width: 15%;
+}
+.searchIcon {
+  color: black;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.searchIcon:hover {
+  transform: scale(1.1);
+  color: #574f7a;
+}
+
+.receiptContainer {
+  background-color: white;
+  box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  max-height: 300px;
+  width: 80%;
+  overflow-y: auto;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid black;
+  padding: 10px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 2px;
+  cursor: pointer;
+  color: white;
+  background-color: red;
+}
 .ocr-container {
   background-color: #ffffff;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
@@ -507,6 +694,7 @@ export default {
 
 .tableRow td {
   background-color: #ffffff;
+
   color: black;
 }
 
@@ -605,97 +793,92 @@ select {
 }
 
 /* //RESPONSIVE PARA TELEFONO-****************************************************************** */
-@media screen and (max-width: 768px){
-  .datesDiv{
+@media screen and (max-width: 768px) {
+  .datesDiv {
     display: flex;
     flex-direction: column;
     margin: 0;
   }
 
-  .datesDiv input{
+  .datesDiv input {
     width: 95vw;
   }
 
-  .datesDiv button{
+  .datesDiv button {
     width: 95vw;
     margin-top: 10px;
   }
   .searchbar-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
   }
 
-  .searchbar-container input{
+  .searchbar-container input {
     width: 95vw;
     margin-left: 10px;
     border-radius: 0%;
   }
- 
-  .searchbar-container button{
+
+  .searchbar-container button {
     width: 95vw;
     border-radius: 0%;
   }
 
-  .date button{
+  .date button {
     margin-left: 10px;
   }
   .expenses-form {
-  width: 80%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 5px;
-  background-color: white;
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  color: black;
-}
-
-
-.form-group {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.expenses-form {
-  h3 {
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+    background-color: white;
+    position: absolute;
+    top: 10%;
+    right: 10%;
     color: black;
   }
-}
 
+  .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
 
+  .expenses-form {
+    h3 {
+      color: black;
+    }
+  }
 
-.btn-cancel,
-.btn-confirm {
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 0%;
-}
+  .btn-cancel,
+  .btn-confirm {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 0%;
+  }
 
-.btn-cancel {
-  background-color: #ccc;
-  color: black;
-  margin-bottom: 5px;
-  background-color: #d02941;
-  font-size: 20px;
-  font-weight: bold;
-}
+  .btn-cancel {
+    background-color: #ccc;
+    color: black;
+    margin-bottom: 5px;
+    background-color: #d02941;
+    font-size: 20px;
+    font-weight: bold;
+  }
 
-.btn-confirm {
-  background-color: #149c68;
-  color: black;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-
+  .btn-confirm {
+    background-color: #149c68;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+  }
 }
 </style>
