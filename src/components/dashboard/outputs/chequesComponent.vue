@@ -4,7 +4,16 @@
 
     <div class="searchbar-container">
       <p>Buscar cheque:</p>
-      <input type="search" name="" placeholder="Buscar por nombre" id="" />
+      <input
+        @input="checkInput"
+        v-model="inputName"
+        type="search"
+        name=""
+        @keyup.enter="getInputsByName"
+        placeholder="Buscar cheque segun identificacion..."
+        id=""
+      />
+
       <div class="top-container">
         <button @click.prevent="changeFormStatus">
           Registrar nuevo cheque
@@ -53,7 +62,7 @@
             <th scope="col">Total</th>
           </tr>
         </thead>
-        <tbody class="table-body">
+        <tbody v-if="foundInput === false" class="table-body">
           <!-- CHEQUES FILTRADOS -->
           <tr
             @click="setId(cheque._id)"
@@ -123,6 +132,75 @@
             :key="index"
             class="tableRow"
             v-else
+          >
+            <td>
+              <span>{{ formatDate(cheque.createdAt) }}</span>
+            </td>
+            <td>
+              <span v-if="!editStatus">{{ cheque.identification }}</span>
+              <input v-else v-model="cheque.identification" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ cheque.description }}</span>
+              <input v-else v-model="cheque.description" type="text" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ cheque.chequeNumber }}</span>
+              <input v-else v-model="cheque.chequeNumber" type="text" />
+            </td>
+            <td>
+              <span v-if="!editStatus">{{
+                formatDate(cheque.chequeDate)
+              }}</span>
+              <input v-else v-model="cheque.chequeDate" type="date" />
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ cheque.chequeOwner }}</span>
+              <select v-else v-model="chequeOwner" name="" id="">
+                <option value="Propio">Propio</option>
+                <option value="Tercero">Tercero</option>
+              </select>
+            </td>
+
+            <td>
+              <span v-if="!editStatus">{{ formatPrice(cheque.total) }}</span>
+              <input v-else v-model="cheque.total" type="number" />
+            </td>
+
+            <td v-if="!editStatus">
+              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            </td>
+            <td v-else>
+              <a @click="updateCheque(cheque, cheque._id)" href="#">
+                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
+              </a>
+              <a href="#">
+                <i
+                  style="color: #d02941"
+                  @click="changeEditStatus"
+                  class="bi bi-x-circle"
+                ></i>
+              </a>
+            </td>
+            <td>
+              <a @click="deleteCheque(cheque._id)">
+                <i class="bi bi-trash"></i
+              ></a>
+            </td>
+          </tr>
+        </tbody>
+
+        <tbody v-if="foundInput === true" class="table-body">
+          <!-- TODOS LOS CHEQUES -->
+          <tr
+            @click="setId(cheque._id)"
+            v-for="(cheque, index) in filteredClients"
+            :key="index"
+            class="tableRow"
+           
           >
             <td>
               <span>{{ formatDate(cheque.createdAt) }}</span>
@@ -263,6 +341,9 @@ export default {
       question: "",
       respuesta: "",
       information: [],
+      inputName: "",
+      foundInput: false,
+      filteredClients: [],
     };
   },
   methods: {
@@ -365,16 +446,31 @@ export default {
         console.log("Pregunta: ", this.question);
         console.log("Informacion: ", this.information);
         this.information = this.chequesArray;
-        const response = await axios.post(
-          `https://api-gestion-ahil.onrender.com/chat-gpt`,
-          {
-            message:this.question,
-            info: this.information,
-          }
-        );
+        const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt`, {
+          message: this.question,
+          info: this.information,
+        });
         const data = response.data;
 
         this.respuesta = data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async getInputsByName() {
+      try {
+        const response = await axios.get(
+          `https://api-gestion-ahil.onrender.com/cheques/search/${businessId}/${this.inputName}`
+        );
+        const data = response.data;
+        this.filteredClients=[]
+        for (const cheque of data) {
+          this.filteredClients.push(cheque)          
+        }
+
+        if (data && data.length > 0) {
+          this.foundInput = true;
+        }
       } catch (error) {
         throw error;
       }
@@ -385,6 +481,12 @@ export default {
     },
     setId(id) {
       this.cheque_id = id;
+    },
+
+    checkInput() {
+      if (this.inputName === "") {
+        this.foundInput = false;
+      }
     },
     clearFilters() {
       this.startDate = "";
@@ -595,93 +697,89 @@ select {
 }
 
 /* //RESPONSIVE PARA TELEFONO-****************************************************************** */
-@media screen and (max-width: 768px){
-  .datesDiv{
+@media screen and (max-width: 768px) {
+  .datesDiv {
     display: flex;
     flex-direction: column;
     margin: 0;
   }
 
-  .datesDiv input{
+  .datesDiv input {
     width: 95vw;
   }
 
-  .datesDiv button{
+  .datesDiv button {
     width: 95vw;
     margin-top: 10px;
   }
   .searchbar-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
   }
 
-  .searchbar-container input{
+  .searchbar-container input {
     width: 95vw;
     margin-left: 10px;
     border-radius: 0%;
   }
- 
-  .searchbar-container button{
+
+  .searchbar-container button {
     width: 95vw;
     border-radius: 0%;
   }
 
   .expenses-form {
-  width: 80%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 5px;
-  background-color: white;
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  color: black;
-}
-
-.form-group {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.expenses-form {
-  h3 {
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+    background-color: white;
+    position: absolute;
+    top: 10%;
+    right: 10%;
     color: black;
   }
-}
 
+  .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
 
+  .expenses-form {
+    h3 {
+      color: black;
+    }
+  }
 
-.btn-cancel,
-.btn-confirm {
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 0%;
-}
+  .btn-cancel,
+  .btn-confirm {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 0%;
+  }
 
-.btn-cancel {
-  background-color: #ccc;
-  color: black;
-  margin-bottom: 5px;
-  background-color: #d02941;
-  font-size: 20px;
-  font-weight: bold;
-}
+  .btn-cancel {
+    background-color: #ccc;
+    color: black;
+    margin-bottom: 5px;
+    background-color: #d02941;
+    font-size: 20px;
+    font-weight: bold;
+  }
 
-.btn-confirm {
-  background-color: #149c68;
-  color: black;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-
+  .btn-confirm {
+    background-color: #149c68;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+  }
 }
 </style>

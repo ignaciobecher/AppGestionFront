@@ -2,7 +2,7 @@
   <div class="main-container">
     <div v-if="registerState" class="register-user">
       <a href="#" @click="showLogin">
-        <i style="font-size: 20px;" class="bi bi-arrow-left"></i>
+        <i style="font-size: 20px" class="bi bi-arrow-left"></i>
       </a>
       <h2>Registrar Usuario</h2>
       <form @submit.prevent="registerUser">
@@ -77,6 +77,11 @@
         <div class="btn-container">
           <button type="submit">Iniciar</button>
         </div>
+        <p style="margin-top: 20px">
+          <router-link to="/business">
+            <a href=""> Registrar nuevo negocio </a>
+          </router-link>
+        </p>
       </form>
       <p v-if="error" class="error">{{ error }}</p>
     </div>
@@ -85,7 +90,9 @@
 
 <script>
 import axios from "axios";
+import SimpleCrypto from "simple-crypto-js";
 const businessId = localStorage.getItem("businessId");
+export const secretKey=SimpleCrypto.generateRandom(256)
 
 export default {
   data() {
@@ -94,7 +101,7 @@ export default {
         username: "",
         email: "",
         password: "",
-        businessId:""
+        businessId: "",
       },
       error: "",
       loginState: true,
@@ -127,19 +134,30 @@ export default {
     },
     async loginUser() {
       try {
+        const simpleCrypto=new SimpleCrypto(secretKey)
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("businessId");
+        localStorage.removeItem("userId");
+        localStorage.removeItem('role')
         const user = await axios.post("https://api-gestion-ahil.onrender.com/auth/login", {
           email: this.formData.email,
           password: this.formData.password,
         });
         const userData = user.data;
+        console.log(userData);
 
         if (userData.token) {
           localStorage.setItem("userToken", userData.token);
           this.$router.push("/home");
           const businessId = userData.user.businessId;
           const userId = userData.user._id;
+          const role=userData.user.role
+          const cipherRole=simpleCrypto.encrypt(role)
+
           localStorage.setItem("userId", userId);
           localStorage.setItem("businessId", businessId);
+          localStorage.setItem('role',cipherRole)
+          
         } else {
           window.alert("Credenciales incorrectas");
           localStorage.removeItem("userToken");
@@ -148,7 +166,6 @@ export default {
         throw error;
       }
     },
-
     showRegister() {
       this.loginState = false;
       this.registerState = true;

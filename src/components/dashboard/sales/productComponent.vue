@@ -21,13 +21,24 @@
         placeholder="Presione enter para buscar por nombre"
         id=""
       />
+
       <button @click="changeStateOfSearch" class="salesBtn">
-        Buscar por {{ searchMessage }}
+        <i class="bi bi-arrow-left-right"></i>
       </button>
     </div>
-
+    <div class="listOfProductSearched">
+      <ul
+        @click="addFromList(product)"
+        v-for="(product, index) in multipleProductsArray"
+        :key="index"
+      >
+        <li>{{ product.name }}</li>
+        <li>{{ product.barCode }}</li>
+        <li>{{ product.sellPrice }}</li>
+      </ul>
+    </div>
     <!-- INSTRUCTIVO -->
-    <div v-if="instructionsState">
+    <div>
       <p style="color: black; margin-left: 10px; font-weight: bold">
         Para realizar una <span style="color: green">venta</span> presiona
         <span
@@ -50,6 +61,8 @@
         >
       </p>
     </div>
+
+    <!-- CONTENEDOR DE VENTAS -->
     <div>
       <div class="inputsTitle">
         <p>Cliente:</p>
@@ -81,7 +94,6 @@
 
         <select v-model="paymentMethod" name="" id="">
           <option value="Efectivo">Efectivo</option>
-          <option value="Cheque">Cheque</option>
           <option value="Transferencia">Transferencia</option>
           <option value="Credito">Credito</option>
           <option value="Cuenta_corriente">Cuenta corriente</option>
@@ -103,10 +115,20 @@
               :key="index"
             >
               <p>{{ product.name }}</p>
-              <div class="btn">
+              <div v-if="editQuantityStatus" class="btn">
+                <i
+                  @click="changeStatusOfQuantity"
+                  style="margin-left: 10px; color: black"
+                  class="bi bi-pencil"
+                ></i>
                 <button @click="decreaseQuantity(product)">-</button>
                 <p>{{ product.sellQuantity }}</p>
                 <button @click="increaseQuantity(product)">+</button>
+              </div>
+
+              <div class="inputQuantity" v-else>
+                <input v-model="product.sellQuantity" type="number" />
+                <i @click="changeStatusOfQuantity" class="bi bi-x-circle"></i>
               </div>
               <p>${{ product.sellPrice }}</p>
               <p>${{ getTotalProductPrice(product) }}</p>
@@ -120,6 +142,8 @@
           </div>
         </div>
       </div>
+      <button @click="printReceipt" style="margin-left: 10px; border: none; background-color:#574f7a; color: white;font-weight: 600; padding: 8px;">Imprimir comprobante</button>
+
       <div class="totalClass">
         <div class="total">
           <h2>Total:</h2>
@@ -144,7 +168,11 @@
             type="number"
             placeholder="Pago"
           />
-          <input @keyup.enter="changeTotal" type="text" v-model="totalForChange">
+          <input
+            @keyup.enter="changeTotal"
+            type="text"
+            v-model="totalForChange"
+          />
           <label for="">Vuelto: ${{ change }}</label>
         </div>
       </div>
@@ -209,6 +237,7 @@
 <script>
 import axios from "axios";
 import numeral from "numeral";
+const businessId = localStorage.getItem("businessId");
 
 export default {
   data() {
@@ -220,6 +249,7 @@ export default {
       carrito: [],
       total: 0,
       quantity: 0,
+      manualQuantity: 0,
       succesMessageVisible: false,
       clients: [],
       employees: [],
@@ -239,16 +269,17 @@ export default {
       instructions: "",
       searchByNameState: false,
       searchByCodeState: true,
-      searchMessage: "nombre",
       change: "",
       pay: "",
-      totalForChange:0
+      totalForChange: 0,
+      multipleProductsArray: [],
+      editQuantityStatus: true,
+      businessData:[]
     };
   },
   methods: {
     async getProductBybarCode(barcode) {
       try {
-        const businessId = localStorage.getItem("businessId");
 
         const response = await axios.get(
           `https://api-gestion-ahil.onrender.com/products/cate/${businessId}/${barcode}`
@@ -291,12 +322,11 @@ export default {
         const response = await axios.get(
           `https://api-gestion-ahil.onrender.com/products/${businessId}/search/${this.productName}`
         );
+        this.multipleProductsArray = [];
         this.productName = "";
-
-        if (response && response.data && response.data.product) {
-          const productoEncontrado = response.data.product;
-          console.log("El producto encontrado es: ", productoEncontrado);
-
+        console.log(response.data[0]);
+        if (response && response.data.length === 1) {
+          const productoEncontrado = response.data[0];
           if (productoEncontrado.sellPrice !== undefined) {
             this.total += productoEncontrado.sellPrice;
             const existingProduct = this.carrito.find(
@@ -309,9 +339,11 @@ export default {
               productoEncontrado.sellQuantity = 1;
               this.carrito.push(productoEncontrado);
               this.productsIds.push(productoEncontrado._id);
-              console.log("Carrito: ", this.carrito);
-              console.log("ProductID´s: ", this.productsIds);
             }
+          }
+        } else if (response && response.data.length > 1) {
+          for (const product of response.data) {
+            this.multipleProductsArray.push(product);
           }
         } else {
           if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
@@ -382,8 +414,8 @@ export default {
       try {
         const sale = await axios.post("https://api-gestion-ahil.onrender.com/sales", saleData);
 
-        this.totalForChange=this.total
-        console.log('Cambio: ',this.totalForChange);
+        this.totalForChange = this.total;
+        console.log("Cambio: ", this.totalForChange);
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
@@ -402,15 +434,14 @@ export default {
             });
           }
 
-          this.printReceipt();
           this.carrito = [];
           this.arrayOfIds = [];
           this.total = 0;
           this.paymentMethod = "Efectivo";
           this.clientId = "General";
+          this.multipleProductsArray = [];
           this.showSuccesMessage();
-        console.log('Cambio despues : ',this.totalForChange);
-
+          console.log("Cambio despues : ", this.totalForChange);
         } else {
           console.log("Error al realizar la venta");
         }
@@ -464,15 +495,28 @@ export default {
         throw error;
       }
     },
+    async getBusinessData(){
+      try {
+        const business=await axios.get(`https://api-gestion-ahil.onrender.com/business/${businessId}`)
+        this.businessData=business.data
+        console.log(this.businessData);
+      } catch (error) {
+        throw error
+      }
+    },
+
     // **********************LLAMADAS A LA API******************************************************************
+    changeStatusOfQuantity() {
+      this.editQuantityStatus = !this.editQuantityStatus;
+    },
     changeTotal() {
       try {
         this.change = this.totalForChange - this.pay;
-        this.change=this.change * (-1)
+        this.change = this.change * -1;
         setTimeout(() => {
-          this.change=0
-          this.totalForChange=0
-          this.pay=0
+          this.change = 0;
+          this.totalForChange = 0;
+          this.pay = 0;
         }, 10000);
       } catch (error) {
         throw error;
@@ -483,12 +527,7 @@ export default {
       this.total -= this.getTotalProductPrice(removedProduct);
       this.carrito.splice(index, 1);
     },
-    showInstructions() {
-      this.instructionsState = true;
-      setTimeout(() => {
-        this.instructionsState = false;
-      }, 20000);
-    },
+
     formatPriceInput() {
       // Formatear el precio mientras se escribe
       this.data.sellPrice = numeral(this.data.sellPrice).format("$0,0");
@@ -517,6 +556,7 @@ export default {
       this.paymentMethod = "Efectivo";
       this.clientId = "";
       this.employeeId = "";
+      this.multipleProductsArray = [];
     },
     handleKeyDown(event) {
       if (event.key === "F8") {
@@ -528,24 +568,53 @@ export default {
     changeStatusOfForm() {
       this.formStatus = !this.formStatus;
     },
+
     generateReceiptContent() {
-      let receiptHTML = "<h1>Ticket de Venta</h1>";
-      receiptHTML += "<p>Cliente: " + this.clientId + "</p>";
-      receiptHTML += "<ul>";
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const hours = currentDate.getHours().toString().padStart(2, "0");
+      const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+      const formattedDate = `${day}/${month}/${year}`;
+      const formattedTime = `${hours}:${minutes}`;
+
+      let receiptHTML = `
+    <div style="font-family: monospace; max-width: 300px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 10px;">
+        <h1 style="font-size: 80px; margin: 0;">X</h1>
+        <h5 style="font-size: 24px; margin: 0;">No valido como factura</h5>
+        <h1 style="font-size: 24px; margin: 0;">Ticket de Venta</h1>
+        <p style="font-size: 14px; margin: 5px 0;">Fecha: ${formattedDate} - Hora: ${formattedTime}</p>
+        <p style="font-size: 14px; margin: 5px 0;">Nombre del Negocio: </p>
+        <p style="font-size: 14px; margin: 5px 0;">CUIT: 12345678901</p>
+        <p style="font-size: 14px; margin: 10px 0;">Cliente: ${
+          this.clientId || "General"
+        }</p>
+      </div>
+      <ul style="list-style-type: none; padding: 0; margin: 0;">
+  `;
+
       this.carrito.forEach((product) => {
-        receiptHTML +=
-          "<li>" +
-          product.name +
-          " - Cantidad: " +
-          product.sellQuantity +
-          " - Precio Unitario: $" +
-          product.sellPrice +
-          " - Precio Total: $" +
-          product.sellQuantity * product.sellPrice +
-          "</li>";
+        receiptHTML += `
+      <li style="font-size: 14px; margin-bottom: 5px;text-align:center;">
+        ${product.name} - Cant: ${
+          product.sellQuantity
+        } - Precio: $${product.sellPrice.toFixed(2)} - Total: $${(
+          product.sellQuantity * product.sellPrice
+        ).toFixed(2)}
+      </li>
+    `;
       });
-      receiptHTML += "</ul>";
-      receiptHTML += "<p>Total: $" + this.total + "</p>";
+
+      receiptHTML += `
+      </ul>
+      <div style="text-align: center; font-size: 18px; margin-top: 10px;">
+        <p style="font-weight: bold;">Total: $${this.total.toFixed(2)}</p>
+      </div>
+    </div>
+  `;
+
       return receiptHTML;
     },
     printReceipt() {
@@ -561,12 +630,40 @@ export default {
       if (this.searchByCodeState === true) {
         this.searchByNameState = true;
         this.searchByCodeState = false;
-        this.searchMessage = "código";
       } else {
         this.searchByNameState = false;
         this.searchByCodeState = true;
-        this.searchMessage = "nombre";
       }
+    },
+    addFromList(product) {
+      // Buscar si el producto ya está en el carrito
+      const existingProduct = this.carrito.find((p) => p._id === product._id);
+
+      if (existingProduct) {
+        // Si el producto ya está en el carrito, incrementar la cantidad y actualizar el total
+        existingProduct.sellQuantity++;
+        this.total += existingProduct.sellPrice;
+      } else {
+        // Si el producto no está en el carrito, agregarlo al carrito con una cantidad inicial de 1 y actualizar el total
+        product.sellQuantity = 1;
+        this.carrito.push(product);
+        this.productsIds.push(product._id);
+        this.total += product.sellPrice;
+      }
+    },
+  },
+  watch: {
+    // Observador para cambios en la propiedad sellQuantity de los productos en el carrito
+    carrito: {
+      deep: true,
+      handler(newCarrito, oldCarrito) {
+        // Calcula el nuevo total de la venta cuando cambia la cantidad de un producto
+        let newTotal = 0;
+        newCarrito.forEach((product) => {
+          newTotal += product.sellPrice * product.sellQuantity;
+        });
+        this.total = newTotal;
+      },
     },
   },
   computed: {
@@ -577,8 +674,7 @@ export default {
   mounted() {
     this.getBusinessData();
     window.addEventListener("keydown", this.handleKeyDown),
-      this.getCategoryesIds();
-    this.showInstructions();
+      this.getCategoryesIds(),this.getBusinessData()
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.handleKeyDown);
@@ -587,18 +683,46 @@ export default {
 </script>
 
 <style scoped>
+.inputQuantity {
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+}
+
+.listOfProductSearched {
+  margin-left: 10px;
+  margin-right: 10px;
+  background-color: white;
+}
+.listOfProductSearched ul {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  list-style: none;
+  background-color: white;
+  padding: 2px;
+}
+
+.listOfProductSearched ul:hover {
+  background-color: #574f7a;
+  color: white;
+}
+
+.listOfProductSearched li {
+  border-bottom: 1px solid black;
+}
+
 .btn-and-change-container {
   display: flex;
-  justify-content: space-between; /* Alinea los elementos a los extremos */
+  justify-content: flex-end; /* Alinea los elementos a los extremos */
 }
 .change-container {
-  width: 300px;
+  width: 200px;
   background-color: white;
   padding: 5px;
   display: flex;
   flex-direction: column;
   align-self: center;
-  margin-top: -30px;
+  margin-top: -60px;
 }
 .searchSwitch button {
   margin: 10px;
@@ -643,14 +767,16 @@ export default {
   top: 30%;
   right: 20%;
 }
-.total {
-  margin-left: 10px;
-  margin-top: 30px;
-  display: grid;
-  grid-template-columns: 20% 80%;
-}
 .totalClass {
-  grid-row: 3;
+  display: flex;
+  justify-content: center;
+}
+.total {
+  display: flex;
+  flex-direction: row;
+  column-gap: 50px;
+  align-self: center;
+  align-items: center;
 }
 
 .products-titles {
@@ -741,14 +867,13 @@ export default {
 }
 .buttons {
   margin: 10px;
-  width: 50%;
+  width: 40%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   grid-row: 4;
 }
 
 .btnCancel {
-  border-radius: 15px;
   background-color: #d02941;
   border: none;
   margin: 5px;
@@ -757,11 +882,11 @@ export default {
   font-weight: bold;
   transition: transform 0.3s ease;
   width: 100%;
+  height: 40%;
 }
 
 .btnConfirm {
   width: 100%;
-  border-radius: 15px;
   background-color: #149c68;
   border: none;
   margin: 5px;
@@ -769,6 +894,8 @@ export default {
   font-size: 20px;
   font-weight: bold;
   transition: transform 0.3s ease;
+  height: 40%;
+  border-radius: 0%;
 }
 
 .btnCancel:hover,
@@ -844,40 +971,40 @@ select {
 }
 
 /* //RESPONSIVE PARA TELEFONO-****************************************************************** */
-@media screen and (max-width: 768px){
-  .searchbar-container{
+@media screen and (max-width: 768px) {
+  .searchbar-container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .searchbar-container input{
+  .searchbar-container input {
     width: 95vw;
   }
 
-  .searchbar-container .salesBtn{
+  .searchbar-container .salesBtn {
     width: 95vw;
     padding-left: 0;
     margin-left: 10px;
   }
 
-  .btn-and-change-container{
+  .btn-and-change-container {
     display: flex;
     flex-direction: column;
   }
 
-  .change-container{
+  .change-container {
     display: flex;
     margin-top: 20px;
     align-items: flex-start;
     width: 100vw;
   }
-  .btn-and-change-container button{
+  .btn-and-change-container button {
     border-radius: 0%;
     width: 95vw;
   }
 
-  .btn-and-change-container input{
+  .btn-and-change-container input {
     width: 95vw;
     border-radius: 0%;
   }

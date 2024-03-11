@@ -6,8 +6,8 @@
         @input="checkInput"
         v-model="productName"
         type="search"
-        @keyup.enter="searchProduct(productName)"
         name=""
+        @keyup.enter="searchProduct(productName)"
         placeholder="Ingrese un producto..."
         id=""
       />
@@ -16,17 +16,20 @@
       </div>
     </div>
 
+    <!-- Dentro de tu plantilla -->
     <div class="categoryDiv">
-      <input
-        @input="checkCategoryInput"
-        v-model="categoryName"
-        type="search"
-        @keyup.enter="getCategoriesProducts()"
-        name=""
-        placeholder="Ingrese categoria..."
-        id=""
-        class="inputCate"
-      />
+      <select v-model="categoryName">
+        <option value="">Selecciona una categoría...</option>
+        <option
+          v-for="category in categoriesIds"
+          :value="category.name"
+          :key="category._id"
+        >
+          {{ category.name }}
+        </option>
+      </select>
+      <button @click="getProductsByCategory">Ver categoria</button>
+      <button @click="cleanFilters">Limpiar filtros</button>
       <button
         @click="changeStatusOfCategoryForm"
         style="
@@ -41,6 +44,7 @@
       </button>
     </div>
 
+    
     <div style="margin: 10px">
       <input
         style="border: none; border-radius: 0%"
@@ -53,18 +57,30 @@
       />
     </div>
 
+    <!-- ASISTENTE VIRTUAL -->
     <div class="assistentComponent">
-      <h4>Asistente virtual</h4>
-      <input
-        type="text"
-        v-model="question"
-        placeholder="Ingresa tu consulta sobre los productos..."
-      />
-      <button @click="askGpt">Consultar</button>
-      <p v-html="formattedResponse()"></p>
+      
+      <div class="innerAssistent">
+        <h4>Asistente virtual</h4>
+        <input
+          type="text"
+          v-model="question"
+          placeholder="Ingresa tu consulta sobre los productos..."
+        />
+        <button @click="askGpt">Consultar</button>
+        <p v-html="formattedResponse()"></p>
+      </div>
+
+      <div class="calculadora">
+        <h5>Calcular porcentajes</h5>
+        <input type="number" v-model="valorBase" placeholder="Valor base" />
+        <input type="number" v-model="porcentaje" placeholder="Porcentaje" />
+        <p>Resultado: {{ calcularPorcentaje }}</p>
+      </div>
+      
     </div>
 
-
+    <!-- TRAER PRODUCTOS*************************************************** -->
     <div v-if="categoriesState === false" class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -74,13 +90,22 @@
             <th scope="col">Cantidad</th>
             <th scope="col">Codigo</th>
             <th scope="col">Stock mínimo</th>
+            <th scope="col">Vencimiento</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+
           </tr>
         </thead>
         <tbody class="table-body">
           <!-- *************************SI SE BUSCA UN PRODUCTO****************************** -->
-          <tr @click="setId(selectedProduct._id)" v-if="!foundProduct">
+          <tr
+            @click="setId(product._id)"
+            v-if="!foundProduct"
+            v-for="(product, index) in selectedProduct"
+            :key="index"
+          >
             <td>
-              <span v-if="!editorStatus">{{ selectedProduct.name }}</span>
+              <span v-if="!editorStatus">{{ product.name }}</span>
               <input
                 name="name"
                 v-else
@@ -91,7 +116,7 @@
 
             <td>
               <span v-if="!editorStatus">{{
-                formatPrice(selectedProduct.sellPrice)
+                formatPrice(product.sellPrice)
               }}</span>
               <input
                 name="name"
@@ -101,7 +126,7 @@
               />
             </td>
             <td>
-              <span v-if="!editorStatus">{{ selectedProduct.quantity }}</span>
+              <span v-if="!editorStatus">{{ product.quantity }}</span>
               <input
                 name="name"
                 v-else
@@ -111,7 +136,7 @@
             </td>
 
             <td>
-              <span v-if="!editorStatus">{{ selectedProduct.barCode }}</span>
+              <span v-if="!editorStatus">{{ product.barCode }}</span>
               <input
                 name="name"
                 v-else
@@ -120,9 +145,7 @@
               />
             </td>
             <td>
-              <span v-if="!editorStatus">{{
-                selectedProduct.minimumStock
-              }}</span>
+              <span v-if="!editorStatus">{{ product.minimumStock }}</span>
               <input
                 name="name"
                 v-else
@@ -205,6 +228,10 @@
                 v-model="product.minimumStock"
               />
             </td>
+            
+            <td>
+              <span>{{formatDate(product.expirationDate)  }}</span>
+            </td>
 
             <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
@@ -224,9 +251,10 @@
             </td>
           </tr>
         </tbody>
-      </table>
+      </table> 
     </div>
 
+    <!-- TRAER LAS CATEGORIAS ******************************************************* -->
     <div v-else class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
@@ -388,6 +416,7 @@
 import numeral from "numeral";
 import axios from "axios";
 import moment from "moment";
+
 const businessId = localStorage.getItem("businessId");
 
 export default {
@@ -419,13 +448,14 @@ export default {
       question: "",
       respuesta: "",
       information: [],
+      valorBase: null,
+      porcentaje: null,
     };
   },
   methods: {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllProducts() {
       try {
-
         const result = await axios.get(
           `https://api-gestion-ahil.onrender.com/business/products/${businessId}`
         );
@@ -537,10 +567,15 @@ export default {
         const product = await axios.get(
           `https://api-gestion-ahil.onrender.com/products/${businessId}/search/${productName}`
         );
-        const productoEncontrado = product.data.product;
+        const productoEncontrado = product.data;
+        const productosEncontradosArray = [];
+        for (const product of productoEncontrado) {
+          productosEncontradosArray.push(product);
+        }
 
-        if (productoEncontrado) {
-          this.selectedProduct = productoEncontrado;
+        if (productosEncontradosArray) {
+          this.selectedProduct = productosEncontradosArray;
+          console.log(this.selectedProduct);
           this.foundProduct = false;
         } else {
           this.selectedProduct = {};
@@ -564,19 +599,38 @@ export default {
         throw error;
       }
     },
-    async getCategoriesProducts() {
+    async getProductsByCategory() {
       try {
-        const businessId = localStorage.getItem("businessId");
-
+        if (!this.categoryName) {
+          return;
+        }
         const res = await axios.get(
           `https://api-gestion-ahil.onrender.com/categoryes/filter/category/${businessId}/${this.categoryName}`
         );
-        const products = res.data;
-        for (const iterator of products[0]) {
-          this.categoriesProducts.push(iterator);
+        if (res.data.length === 0) {
+          window.alert("No hay productos en la categoria");
         }
+        const arrayProductos = res.data;
         this.categoriesState = true;
-        console.log(this.categoriesProducts);
+        this.arrayProductos = [];
+        this.categoriesProducts = [];
+
+        for (const product of arrayProductos) {
+          for (const item of product) {
+            this.categoriesProducts.push(item);
+          }
+        }
+      } catch (error) {
+        console.log("Error al obtener productos por categoría: ", error);
+      }
+    },
+    cleanFilters() {
+      try {
+        this.categoriesProducts = [];
+        this.categoryName = "";
+        this.categoriesState = false;
+
+        this.getAllProducts();
       } catch (error) {
         throw error;
       }
@@ -613,13 +667,10 @@ export default {
         console.log("Pregunta: ", this.question);
         console.log("Informacion: ", this.information);
         this.information = this.products;
-        const response = await axios.post(
-          `https://api-gestion-ahil.onrender.com/chat-gpt`,
-          {
-            message:this.question,
-            info: this.information,
-          }
-        );
+        const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt`, {
+          message: this.question,
+          info: this.information,
+        });
         const data = response.data;
 
         this.respuesta = data;
@@ -667,9 +718,17 @@ export default {
     changeStatusOfCategoryForm() {
       this.categoryStatus = !this.categoryStatus;
     },
+    formatDate(date) {
+      return moment(date).format("DD/MM/YYYY");
+    },
   },
   mounted() {
-    this.getAllProducts(), this.getCategoryesIds()
+    this.getAllProducts(), this.getCategoryesIds();
+  },
+  computed: {
+    calcularPorcentaje() {
+      return (this.valorBase * (this.porcentaje / 100))+this.valorBase;
+    },
   },
 };
 </script>
@@ -830,6 +889,17 @@ select {
   margin-top: 10px;
   padding: 10px;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
+  
+  display: flex;
+  flex-direction: row;
+}
+.calculadora {
+  width: 15%;
+  margin-left: 10px;
+}
+
+.innerAssistent{
+  width: 80%;
   overflow-y: auto;
   max-height: 212px;
 }
@@ -844,95 +914,89 @@ select {
   color: white;
 }
 
-@media screen and (max-width: 768px){
-  .datesDiv{
+@media screen and (max-width: 768px) {
+  .datesDiv {
     display: flex;
     flex-direction: column;
     margin: 0;
   }
 
-  .datesDiv input{
+  .datesDiv input {
     width: 95vw;
   }
 
-  .datesDiv button{
+  .datesDiv button {
     width: 95vw;
     margin-top: 10px;
   }
   .searchbar-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
   }
 
-  .searchbar-container input{
+  .searchbar-container input {
     width: 95vw;
     margin-left: 10px;
     border-radius: 0%;
   }
- 
-  .searchbar-container button{
+
+  .searchbar-container button {
     width: 95vw;
     border-radius: 0%;
   }
 
- 
   .expenses-form {
-  width: 80%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 5px;
-  background-color: white;
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  color: black;
-}
-
-
-.form-group {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.expenses-form {
-  h3 {
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+    background-color: white;
+    position: absolute;
+    top: 10%;
+    right: 10%;
     color: black;
   }
-}
 
+  .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
 
+  .expenses-form {
+    h3 {
+      color: black;
+    }
+  }
 
-.btn-cancel,
-.btn-confirm {
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  border-radius: 0%;
-}
+  .btn-cancel,
+  .btn-confirm {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 0%;
+  }
 
-.btn-cancel {
-  background-color: #ccc;
-  color: black;
-  margin-bottom: 5px;
-  background-color: #d02941;
-  font-size: 20px;
-  font-weight: bold;
-}
+  .btn-cancel {
+    background-color: #ccc;
+    color: black;
+    margin-bottom: 5px;
+    background-color: #d02941;
+    font-size: 20px;
+    font-weight: bold;
+  }
 
-.btn-confirm {
-  background-color: #149c68;
-  color: black;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-
+  .btn-confirm {
+    background-color: #149c68;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+  }
 }
 </style>

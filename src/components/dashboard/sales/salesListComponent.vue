@@ -92,7 +92,7 @@
               <span>{{ formatDate(sale.createdAt) }}</span>
             </td>
 
-            <td v-if="!editorStatus">
+            <!-- <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
             </td>
             <td v-else>
@@ -102,7 +102,7 @@
               <a href="#" @click="changeStatusOfEditor">
                 <i style="color: #d02941" class="bi bi-x-circle"></i>
               </a>
-            </td>
+            </td> -->
             <td>
               <a @click.prevent="deleteProduct(sale._id)">
                 <i class="bi bi-trash"></i>
@@ -140,7 +140,7 @@
               <span>{{ formatDate(sale.createdAt) }}</span>
             </td>
 
-            <td v-if="!editorStatus">
+            <!-- <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
             </td>
             <td v-else>
@@ -150,12 +150,12 @@
               <a href="#" @click="changeStatusOfEditor">
                 <i style="color: #d02941" class="bi bi-x-circle"></i>
               </a>
-            </td>
+            </td>-->
             <td>
               <a @click.prevent="deleteProduct(sale._id)">
                 <i class="bi bi-trash"></i
               ></a>
-            </td>
+            </td> 
             <td>
               <a @click.prevent="getSalesDetails(sale._id)" href="#">
                 <i style="color: black" class="bi bi-search"></i>
@@ -242,9 +242,9 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`https://api-gestion-ahil.onrender.com/sales/${id}`);
+         const deleteProduct= await axios.delete(`https://api-gestion-ahil.onrender.com/sales/${id}`);
 
-          window.alert("Producto eliminado");
+          window.alert("Venta eliminado");
           this.getAllProducts();
         } else {
           window.alert("Accion cancelada");

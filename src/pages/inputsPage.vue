@@ -35,11 +35,13 @@
     <div
       v-if="selector"
       class="pDescription"
-      style="text-align: center; margin-top: 50px"
+      style="text-align: center; margin-top: 50px; display:grid; grid-template-columns: 1fr 1fr;"
     >
       <p>
-        En este apartado se encuentran divididos los gastos de tu negocio, por
-        un lado tener los egresos de dinero y por el otro tus compras hechas.
+        En ingresos encontras los ingresos de dinero de tu negocio
+      </p>
+      <p>
+        En ingresos varios podes encontrar los ingresos de cualquier tipo que haya registrado tu negocio
       </p>
     </div>
   </div>

@@ -57,13 +57,13 @@ export default {
     async askGpt() {
       try {
         const sales = await axios.get(
-          `http://localhost:3000/business/salesTotal/${businessId}`
+          `https://api-gestion-ahil.onrender.com/business/salesTotal/${businessId}`
         );
         const salesData = sales.data;
 
       
         const response = await axios.post(
-          `http://localhost:3000/chat-gpt`,
+          `https://api-gestion-ahil.onrender.com/chat-gpt`,
           {
             message:this.question,
             info: this.information,
