@@ -1,15 +1,28 @@
 <template>
   <div class="main-container">
     <div class="inner-container">
-      <h4>Asistente virtual <i style="font-size: 15px; cursor: pointer;" class="bi bi-question-circle"></i></h4>
-    
+      <h4>
+        Asistente virtual
+
+        <a href="">
+          ¿Como usar el asistente virtual de Adminia?
+          <i
+            style="font-size: 12px; cursor: pointer"
+            class="bi bi-question-circle"
+          ></i
+        ></a>
+      </h4>
+
       <input
         v-model="question"
         type="text"
         placeholder="Ingresar pregunta al asistente virtual"
       />
-      
-      <button @click="askGpt">Enviar</button>
+
+      <div class="inner" style="display: flex">
+        <button @click="askGpt">Enviar</button>
+      </div>
+
       <p v-html="formattedResponse()"></p>
     </div>
   </div>
@@ -23,33 +36,28 @@ export default {
   data() {
     return {
       question: "",
-      respuesta:'',
+      respuesta: "",
       information: [],
     };
   },
   methods: {
     formattedResponse() {
-      return this.respuesta.split('*').join('*<br/><br/>');
+      return this.respuesta.split("*").join("*<br/><br/>");
     },
     async askGpt() {
       try {
-        this.information=await this.getBusinessData()
-        
-        console.log('Pregunta: ',this.question);
-        console.log('Informacion: ',this.information);
+        this.information = await this.getBusinessData();
 
-        const response = await axios.post(
-          `https://api-gestion-ahil.onrender.com/chat-gpt/`,
-          {
-            message:this.question,
-            info: this.information,
-          }
-        );
+        console.log("Pregunta: ", this.question);
+        console.log("Informacion: ", this.information);
+
+        const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt/`, {
+          message: this.question,
+          info: this.information,
+        });
         const data = response.data;
 
-        this.respuesta=data
-
-       
+        this.respuesta = data;
       } catch (error) {
         throw error;
       }
@@ -60,15 +68,15 @@ export default {
           `https://api-gestion-ahil.onrender.com/business/${businessId}`
         );
         const businessInfo = response.data;
-        return businessInfo
+        return businessInfo;
       } catch (error) {
         throw error;
       }
     },
   },
-  mounted(){
+  mounted() {
     // this.getBusinessData()
-  }
+  },
 };
 </script>
 
@@ -85,7 +93,6 @@ export default {
 
 .inner-container {
   margin: 10px;
-  
 }
 .inner-container input {
   width: 100%;
@@ -93,11 +100,15 @@ export default {
 
 .inner-container button {
   margin-top: 10px;
-  width: 100%;
+  width: 40%;
   border: none;
   border-radius: 0%;
   background-color: #b28cc4;
   font-size: 20px;
   font-weight: 500;
+}
+
+.inner-container a {
+  font-size: 12px;
 }
 </style>

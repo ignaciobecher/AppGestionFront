@@ -57,12 +57,13 @@
       <form @submit.prevent="loginUser">
         <div class="form-group">
           <label for="email">Correo electrónico:</label>
-          <input type="email" v-model="formData.email" required />
+          <input type="email" name="email" autocomplete="email" v-model="formData.email" required />
         </div>
         <div class="form-group">
           <label for="password">Contraseña:</label>
           <input
             type="password"
+            name="password"
             autocomplete="current-password"
             v-model="formData.password"
             required
@@ -92,7 +93,7 @@
 import axios from "axios";
 import SimpleCrypto from "simple-crypto-js";
 const businessId = localStorage.getItem("businessId");
-export const secretKey=SimpleCrypto.generateRandom(256)
+export const secretKey = "password.key,asd123@";
 
 export default {
   data() {
@@ -134,32 +135,32 @@ export default {
     },
     async loginUser() {
       try {
-        const simpleCrypto=new SimpleCrypto(secretKey)
+        const simpleCrypto = new SimpleCrypto(secretKey);
         localStorage.removeItem("userToken");
         localStorage.removeItem("businessId");
         localStorage.removeItem("userId");
-        localStorage.removeItem('role')
+        localStorage.removeItem("role");
+
         const user = await axios.post("https://api-gestion-ahil.onrender.com/auth/login", {
           email: this.formData.email,
           password: this.formData.password,
         });
+
         const userData = user.data;
-        console.log(userData);
 
         if (userData.token) {
           localStorage.setItem("userToken", userData.token);
           this.$router.push("/home");
           const businessId = userData.user.businessId;
           const userId = userData.user._id;
-          const role=userData.user.role
-          const cipherRole=simpleCrypto.encrypt(role)
+          const role = userData.user.role;
+          const cipherRole = simpleCrypto.encrypt(role);
 
           localStorage.setItem("userId", userId);
           localStorage.setItem("businessId", businessId);
-          localStorage.setItem('role',cipherRole)
-          
+          localStorage.setItem("role", cipherRole);
         } else {
-          window.alert("Credenciales incorrectas");
+          window.alert("Credenciales incorrectas, verifica tus datos e intenta de nuevo");
           localStorage.removeItem("userToken");
         }
       } catch (error) {

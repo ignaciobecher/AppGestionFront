@@ -11,7 +11,8 @@
         <div class="form-group">
           <label for="name">Rubro:</label>
           <input v-model="data.rubro" type="text" required />
-        </div><div class="form-group">
+        </div>
+        <div class="form-group">
           <label for="name">Teléfono:</label>
           <input v-model="data.phone" type="text" required />
         </div>
@@ -19,69 +20,91 @@
           <label for="address">Dirección:</label>
           <input v-model="data.address" type="text" required />
         </div>
-        <div class="form-group">
-          <label for="email">Correo electrónico:</label>
-          <input v-model="data.email" type="email" required />
-        </div>
-     
+
         <div class="form-group">
           <label for="email">Ciudad:</label>
           <input v-model="data.city" type="text" required />
         </div>
-          <button type="submit">Crear negocio</button>
-        
+        <div class="form-group">
+          <label for="email">Correo electrónico:</label>
+          <input v-model="data.email" type="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Usuario:</label>
+          <input v-model="data.username" type="text" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Contraseña:</label>
+          <input v-model="data.password" type="password" required />
+        </div>
+        <button type="submit">Crear negocio</button>
       </form>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 export default {
-  data(){
-    return{
-      data:{
-        name:'',
-        address:'',
-        email:'',
-        rubro:'',
-        phone:'',
-        city:''
-      }
-    }
+  data() {
+    return {
+      data: {
+        name: "",
+        address: "",
+        email: "",
+        rubro: "",
+        phone: "",
+        city: "",
+        username: "",
+        password: "",
+      },
+    };
   },
-  methods:{
-    async createNewBusiness(){
+  methods: {
+    async createNewBusiness() {
       try {
-        const newBusiness=await axios.post('https://api-gestion-ahil.onrender.com/business',{
-          name:this.data.name,
-          address:this.data.address,
-          email:this.data.email,
-          telephone:this.data.phone,
-          rubro:this.data.rubro,
-          city:this.data.city
-        })
+        const newBusiness = await axios.post("https://api-gestion-ahil.onrender.com/business", {
+          name: this.data.name,
+          address: this.data.address,
+          email: this.data.email,
+          telephone: this.data.phone,
+          rubro: this.data.rubro,
+          city: this.data.city,
+        });
 
-        const businessId=newBusiness.data._id
-        localStorage.setItem('businessId',businessId)
+        const businessId = newBusiness.data._id;
+        localStorage.setItem("businessId", businessId);
 
-        const email= await axios.post(`https://api-gestion-ahil.onrender.com/email`,{
-          email:this.data.email,
-          businessId:businessId
-        })
-        window.alert('Gracias por registrar tu negocio en Adminia, en tu mail te indicamos el siguiente paso')
+        const email = await axios.post(`https://api-gestion-ahil.onrender.com/email`, {
+          email: this.data.email,
+          businessId: businessId,
+        });
+
+        if (newBusiness) {
+          const user = await axios.post(
+            `http://localhost:3000/auth/register/${businessId}`,
+            {
+              username: this.data.username,
+              password: this.data.password,
+              email: this.data.email,
+              role: "manager",
+            }
+          );
+        }
+        window.alert(
+          "Gracias por registrar tu negocio en Adminia, en tu mail te indicamos el siguiente paso"
+        );
 
         this.$router.push("/register");
-        this.data.name=''
-        this.data.address=''
-        this.data.email=''
-        return businessId
-      } catch (error) {
-        
-      }
-    }
-  }
-}
+        this.data.name = "";
+        this.data.address = "";
+        this.data.email = "";
+        return businessId;
+      } catch (error) {}
+    },
+  },
+};
 </script>
 
 <style scoped>

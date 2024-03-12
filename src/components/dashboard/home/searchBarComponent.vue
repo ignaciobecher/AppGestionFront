@@ -3,16 +3,22 @@
     <p>Bienvenido {{ userName }}</p>
 
     <div class="input-container">
+      <router-link class="router" to="/registerUser"
+        ><a id="registerUser" class="nav-link" href="">
+          Registrar nuevo usuario
+          <i class="bi bi-arrow-right"></i>
+        </a>
+      </router-link>
     </div>
-    <!-- <div class="date">
-      <img style="width: 100px" src="../../../assets/3.png" alt="" />
-    </div> -->
   </div>
 </template>
 
 <script>
+import SimpleCrypto from "simple-crypto-js";
 import axios from "axios";
 import moment from "moment";
+import { secretKey } from "../Auth/registerComponent.vue";
+const simpleCrypto = new SimpleCrypto(secretKey);
 export default {
   data() {
     return {
@@ -35,6 +41,24 @@ export default {
         throw error;
       }
     },
+    checkRoles() {
+      try {
+        const role = localStorage.getItem("role");
+        const register = document.querySelector("#registerUser");
+
+        const decipherRole = simpleCrypto.decrypt(role);
+
+        if (
+          decipherRole === "administrador" ||
+          decipherRole === "user" 
+        
+        ) {
+          register.classList.add("d-none");
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
     getDate() {
       const date = new Date();
       this.todayDate = date;
@@ -43,11 +67,8 @@ export default {
       return moment(date).format("DD/MM/YYYY");
     },
   },
-  created() {
-    this.getDate();
-  },
   mounted() {
-    this.getUserInfo();
+    this.getUserInfo(), this.checkRoles();
   },
 };
 </script>
@@ -57,6 +78,7 @@ export default {
   display: flex;
   align-items: center;
   box-shadow: 0px 5px 5px -5px rgba(32, 32, 32, 0.5);
+  justify-content: space-between;
 }
 
 .searchbar-container p {
@@ -68,26 +90,6 @@ export default {
 }
 
 .input-container {
-  position: relative;
-  margin-left: 400px; /* Puedes ajustar este valor según sea necesario */
-}
-
-.input-container input {
-  border: 1px solid #574f7a;
-  padding: 10px;
-  padding-left: 30px; /* Añadimos espacio a la izquierda para el icono */
-  width: 350px;
-}
-
-.input-container i {
-  position: absolute;
-  right: 10px; /* Ajusta la posición del icono dentro del input */
-  top: 50%;
-  transform: translateY(-50%);
-  color: blueviolet;
-}
-
-.date {
-  margin-left: 200px;
+  margin-right: 20px;
 }
 </style>
