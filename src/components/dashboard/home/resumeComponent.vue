@@ -16,11 +16,11 @@
 
   <div class="info-container">
     <h4>Vencimientos</h4>
-
     <router-link class="router" to="/expirations">
       <h3>Vencimientos <i class="bi bi-arrow-right"></i></h3>
     </router-link>
   </div>
+
 </template>
 
 <script>
@@ -42,7 +42,7 @@ export default {
         `http://localhost:3000/business/salesTotal/${businessId}`
       );
       const data = sales.data;
-      console.log(data);
+      console.log('Balance',data);
       this.totalBalance = data;
     },
     async getTotalStock() {

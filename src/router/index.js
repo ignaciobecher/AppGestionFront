@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import authGuard from "@/guards/authGuards";
+import roleGuard from '@/guards/roleGuard'
 
 const routes = [
   {
@@ -47,6 +48,12 @@ const routes = [
     path: "/gptTest",
     component: () => import("../components/testComponents/gptTest.vue"),
   },
+  {
+    path:'/registerUser',
+    component:()=>import ("../components/dashboard/Auth/createUserComponent.vue"),
+    meta: { requiresAuth: true },
+    beforeEnter: roleGuard, // Usa el guardia para proteger esta ruta
+  }
 ];
 
 const router = createRouter({
