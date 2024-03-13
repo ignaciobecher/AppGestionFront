@@ -44,7 +44,6 @@
       </button>
     </div>
 
-    
     <div style="margin: 10px">
       <input
         style="border: none; border-radius: 0%"
@@ -59,7 +58,6 @@
 
     <!-- ASISTENTE VIRTUAL -->
     <div class="assistentComponent">
-      
       <div class="innerAssistent">
         <h4>Asistente virtual</h4>
         <input
@@ -68,7 +66,13 @@
           placeholder="Ingresa tu consulta sobre los productos..."
         />
         <button @click="askGpt">Consultar</button>
-        <p v-html="formattedResponse()"></p>
+        <div
+          v-if="loading === true"
+          style="display: flex; justify-content: center; margin-top: 20px"
+        >
+          <spinner> </spinner>
+        </div>
+        <p v-if="loading===false" v-html="formattedResponse()"></p>
       </div>
 
       <div class="calculadora">
@@ -77,7 +81,6 @@
         <input type="number" v-model="porcentaje" placeholder="Porcentaje" />
         <p>Resultado: {{ calcularPorcentaje }}</p>
       </div>
-      
     </div>
 
     <!-- TRAER PRODUCTOS*************************************************** -->
@@ -93,7 +96,6 @@
             <th scope="col">Vencimiento</th>
             <th scope="col"></th>
             <th scope="col"></th>
-
           </tr>
         </thead>
         <tbody class="table-body">
@@ -228,9 +230,9 @@
                 v-model="product.minimumStock"
               />
             </td>
-            
+
             <td>
-              <span>{{formatDate(product.expirationDate)  }}</span>
+              <span>{{ formatDate(product.expirationDate) }}</span>
             </td>
 
             <td v-if="!editorStatus">
@@ -251,7 +253,7 @@
             </td>
           </tr>
         </tbody>
-      </table> 
+      </table>
     </div>
 
     <!-- TRAER LAS CATEGORIAS ******************************************************* -->
@@ -416,10 +418,14 @@
 import numeral from "numeral";
 import axios from "axios";
 import moment from "moment";
+import spinner from "@/components/visuals/spinner.vue";
 
 const businessId = localStorage.getItem("businessId");
 
 export default {
+  components:{
+    spinner
+  },
   data() {
     return {
       products: [],
@@ -450,6 +456,7 @@ export default {
       information: [],
       valorBase: null,
       porcentaje: null,
+      loading:false
     };
   },
   methods: {
@@ -664,8 +671,7 @@ export default {
     },
     async askGpt() {
       try {
-        console.log("Pregunta: ", this.question);
-        console.log("Informacion: ", this.information);
+        this.loading=true
         this.information = this.products;
         const response = await axios.post(`http://localhost:3000/chat-gpt`, {
           message: this.question,
@@ -674,6 +680,7 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
+        this.loading=false
       } catch (error) {
         throw error;
       }
@@ -727,7 +734,7 @@ export default {
   },
   computed: {
     calcularPorcentaje() {
-      return (this.valorBase * (this.porcentaje / 100))+this.valorBase;
+      return this.valorBase * (this.porcentaje / 100) + this.valorBase;
     },
   },
 };
@@ -888,7 +895,7 @@ select {
   margin-top: 10px;
   padding: 10px;
   box-shadow: 4px 4px 5px -4px rgba(0, 0, 0, 0.75);
-  
+
   display: flex;
   flex-direction: row;
 }
@@ -897,14 +904,14 @@ select {
   margin-left: 10px;
 }
 
-.innerAssistent{
+.innerAssistent {
   width: 80%;
   overflow-y: auto;
   max-height: 212px;
 }
 
 .assistentComponent button {
-  width: 50%;
+  width: 100%;
   border: none;
   border-radius: 0%;
   background-color: #574f7a;

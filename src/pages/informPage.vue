@@ -9,6 +9,12 @@
         placeholder="Ingresa tu consulta sobre los ingresos..."
       />
       <button @click="askGpt">Consultar</button>
+      <div
+        v-if="loading === true"
+        style="display: flex; justify-content: center; margin-top: 20px"
+      >
+        <spinner> </spinner>
+      </div>
       <p v-html="formattedResponse()"></p>
     </div>
 
@@ -31,6 +37,9 @@ import columnChart from "@/components/dashboard/inform/columnChartComponent.vue"
 import pieChart from "@/components/dashboard/inform/pieChartComponent.vue";
 import informContainer from "../components/dashboard/inform/informComponent.vue";
 import axios from "axios";
+import spinner from "@/components/visuals/spinner.vue";
+
+
 const businessId = localStorage.getItem("businessId");
 
 export default {
@@ -39,6 +48,7 @@ export default {
     pieChart,
     columnChart,
     monthSalesChart,
+    spinner
   },
   data() {
     return {
@@ -47,6 +57,7 @@ export default {
       question: "",
       respuesta: "",
       information: [],
+      loading:false
     };
   },
   methods: {
@@ -56,22 +67,20 @@ export default {
     },
     async askGpt() {
       try {
+        this.loading=true
         const sales = await axios.get(
           `http://localhost:3000/business/salesTotal/${businessId}`
         );
         const salesData = sales.data;
 
-      
-        const response = await axios.post(
-          `http://localhost:3000/chat-gpt`,
-          {
-            message:this.question,
-            info: this.information,
-          }
-        );
+        const response = await axios.post(`http://localhost:3000/chat-gpt`, {
+          message: this.question,
+          info: this.information,
+        });
         const data = response.data;
 
         this.respuesta = data;
+        this.loading=false
       } catch (error) {
         throw error;
       }
@@ -130,7 +139,7 @@ export default {
 }
 
 .assistentComponent button {
-  width: 50%;
+  width: 100%;
   border: none;
   border-radius: 0%;
   background-color: #574f7a;
@@ -147,12 +156,12 @@ export default {
     flex-direction: column;
   } */
 
-  .secondContainer{
+  .secondContainer {
     display: flex;
     flex-direction: column;
   }
 
-  .graphics{
+  .graphics {
     margin-top: 10px;
     margin-left: 10px;
   }

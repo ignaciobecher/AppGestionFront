@@ -3,10 +3,7 @@ import authGuard from "@/guards/authGuards";
 import roleGuard from '@/guards/roleGuard'
 
 const routes = [
-  {
-    path:'/business',
-    component:()=>import ('../pages/newBusinessPage.vue')
-  },
+  
   {
     path:'/',
     redirect: "/register",
@@ -39,6 +36,10 @@ const routes = [
       import(
         "../components/dashboard/home/expirationProducts/expirationDatesComponent.vue"
       ),
+  },
+  {
+    path:'/business',
+    component:()=>import ('../pages/newBusinessPage.vue')
   },
   {
     path: "/salesTest",

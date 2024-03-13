@@ -1,5 +1,6 @@
 <template>
-  <div class="searchbar-container">
+  
+  <div  class="searchbar-container">
     <p>Bienvenido {{ userName }}</p>
 
     <div class="input-container">
@@ -18,11 +19,20 @@ import SimpleCrypto from "simple-crypto-js";
 import axios from "axios";
 import moment from "moment";
 import { secretKey } from "../Auth/registerComponent.vue";
+import spinner from "@/components/visuals/spinner.vue";
+
 const simpleCrypto = new SimpleCrypto(secretKey);
+
+
 export default {
+  components:{
+    spinner
+  },
   data() {
     return {
       userName: "",
+      loading:true,
+      show:false
     };
   },
   methods: {
@@ -37,10 +47,12 @@ export default {
         const userName = user.username;
         this.userName = userName;
         console.log(user.businessId);
+        this.loading=false
       } catch (error) {
         throw error;
       }
     },
+ 
     checkRoles() {
       try {
         const role = localStorage.getItem("role");
@@ -74,6 +86,7 @@ export default {
 </script>
 
 <style scoped>
+
 .searchbar-container {
   display: flex;
   align-items: center;

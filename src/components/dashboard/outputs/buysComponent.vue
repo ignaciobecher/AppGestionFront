@@ -1,6 +1,13 @@
 <template>
   <div class="buysContainer">
-    <h1 style="margin-left: 10px">Compras</h1>
+    <div
+      style="display: flex; flex-direction: row; justify-content: space-between"
+    >
+      <h1 style="margin-left: 10px">Compras</h1>
+      <button class="buttonCreate" style="margin-right: 10px" @click="changeFormStatus">Registrar factura</button>
+
+      <button class="buttonCreate" style="margin-right: 10px" @click="changeSupplierFormStatus">Registrar proveedor</button>
+    </div>
     <!-- MOSTRAR FACTURA -->
     <div v-if="mostrarFactura" class="receiptContainer">
       <!-- Contenido de la factura -->
@@ -43,7 +50,18 @@
           </tbody>
         </table>
       </div>
-      <button style="border: none; background-color: #574f7a; font-weight: 500; color: white;padding: 5px;" @click="openNewTab">Generar factura</button>
+      <button
+        style="
+          border: none;
+          background-color: #574f7a;
+          font-weight: 500;
+          color: white;
+          padding: 5px;
+        "
+        @click="openNewTab"
+      >
+        Generar factura
+      </button>
     </div>
 
     <!-- CREAR NUEVA FACTURA -->
@@ -100,14 +118,35 @@
         placeholder="Ingresa tu consulta sobre los ingresos..."
       />
       <button @click="askGpt">Consultar</button>
-      <p v-html="formattedResponse()"></p>
+      <div
+        v-if="loading === true"
+        style="display: flex; justify-content: center; margin-top: 20px"
+      >
+        <spinner> </spinner>
+      </div>
+      <p v-if="loading === false" v-html="formattedResponse()"></p>
     </div>
 
     <!-- CARGAR FOTO -->
     <div class="ocr-container">
       <h4>Cargar factura con foto</h4>
       <input type="file" ref="fileInput" />
-      <button @click="analizeFile">Subir Archivo</button>
+      <button @click="analizeFile">Subir factura</button>
+      <a v-if="loadingOcr === false" style="font-size: 12px"
+        >La imagen debe ser en formato .png o .jpg (no debe ser un pdf)</a
+      >
+      <a
+        v-if="loadingOcr === true"
+        style="font-size: 13px; text-align: center; margin-top: 20px"
+        >La carga de facturas con inteligencia artificial puede llevar unos
+        segundos...</a
+      >
+      <div
+        v-if="loadingOcr === true"
+        style="display: flex; margin-top: 20px; justify-content: center"
+      >
+        <spinner> </spinner>
+      </div>
     </div>
 
     <!-- TABLA DE DATOS -->
@@ -272,9 +311,14 @@
 import axios from "axios";
 import moment from "moment";
 import numeral from "numeral";
+import spinner from "@/components/visuals/spinner.vue";
+
 const businessId = localStorage.getItem("businessId");
 
 export default {
+  components: {
+    spinner,
+  },
   data() {
     return {
       buysArray: [],
@@ -309,6 +353,8 @@ export default {
       crearFactura: false,
       valorBase: null,
       porcentaje: null,
+      loading: false,
+      loadingOcr: false,
     };
   },
   methods: {
@@ -337,7 +383,7 @@ export default {
 
           description: buy.description,
           // quantity: buy.quantity,
-          price: buy.price,
+          total: buy.total,
           receiptNumber: buy.receiptNumber,
           // expirationDate: formattedExpirationDate,
         });
@@ -381,7 +427,17 @@ export default {
           this.data.receiptNumber = "";
           this.providerId = "";
         } else {
-          console.log("Error al cargar la venta");
+          window.alert(
+            "El servicio de inteligencia artificial fallo, sube tu foto nuevamente y reintentalo"
+          );
+          this.$refs.fileInput.value = null;
+          this.changeFactura();
+          this.getAllBuys();
+          this.receiptObject = {};
+          this.data.description = "";
+          this.data.price = "";
+          this.data.receiptNumber = "";
+          this.providerId = "";
         }
       } catch (error) {
         console.log("Error desde el catch", error);
@@ -436,8 +492,7 @@ export default {
     },
     async askGpt() {
       try {
-        console.log("Pregunta: ", this.question);
-        console.log("Informacion: ", this.information);
+        this.loading = true;
         this.information = this.buysArray;
         const response = await axios.post(`http://localhost:3000/chat-gpt`, {
           message: this.question,
@@ -446,6 +501,7 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
+        this.loading = false;
       } catch (error) {
         throw error;
       }
@@ -456,21 +512,26 @@ export default {
         const formData = new FormData();
         formData.append("file", file);
 
+        if (!file) {
+          window.alert("No hay archivo cargado");
+          return;
+        }
+        this.loadingOcr = true;
+
         const response = await axios.post(
           `http://localhost:3000/chat-gpt/google/ocr`,
           formData
-          // {
-          //   headers: {
-          //     "Content-Type": "multipart/form-data",
-          //   },
-          // }
         );
+
+        if (response === undefined || response.length <= 0) {
+          window.alert("Error al analizar factura, intente nuevamente");
+        }
 
         const prompt =
           "Formatealo en JSON y devuelvelo formateado en clave valor como description,date,total,tittle,buyer,seller,email,paymentMethod,from,to,receiptNumbera,products(en products debes poner los productos/servicios por los que se haya pagado, el products debe ser un objeto que contenga cada producto con su 'name','price' 'codebar' y 'cantidad') y lo que consideres relevante crear(si ese campo no tiene elementos, omitelo), siempre devuelvelo sin caracteres especiales, debe volver listo para ser consumido en el front.Devuelve la respuesta como un JSON listo para ser enviado al front end, sin caracteres especiales. No debe tener caracteres especiales, debe ser devuelto listo para ser consumido en el frontend.Siempre devuelve el JSON listo para ser consumido, nunca te olvides de formatearlo, que no tenga caracteres especiales. El json debe estar en el siguiente formato:{'clave':'valor'}.NUNCA LO DEVUELVA AL JSON ENVUELTO EN TEMPLATE STRINGS ";
 
         const promptExtension =
-          "el total debe ser formateado sin decimales, devuelveme el numero redondeado y sin decimales ni signos de dinero.Todos los campos deben estar compuestos de solamente un valor, excepto el products, que si puede tener varios.El title debe ser algo alusivo e identificatorio sobre la factura.El email debe ser el email del vendedor.Si la factura no tiene productos, deja el campo productos vacio.Seller sera el negocio que emite el comprobante, en seller solo debe ir el nombre del negocio que emite.El receipt number debe ser solamente un numero, sin espacios ni caracteres especiales";
+          "el total debe ser formateado sin decimales, devuelveme el numero redondeado y sin decimales ni signos de dinero.Todos los campos deben estar compuestos de solamente un valor, excepto el products, que si puede tener varios.El title debe ser algo alusivo e identificatorio sobre la factura.El email debe ser el email del vendedor.Si la factura no tiene productos, deja el campo productos vacio.Seller sera el negocio que emite el comprobante, en seller solo debe ir el nombre del negocio que emite.El receipt number debe ser solamente un numero, sin espacios ni caracteres especiales. Dentro de productos, el codigo de barras y la cantidad siempre deben ser numeros enteros, en caso de no serlo, asignalo igual a 0";
         const formatTest = await axios.post(
           `http://localhost:3000/chat-gpt/vision/format`,
           {
@@ -481,7 +542,8 @@ export default {
 
         const data = formatTest.data;
         this.receiptObject = data;
-        console.log(this.receiptObject);
+
+        this.loadingOcr = false;
 
         this.crearFactura = true;
       } catch (error) {
@@ -545,12 +607,18 @@ export default {
       <div class="receiptContainer">
         <!-- Contenido de la factura -->
         <h4>Datos del Comprobante</h4>
-        <p><strong>Fecha:</strong> ${this.formatDate(this.singleBuyObject.createdAt)}</p>
+        <p><strong>Fecha:</strong> ${this.formatDate(
+          this.singleBuyObject.createdAt
+        )}</p>
         <p><strong>Proveedor:</strong> ${this.singleBuyObject.seller}</p>
         <p><strong>Email:</strong> ${this.singleBuyObject.email}</p>
-        <p><strong>Numero factura:</strong> ${this.singleBuyObject.receiptNumber}</p>
+        <p><strong>Numero factura:</strong> ${
+          this.singleBuyObject.receiptNumber
+        }</p>
         <p><strong>Descripcion:</strong> ${this.singleBuyObject.description}</p>
-        <p><strong>Monto Total:</strong> ${this.formatPrice(this.singleBuyObject.total)}</p>
+        <p><strong>Monto Total:</strong> ${this.formatPrice(
+          this.singleBuyObject.total
+        )}</p>
         <h5>Productos:</h5>
         <table class="table">
           <thead>
@@ -637,6 +705,28 @@ export default {
   margin-top: 10px;
   margin-right: 10px;
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ocr-container button {
+  width: 100%;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
+}
+
+.buttonCreate{
+  width: 20vw;
+  border: none;
+  border-radius: 0%;
+  background-color: #574f7a;
+  font-size: 20px;
+  font-weight: 500;
+  color: white;
 }
 
 .table-body input {
@@ -783,7 +873,7 @@ select {
 }
 
 .assistentComponent button {
-  width: 50%;
+  width: 100%;
   border: none;
   border-radius: 0%;
   background-color: #574f7a;
