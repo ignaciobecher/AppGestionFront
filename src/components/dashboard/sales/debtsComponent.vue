@@ -28,7 +28,10 @@
         placeholder="Ingresa tu consulta sobre tus cuentas corrientes..."
       />
       <button @click="askGpt">Consultar</button>
-      <p v-html="formattedResponse()"></p>
+      <div v-if="loading === true" style="display: flex; justify-content: center; margin-top: 20px;">
+        <spinner> </spinner>
+      </div>
+      <p v-if="loading === false" v-html="formattedResponse()"></p>
     </div>
 
     <!-- TABLA DE DATOS -->
@@ -333,9 +336,14 @@ import moment from "moment";
 import numeral from "numeral";
 import axios from "axios";
 import askHomeComponentVue from "../home/askHomeComponent.vue";
+import spinner from "@/components/visuals/spinner.vue";
+
 const businessId = localStorage.getItem("businessId");
 
 export default {
+  components: {
+    spinner,
+  },
   data() {
     return {
       clientsArray: [],
@@ -365,7 +373,7 @@ export default {
       showMessageBox: false,
       globalPaymentsArray: [],
       globalDescriptionsArray: {},
-
+      loading:false
     };
   },
   methods: {
@@ -488,6 +496,7 @@ export default {
     },
     async askGpt() {
       try {
+        this.loading=true
         this.information = this.clientsArray;
         console.log("Pregunta: ", this.question);
         console.log("Informacion: ", this.information);
@@ -499,6 +508,7 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
+        this.loading=false
       } catch (error) {
         throw error;
       }
@@ -751,7 +761,7 @@ input {
 }
 
 .assistentComponent button {
-  width: 50%;
+  width: 100%;
   border: none;
   border-radius: 0%;
   background-color: #574f7a;

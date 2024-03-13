@@ -57,7 +57,13 @@
       <form @submit.prevent="loginUser">
         <div class="form-group">
           <label for="email">Correo electrónico:</label>
-          <input type="email" name="email" autocomplete="email" v-model="formData.email" required />
+          <input
+            type="email"
+            name="email"
+            autocomplete="email"
+            v-model="formData.email"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="password">Contraseña:</label>
@@ -76,13 +82,18 @@
         </p>
 
         <div class="btn-container">
-          <button type="submit">Iniciar</button>
+          <button type="submit">
+            <p v-if="loading === false" style="margin: 0; padding: 5px;">Iniciar sesion</p>
+            <spinner v-if="loading === true"></spinner>
+          </button>
         </div>
         <p style="margin-top: 20px">
           <router-link to="/business">
             <a href=""> Registrar nuevo negocio </a>
           </router-link>
         </p>
+
+     
       </form>
       <p v-if="error" class="error">{{ error }}</p>
     </div>
@@ -92,10 +103,15 @@
 <script>
 import axios from "axios";
 import SimpleCrypto from "simple-crypto-js";
+import spinner from "@/components/visuals/spinner.vue";
+
 const businessId = localStorage.getItem("businessId");
 export const secretKey = "password.key,asd123@";
 
 export default {
+  components: {
+    spinner,
+  },
   data() {
     return {
       formData: {
@@ -108,6 +124,7 @@ export default {
       loginState: true,
       registerState: false,
       globalBusinessId: "",
+      loading: false,
     };
   },
   methods: {
@@ -120,6 +137,7 @@ export default {
             password: this.formData.password,
             email: this.formData.email,
             businessId: this.formData.businessId,
+            role: "user",
           }
         );
 
@@ -135,6 +153,7 @@ export default {
     },
     async loginUser() {
       try {
+        this.loading=true
         const simpleCrypto = new SimpleCrypto(secretKey);
         localStorage.removeItem("userToken");
         localStorage.removeItem("businessId");
@@ -149,6 +168,8 @@ export default {
         const userData = user.data;
 
         if (userData.token) {
+          this.loading=false
+
           localStorage.setItem("userToken", userData.token);
           this.$router.push("/home");
           const businessId = userData.user.businessId;
@@ -160,7 +181,9 @@ export default {
           localStorage.setItem("businessId", businessId);
           localStorage.setItem("role", cipherRole);
         } else {
-          window.alert("Credenciales incorrectas, verifica tus datos e intenta de nuevo");
+          window.alert(
+            "Credenciales incorrectas, verifica tus datos e intenta de nuevo"
+          );
           localStorage.removeItem("userToken");
         }
       } catch (error) {

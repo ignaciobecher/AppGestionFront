@@ -18,7 +18,7 @@
         Quitar filtros
       </button>
     </div>
-    
+
     <div class="assistentComponent">
       <h4>Asistente virtual</h4>
       <input
@@ -27,7 +27,10 @@
         placeholder="Ingresa tu consulta sobre tus ventas..."
       />
       <button @click="askGpt">Consultar</button>
-      <p v-html="formattedResponse()"></p>
+      <div v-if="loading === true" style="display: flex; justify-content: center; margin-top: 20px;">
+        <spinner> </spinner>
+      </div>
+      <p v-if="loading === false" v-html="formattedResponse()"></p>
     </div>
 
     <div v-if="showMessageBox" class="message-box">
@@ -40,18 +43,43 @@
           <thead class="thead-light">
             <tr class="tableRow">
               <th scope="col">Producto</th>
-              <th scope="col">Precio de venta</th>
+              <th scope="col">Cantidad</th>
+              <th scope="col">Precio unitario</th>
+              <th scope="col">Precio total</th>
             </tr>
           </thead>
           <tbody class="table-body">
             <!-- *****************************DETALLE DE VENTAS**************************************************** -->
-            <tr
-              @click="setId(sale._id)"
-              v-for="sale in salesDetailsArray.products"
-            >
-              <td scope="col">{{ sale.name }}</td>
-              <td scope="col">{{ formatPrice(sale.sellPrice) }}</td>
-            </tr>
+            <template v-for="(sale, index) in salesDetailsArray.products">
+              <tr @click="setId(sale._id)">
+                <!-- Muestra el nombre del producto -->
+                <td scope="col">{{ sale.name }}</td>
+
+                <!-- Si hay una cantidad correspondiente en el array de cantidades, muéstrala -->
+                <td
+                  scope="col"
+                  v-if="
+                    salesDetailsArray.sale.productQuantity[index] !== undefined
+                  "
+                >
+                  {{ salesDetailsArray.sale.productQuantity[index] }}
+                </td>
+                <!-- Si no hay una cantidad correspondiente, muestra un espacio en blanco -->
+                <td scope="col" v-else></td>
+
+                <td scope="col">{{ formatPrice(sale.sellPrice) }}</td>
+
+                <td scope="col">
+                  {{
+                    formatPrice(
+                      sale.sellPrice *
+                        salesDetailsArray.sale.productQuantity[index]
+                    )
+                  }}
+                </td>
+               
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -155,7 +183,7 @@
               <a @click.prevent="deleteProduct(sale._id)">
                 <i class="bi bi-trash"></i
               ></a>
-            </td> 
+            </td>
             <td>
               <a @click.prevent="getSalesDetails(sale._id)" href="#">
                 <i style="color: black" class="bi bi-search"></i>
@@ -172,9 +200,13 @@
 import moment from "moment";
 import numeral from "numeral";
 import axios from "axios";
+import spinner from "@/components/visuals/spinner.vue";
 const businessId = localStorage.getItem("businessId");
 
 export default {
+  components:{
+    spinner
+  },
   data() {
     return {
       salesArray: [],
@@ -202,8 +234,11 @@ export default {
       question: "",
       respuesta: "",
       information: [],
+      loading:false
+
     };
   },
+ 
   methods: {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllProducts() {
@@ -242,7 +277,9 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-         const deleteProduct= await axios.delete(`https://api-gestion-ahil.onrender.com/sales/${id}`);
+          const deleteProduct = await axios.delete(
+            `https://api-gestion-ahil.onrender.com/sales/${id}`
+          );
 
           window.alert("Venta eliminado");
           this.getAllProducts();
@@ -345,6 +382,7 @@ export default {
     },
     async askGpt() {
       try {
+        this.loading=true
         const sales = await axios.get(
           `https://api-gestion-ahil.onrender.com/sales/products/sales/details/${businessId}`
         );
@@ -353,16 +391,14 @@ export default {
 
         console.log("Pregunta: ", this.question);
         console.log("Informacion: ", this.information);
-        const response = await axios.post(
-          `https://api-gestion-ahil.onrender.com/chat-gpt`,
-          {
-            message:this.question,
-            info: this.information,
-          }
-        );
+        const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt`, {
+          message: this.question,
+          info: this.information,
+        });
         const data = response.data;
 
         this.respuesta = data;
+        this.loading=false
       } catch (error) {
         throw error;
       }
@@ -406,6 +442,7 @@ export default {
       this.showMessageBox = false;
       this.salesDetailsArray = [];
     },
+   
   },
   mounted() {
     this.getAllProducts();
@@ -423,7 +460,7 @@ export default {
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 400px;
+  width: 800px;
   height: 400px;
   overflow-y: auto;
 }
@@ -503,6 +540,7 @@ input {
   border: 1px solid #574f7a;
   padding: 10px;
 }
+
 
 .table-responsive {
   margin: 10px;
@@ -608,7 +646,7 @@ input {
 }
 
 .assistentComponent button {
-  width: 50%;
+  width: 100%;
   border: none;
   border-radius: 0%;
   background-color: #574f7a;
@@ -618,20 +656,19 @@ input {
 }
 
 /* //RESPONSIVE PARA TELEFONO-****************************************************************** */
-@media screen and (max-width: 768px){
-  .datesDiv{
+@media screen and (max-width: 768px) {
+  .datesDiv {
     display: flex;
     flex-direction: column;
   }
 
-  .datesDiv input{
+  .datesDiv input {
     width: 95vw;
   }
 
-  .datesDiv button{
+  .datesDiv button {
     width: 95vw;
     margin-top: 10px;
   }
-
 }
 </style>

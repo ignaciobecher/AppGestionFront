@@ -9,7 +9,7 @@
         type="search"
         @keyup.enter="getProductBybarCode(barcode)"
         name=""
-        placeholder="Presione enter para buscar por codigo"
+        placeholder="Buscar por codigo"
         id=""
       />
       <input
@@ -18,13 +18,14 @@
         type="search"
         @keyup.enter="getProductByName()"
         name=""
-        placeholder="Presione enter para buscar por nombre"
+        placeholder="Buscar por nombre"
         id=""
       />
 
       <button @click="changeStateOfSearch" class="salesBtn">
         <i class="bi bi-arrow-left-right"></i>
       </button>
+      <a  style="margin-left: 10px; font-size: 12px;">Alternar entre buscador <br> por código/nombre</a>
     </div>
     <div class="listOfProductSearched">
       <ul
@@ -149,8 +150,6 @@
           <h2>Total:</h2>
           <h1>${{ total }}</h1>
         </div>
-      </div>
-      <div style="display: flex" class="btn-and-change-container">
         <div class="buttons">
           <button @click="cancelSale" class="btnCancel">Cancelar</button>
           <input
@@ -160,6 +159,9 @@
             value="Vender"
           />
         </div>
+      </div>
+      <div style="display: flex" class="btn-and-change-container">
+        
         <div class="change-container">
           <h5>Cambio</h5>
           <input
@@ -391,8 +393,13 @@ export default {
     },
     async createSale() {
       let arrayOfIds = [];
+      let arrayOfProductsQuantities=[]
       for (const product of this.productsIds) {
         arrayOfIds.push(product);
+      }
+
+      for (const item of this.carrito) {
+        arrayOfProductsQuantities.push(item.sellQuantity)
       }
       const businessId = localStorage.getItem("businessId");
 
@@ -401,6 +408,7 @@ export default {
         businessId: businessId,
         productIds: arrayOfIds,
         paymentMethod: this.paymentMethod,
+        productQuantity:arrayOfProductsQuantities
       };
 
       if (this.clientId && this.clientId !== "General") {
@@ -413,9 +421,9 @@ export default {
 
       try {
         const sale = await axios.post("https://api-gestion-ahil.onrender.com/sales", saleData);
-
+        console.log(sale);
         this.totalForChange = this.total;
-        console.log("Cambio: ", this.totalForChange);
+  
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
@@ -458,6 +466,7 @@ export default {
         );
         const business = res.data;
         this.clients = business.clients;
+        console.log('Clientes:',this.clients);
         this.employees = business.employees;
       } catch (error) {
         throw error;
@@ -495,15 +504,7 @@ export default {
         throw error;
       }
     },
-    async getBusinessData(){
-      try {
-        const business=await axios.get(`https://api-gestion-ahil.onrender.com/business/${businessId}`)
-        this.businessData=business.data
-        console.log(this.businessData);
-      } catch (error) {
-        throw error
-      }
-    },
+   
 
     // **********************LLAMADAS A LA API******************************************************************
     changeStatusOfQuantity() {
@@ -722,7 +723,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-self: center;
-  margin-top: -60px;
+  margin-top: -140px;
 }
 .searchSwitch button {
   margin: 10px;
@@ -769,7 +770,8 @@ export default {
 }
 .totalClass {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  margin-top: 30px;
 }
 .total {
   display: flex;
@@ -871,6 +873,7 @@ export default {
   display: flex;
   flex-direction: row;
   grid-row: 4;
+  margin-left: 30px;
 }
 
 .btnCancel {
@@ -882,7 +885,6 @@ export default {
   font-weight: bold;
   transition: transform 0.3s ease;
   width: 100%;
-  height: 40%;
 }
 
 .btnConfirm {
@@ -894,7 +896,6 @@ export default {
   font-size: 20px;
   font-weight: bold;
   transition: transform 0.3s ease;
-  height: 40%;
   border-radius: 0%;
 }
 

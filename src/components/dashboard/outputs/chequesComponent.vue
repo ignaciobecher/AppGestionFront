@@ -45,7 +45,10 @@
         placeholder="Ingresa tu consulta sobre los egresos..."
       />
       <button @click="askGpt">Consultar</button>
-      <p v-html="formattedResponse()"></p>
+      <div v-if="loading === true" style="display: flex; justify-content: center; margin-top: 20px;">
+        <spinner> </spinner>
+      </div>
+      <p v-if="loading === false" v-html="formattedResponse()"></p>
     </div>
 
     <div class="table-responsive">
@@ -317,9 +320,14 @@
 import axios from "axios";
 import moment from "moment";
 import numeral from "numeral";
+import spinner from "@/components/visuals/spinner.vue";
+
 const businessId = localStorage.getItem("businessId");
 
 export default {
+  components:{
+    spinner
+  },
   data() {
     return {
       chequesArray: [],
@@ -344,6 +352,7 @@ export default {
       inputName: "",
       foundInput: false,
       filteredClients: [],
+      loading:false
     };
   },
   methods: {
@@ -443,8 +452,7 @@ export default {
     },
     async askGpt() {
       try {
-        console.log("Pregunta: ", this.question);
-        console.log("Informacion: ", this.information);
+        this.loading=true
         this.information = this.chequesArray;
         const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt`, {
           message: this.question,
@@ -453,6 +461,7 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
+        this.loading=false
       } catch (error) {
         throw error;
       }
@@ -687,7 +696,7 @@ select {
 }
 
 .assistentComponent button {
-  width: 50%;
+  width: 100%;
   border: none;
   border-radius: 0%;
   background-color: #574f7a;

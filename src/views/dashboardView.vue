@@ -41,9 +41,12 @@
         <li class="nav-item">
           <a class="nav-link" href="#" @click="togglePage('inform')">Informe</a>
         </li>
-        <a href="#" @click="togglePage('note')">
-          <i class="bi bi-card-checklist"></i>Notas</a
-        >
+        <li>
+          <a class="nav-link" href="#" @click="togglePage('notes')"> Notas</a>
+        </li>
+        <li>
+          <a class="nav-link" href="#" @click="togglePage('user')"> Usuarios</a>
+        </li>
         <li class="nav-item">
           <a class="nav-link" href="#" @click="logoutUser">Cerrar sesión</a>
         </li>
@@ -103,6 +106,9 @@
           <a id="noteId" class="nav-link" href="#" @click="togglePage('note')">
             <i class="bi bi-card-checklist"></i> Notas</a
           >
+          <a id="noteId" class="nav-link" href="#" @click="togglePage('user')">
+            <i class="bi bi-people"></i> Usuarios</a
+          >
           <a @click="logoutUser" href="#"
             ><i class="bi bi-x-circle"></i> Cerrar sesion
           </a>
@@ -110,7 +116,10 @@
       </div>
     </div>
 
-    <div class="pages-container">
+    <div class="spinner-container" v-if="loading">
+      <spinner></spinner>
+    </div>
+    <div v-else class="pages-container">
       <home-page v-if="homePage"></home-page>
       <sale-page v-if="salesPage"></sale-page>
       <inputs-page v-if="inputPage"></inputs-page>
@@ -118,11 +127,13 @@
       <stock-page v-if="stockPage"></stock-page>
       <inform-page v-if="informPage"></inform-page>
       <notes-page v-if="notePage"></notes-page>
+      <users-page v-if="userPage"></users-page>
     </div>
   </div>
 </template>
 
 <script>
+import usersPage from "@/pages/userPage.vue";
 import notesPage from "@/pages/notesPage.vue";
 import informPage from "../pages/informPage.vue";
 import inputsPage from "@/pages/inputsPage.vue";
@@ -133,6 +144,7 @@ import stockPage from "../pages/stockPage.vue";
 import axios from "axios";
 import SimpleCrypto from "simple-crypto-js";
 import { secretKey } from "@/components/dashboard/Auth/registerComponent.vue";
+import spinner from "@/components/visuals/spinner.vue";
 
 export default {
   components: {
@@ -143,19 +155,23 @@ export default {
     inputsPage,
     informPage,
     notesPage,
+    usersPage,
+    spinner,
   },
   data() {
     return {
-      homePage: true,
+      homePage: false,
       salesPage: false,
       outPage: false,
       stockPage: false,
       inputPage: false,
       informPage: false,
       notePage: false,
+      userPage: false,
       businessName: "",
       bussId: "",
       userRole: "",
+      loading: true,
     };
   },
   methods: {
@@ -171,6 +187,8 @@ export default {
         const id = business.businessId;
         this.bussId = businessId;
         this.businessName = name;
+        this.loading = false;
+        this.homePage = true;
       } catch (error) {
         throw error;
       }
@@ -214,14 +232,20 @@ export default {
       this.inputPage = page === "inputs";
       this.informPage = page === "inform";
       this.notePage = page === "note";
+      this.userPage = page === "user";
     },
-    logoutUser() {
-      // Eliminar el token del localStorage
-      this.$router.push("/register");
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("businessId");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("role");
+    async logoutUser() {
+      try {
+        if (window.confirm("¿Esta seguro que desea cerrar sesion?")) {
+          await this.$router.push("/register");
+          localStorage.removeItem("userToken");
+          localStorage.removeItem("businessId");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("role");
+        }
+      } catch (error) {
+        console.error("Error al redirigir:", error);
+      }
     },
   },
   mounted() {
@@ -231,6 +255,16 @@ export default {
 </script>
 
 <style scoped>
+.spinner-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.content-container {
+  position: relative;
+}
 .dashboard-container {
   display: grid;
   grid-template-columns: 20% 80%;
