@@ -83,7 +83,7 @@ export default {
 
         if (newBusiness) {
           const user = await axios.post(
-            `http://localhost:3000/auth/register/${businessId}`,
+            `https://api-gestion-ahil.onrender.com/auth/register/${businessId}`,
             {
               username: this.data.username,
               password: this.data.password,

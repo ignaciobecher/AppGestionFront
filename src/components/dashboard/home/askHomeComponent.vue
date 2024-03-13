@@ -56,7 +56,7 @@ export default {
       try {
         this.loading=true
         this.information = await this.getBusinessData();
-        const response = await axios.post(`http://localhost:3000/chat-gpt/`, {
+        const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt/`, {
           message: this.question,
           info: this.information,
         });
