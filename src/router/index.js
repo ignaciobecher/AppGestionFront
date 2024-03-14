@@ -42,6 +42,10 @@ const routes = [
     component:()=>import ('../pages/newBusinessPage.vue')
   },
   {
+    path:'/suppliers',
+    component:()=>import('../components/dashboard/outputs/suppliersComponent.vue')
+  },
+  {
     path: "/salesTest",
     component: () => import("../components/testComponents/salesTest.vue"),
   },

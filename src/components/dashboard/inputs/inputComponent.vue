@@ -275,7 +275,11 @@ export default {
         const businessId = localStorage.getItem("businessId");
 
         const value = numeral(this.data.value).value();
-        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/inputs", {
+        if(!this.data.product || !this.data.description || !value || !this.data.quantity){
+          window.alert('Todos los campos son obligatorios')
+          return
+        }
+        const newSale = await axios.post("http://localhost:3000/inputs", {
           name: this.data.product,
           description: this.data.description,
           value: value,
@@ -310,7 +314,12 @@ export default {
     },
     async askGpt() {
       try {
+        if(this.question === ''){
+          window.alert('Tu pregunta no puede estar vacia')
+          return
+        }
         this.loading=true
+        
         this.information=this.inputsArray
         const response = await axios.post(
           `https://api-gestion-ahil.onrender.com/chat-gpt`,

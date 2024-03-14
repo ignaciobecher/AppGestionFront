@@ -1,21 +1,7 @@
 <template>
   <div>
     <div @click="goBackFunction" class="backBtn" v-if="btn">
-      <button
-        style="
-          margin: 10px;
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          background-color: rgb(109, 169, 62);
-          border: none;
-        "
-      >
-        <i
-          style="color: white; font-weight: bold; font-size: 20px"
-          class="bi bi-arrow-return-left"
-        ></i>
-      </button>
+      <i style="font-size: 30px;margin-left: 10px; " class="bi bi-arrow-left"></i>
     </div>
 
     <div v-if="selector" class="selector">
