@@ -1,23 +1,12 @@
 <template>
   <div class="stock-container">
     <!-- BARRA DE BUSQUEDA -->
-    <div class="searchbar-container">
-      <p>Buscar cliente:</p>
-      <input
-        @input="checkInput"
-        v-model="clientName"
-        type="search"
-        @keyup.enter="searchClient(clientName)"
-        name=""
-        placeholder="Buscar cliente..."
-        id=""
-      />
-      <div class="top-container">
-        <button @click.prevent="changeStatusOfForm">
-          Registrar nuevo cliente
-        </button>
-      </div>
+    <div style="display: flex; justify-content: start; margin-left: 10px">
+      <router-link to="/home">
+        <i style="font-size: 30px" class="bi bi-arrow-left"></i>
+      </router-link>
     </div>
+    <div class="searchbar-container"></div>
 
     <!-- ASISTENTE VIRTUAL -->
     <div class="assistentComponent">
@@ -25,7 +14,7 @@
       <input
         type="text"
         v-model="question"
-        placeholder="Ingresa tu consulta sobre tus cuentas corrientes..."
+        placeholder="Ingresa tu consulta sobre tus proveedores..."
       />
       <button @click="askGpt">Consultar</button>
       <div
@@ -43,98 +32,12 @@
         <thead class="thead-light">
           <tr class="tableRow">
             <th scope="col">Nombre</th>
-            <th scope="col">Dirección</th>
             <th scope="col">Email</th>
             <th scope="col">Teléfono</th>
-            <th scope="col">Deuda</th>
-            <th scope="col">
-              <button @click="changeStatusOfPayment" class="registerBtn">
-                Registrar pago
-              </button>
-            </th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody class="table-body">
-          <!-- *************************SI SE BUSCA UN CLIENTE****************************** -->
-          <tr
-            v-if="!foundClient"
-            v-for="(client, index) in searchedClients"
-            :key="index"
-          >
-            <td>
-              <span v-if="!editorStatus">{{ client.name }}</span>
-              <input name="name" v-else type="text" v-model="client.name" />
-            </td>
-
-            <td>
-              <span v-if="!editorStatus">{{ client.address }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.address"
-              />
-            </td>
-            <td>
-              <span v-if="!editorStatus">{{ client.email }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.email"
-              />
-            </td>
-
-            <td>
-              <span v-if="!editorStatus">
-                <a
-                  :href="
-                    'https://api.whatsapp.com/send?phone=' +
-                    encodeURIComponent(client.phoneNumber) +
-                    '&text=Hola!'
-                  "
-                  target="_blank"
-                  >{{ client.phoneNumber }}</a
-                ></span
-              >
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.phoneNumber"
-              />
-            </td>
-            <td>
-              <span v-if="!editorStatus">{{ formatPrice(client.debt) }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.debt"
-              />
-            </td>
-            <td v-if="!editorStatus">
-              <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
-              <a
-                style="margin-left: 20px"
-                @click.prevent="deleteClient(client._id)"
-              >
-                <i class="bi bi-trash"></i
-              ></a>
-              <a style="margin-left: 20px">
-                <i class="bi bi-search" @click="changeStatusOfDetails"></i
-              ></a>
-            </td>
-            <td v-else>
-              <a @click.prevent="updateClient(client, client._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#" @click="changeStatusOfEditor">
-                <i style="color: #d02941" class="bi bi-x-circle"></i>
-              </a>
-            </td>
-          </tr>
-
           <!--****************************** TODOS LOS CLIENTES************************************ -->
           <tr
             @click="setId(client._id)"
@@ -147,15 +50,6 @@
               <input name="name" v-else type="text" v-model="client.name" />
             </td>
 
-            <td>
-              <span v-if="!editorStatus">{{ client.address }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.address"
-              />
-            </td>
             <td>
               <span v-if="!editorStatus">{{ client.email }}</span>
               <input
@@ -172,11 +66,11 @@
                   <a
                     :href="
                       'https://api.whatsapp.com/send?phone=' +
-                      encodeURIComponent(client.phoneNumber) +
+                      encodeURIComponent(client.telephone) +
                       '&text=Hola!'
                     "
                     target="_blank"
-                    >{{ client.phoneNumber }}</a
+                    >{{ client.telephone }}</a
                   >
                 </td>
               </span>
@@ -206,7 +100,7 @@
                 <i class="bi bi-trash"></i
               ></a>
               <a style="margin-left: 20px">
-                <i class="bi bi-search" @click="getClientById(client._id)"></i
+                <i class="bi bi-search" @click="changeStatusOfDetails"></i
               ></a>
             </td>
             <td v-else>
@@ -220,126 +114,6 @@
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- REGISTRAR NUEVO CLIENTE -->
-    <div v-if="formStatus" class="register-component">
-      <div class="expenses-form">
-        <div class="form-group">
-          <h3 style="text-align: center">Nuevo cliente</h3>
-          <input v-model="data.name" type="text" placeholder="Nombre..." />
-
-          <input
-            v-model="data.address"
-            type="text"
-            placeholder="Direccion..."
-          />
-
-          <input v-model="data.email" type="text" placeholder="Email..." />
-
-          <input
-            v-model="data.phoneNumber"
-            type="text"
-            placeholder="Telefono..."
-          />
-
-          <input
-            v-model="data.debt"
-            type="text"
-            placeholder="Deuda... (opcional)"
-            @input="formatPriceInput"
-          />
-          <button @click="changeStatusOfForm" class="btn-cancel">
-            Cancelar
-          </button>
-          <button @click="createNewClient" class="btn-confirm">
-            Confirmar
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- REGISTRAR NUEVO PAGO -->
-    <div v-if="paymentStatus" class="register-component">
-      <div class="expenses-form">
-        <div class="form-group">
-          <h3 style="text-align: center">Registrar pago</h3>
-          <select v-model="clientId">
-            <option>Seleccionar cliente</option>
-            <option
-              v-for="(client, index) in clientsArray"
-              :key="index"
-              :value="client._id"
-            >
-              {{ client.name }}
-            </option>
-          </select>
-
-          <input
-            v-model="paymentsData.paymentsDescription"
-            type="text"
-            placeholder="Descripcion..."
-          />
-
-          <input
-            v-model="paymentsData.payments"
-            type="number"
-            placeholder="Monto..."
-          />
-
-          <button @click="changeStatusOfPayment" class="btn-cancel">
-            Cancelar
-          </button>
-          <button @click="registerPayment()" class="btn-confirm">
-            Confirmar
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- *****************************DETALLE DE PAGOS**************************************************** -->
-
-    <div v-if="showMessageBox" class="message-box">
-      <div class="close-btn">
-        <i
-          style="color: red"
-          class="bi bi-x-circle-fill"
-          @click="changeStatusOfDetails"
-        ></i>
-      </div>
-      <h4>Pagos del cliente</h4>
-      <div class="table-responsive">
-        <table class="table table-hover table-nowrap">
-          <thead class="thead-light">
-            <tr class="tableRow">
-              <th scope="col">Referencia</th>
-              <th scope="col">Monto</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- <tr
-              v-for="(payment, index) in globalPaymentsArray.payments"
-              :key="index"
-              class="table-body"
-            >
-              <td scope="col">${{ payment === null ? 'No se cargo monto' : payment }}</td>
-              <td scope="col">
-                {{ globalPaymentsArray.paymentsDescription[index] ==='' ? 'No hay datos' :globalPaymentsArray.paymentsDescription[index] }}
-              </td>
-            </tr> -->
-            <tr
-              class="table-body"
-              v-for="(payment, index) in paymentsIndArray.payments"
-              :key="index"
-            >
-              <td scope="col">
-                {{ paymentsIndArray.paymentsDescription[index] }}
-              </td>
-              <td scope="col">{{formatPrice(payment)  }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </div>
   </div>
 </template>
@@ -387,7 +161,6 @@ export default {
       globalPaymentsArray: [],
       globalDescriptionsArray: {},
       loading: false,
-      paymentsIndArray: [],
     };
   },
   methods: {
@@ -397,27 +170,16 @@ export default {
         const businessId = localStorage.getItem("businessId");
 
         const result = await axios.get(
-          `http://localhost:3000/business/clients/${businessId}`
+          `http://localhost:3000/providers/business/${businessId}`
         );
         const sales = result.data;
         this.clientsArray = sales;
-
-        const paymentsArray = [];
-        for (const client of this.clientsArray) {
-          for (const item of client.payments) {
-            paymentsArray.push(item);
+        for (const item of this.clientsArray) {
+          for (const iterator of item.providers) {
+            this.clientsArray.push(iterator);
+            console.log(iterator.telephone);
           }
         }
-
-        const workingDescriptions = [];
-        for (const client of this.clientsArray) {
-          for (const item of client.paymentsDescription) {
-            workingDescriptions.push(item);
-          }
-        }
-        this.globalPaymentsArray.payments = paymentsArray;
-        this.globalPaymentsArray.paymentsDescription = workingDescriptions;
-        console.log(this.globalPaymentsArray);
       } catch (error) {
         console.log(error);
       }
@@ -443,7 +205,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`http://localhost:3000/clients/${id}`);
+          await axios.delete(`http://localhost:3000/providers/${id}`);
           window.alert("Cliente eliminado");
           this.getAllClients();
         } else {
@@ -484,19 +246,6 @@ export default {
         console.log("Error: ", error);
       }
     },
-    async getClientById(id) {
-      try {
-        this.paymentsIndArray = [];
-        this.changeStatusOfDetails();
-        const response = await axios.get(
-          `http://localhost:3000/clients/searcher/${id}`
-        );
-        const data = response.data;
-        this.paymentsIndArray = data;
-      } catch (error) {
-        throw error;
-      }
-    },
     async searchClient(clientName) {
       try {
         const businessId = localStorage.getItem("businessId");
@@ -529,8 +278,6 @@ export default {
         }
         this.loading = true;
         this.information = this.clientsArray;
-        console.log("Pregunta: ", this.question);
-        console.log("Informacion: ", this.information);
 
         const response = await axios.post(`http://localhost:3000/chat-gpt`, {
           message: this.question,
@@ -544,25 +291,7 @@ export default {
         throw error;
       }
     },
-    async registerPayment() {
-      try {
-        console.log(this.clientId);
-        const res = await axios.post(
-          `http://localhost:3000/clients/register/payment/${this.clientId}`,
-          {
-            payments: this.paymentsData.payments,
-            paymentsDescription: this.paymentsData.paymentsDescription,
-          }
-        );
 
-        this.changeStatusOfPayment();
-        this.getAllClients();
-        this.paymentsData.payments = null;
-        this.paymentsData.paymentsDescription = "";
-      } catch (error) {
-        throw error;
-      }
-    },
     // *****************************************************************************************
     formattedResponse() {
       return this.respuesta.split("*").join("*<br/><br/>");
@@ -598,9 +327,7 @@ export default {
         this.foundClient = true;
       }
     },
-    changeStatusOfPayment() {
-      this.paymentStatus = !this.paymentStatus;
-    },
+
     changeStatusOfDetails() {
       this.showMessageBox = !this.showMessageBox;
     },

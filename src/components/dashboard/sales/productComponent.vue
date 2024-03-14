@@ -25,7 +25,10 @@
       <button @click="changeStateOfSearch" class="salesBtn">
         <i class="bi bi-arrow-left-right"></i>
       </button>
-      <a  style="margin-left: 10px; font-size: 12px;">Alternar entre buscador <br> por código/nombre</a>
+      <a style="margin-left: 10px; font-size: 12px"
+        >Alternar entre buscador <br />
+        por código/nombre</a
+      >
     </div>
     <div class="listOfProductSearched">
       <ul
@@ -143,7 +146,19 @@
           </div>
         </div>
       </div>
-      <button @click="printReceipt" style="margin-left: 10px; border: none; background-color:#574f7a; color: white;font-weight: 600; padding: 8px;">Imprimir comprobante</button>
+      <button
+        @click="printReceipt"
+        style="
+          margin-left: 10px;
+          border: none;
+          background-color: #574f7a;
+          color: white;
+          font-weight: 600;
+          padding: 8px;
+        "
+      >
+        Imprimir comprobante
+      </button>
 
       <div class="totalClass">
         <div class="total">
@@ -161,7 +176,6 @@
         </div>
       </div>
       <div style="display: flex" class="btn-and-change-container">
-        
         <div class="change-container">
           <h5>Cambio</h5>
           <input
@@ -276,16 +290,16 @@ export default {
       totalForChange: 0,
       multipleProductsArray: [],
       editQuantityStatus: true,
-      businessData:[]
+      businessData: [],
     };
   },
   methods: {
     async getProductBybarCode(barcode) {
       try {
-
         const response = await axios.get(
           `http://localhost:3000/products/cate/${businessId}/${barcode}`
         );
+
         this.barcode = "";
 
         if (response && response.data && response.data.product) {
@@ -308,8 +322,12 @@ export default {
           }
         } else {
           if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
-            this.getProductFromGoUpc(barcode);
-            this.data.name = this.data.barCode = barcode;
+            const productFromDB = this.getProductFromDB(barcode);
+            if (!productFromDB || productFromDB.length <= 0) {
+              await this.getProductFromGoUpc(barcode);
+            }
+
+            this.data.barCode = barcode;
             this.changeStatusOfForm();
           }
         }
@@ -356,6 +374,24 @@ export default {
         console.error("Error al obtener el producto:", error);
       }
     },
+    async getProductFromDB(barcode) {
+      try {
+        this.data.name = "";
+        this.data.sellPrice = null;
+        const response = await axios.get(
+          `http://localhost:3000/products/searchIn/${barcode}`
+        );
+        const product = response.data;
+        console.log('Producto desde BBDD: ',product);
+        if (product.length !== 0) {
+          this.data.name = product.name;
+          this.data.sellPrice = product.sellPrice;
+        }
+        return product
+      } catch (error) {
+        throw error;
+      }
+    },
     async createNewProduct() {
       try {
         if (!this.data.name || !this.data.sellPrice) {
@@ -393,13 +429,13 @@ export default {
     },
     async createSale() {
       let arrayOfIds = [];
-      let arrayOfProductsQuantities=[]
+      let arrayOfProductsQuantities = [];
       for (const product of this.productsIds) {
         arrayOfIds.push(product);
       }
 
       for (const item of this.carrito) {
-        arrayOfProductsQuantities.push(item.sellQuantity)
+        arrayOfProductsQuantities.push(item.sellQuantity);
       }
       const businessId = localStorage.getItem("businessId");
 
@@ -408,7 +444,7 @@ export default {
         businessId: businessId,
         productIds: arrayOfIds,
         paymentMethod: this.paymentMethod,
-        productQuantity:arrayOfProductsQuantities
+        productQuantity: arrayOfProductsQuantities,
       };
 
       if (this.clientId && this.clientId !== "General") {
@@ -423,7 +459,6 @@ export default {
         const sale = await axios.post("http://localhost:3000/sales", saleData);
         console.log(sale);
         this.totalForChange = this.total;
-  
 
         if (sale) {
           if (this.clientId && this.clientId !== "General") {
@@ -466,7 +501,7 @@ export default {
         );
         const business = res.data;
         this.clients = business.clients;
-        console.log('Clientes:',this.clients);
+        console.log("Clientes:", this.clients);
         this.employees = business.employees;
       } catch (error) {
         throw error;
@@ -493,7 +528,7 @@ export default {
         const result = await axios.get(
           `http://localhost:3000/globalproducts/${barcode}`
         );
-        console.log(result.data.product);
+        console.log('Producto desde UPC:',result.data.product);
         const productData = {
           name: result.data.product.name,
           description: result.data.product.description,
@@ -504,7 +539,6 @@ export default {
         throw error;
       }
     },
-   
 
     // **********************LLAMADAS A LA API******************************************************************
     changeStatusOfQuantity() {
@@ -675,7 +709,8 @@ export default {
   mounted() {
     this.getBusinessData();
     window.addEventListener("keydown", this.handleKeyDown),
-      this.getCategoryesIds(),this.getBusinessData()
+      this.getCategoryesIds(),
+      this.getBusinessData();
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.handleKeyDown);

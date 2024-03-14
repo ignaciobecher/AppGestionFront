@@ -116,10 +116,7 @@
       </div>
     </div>
 
-    <div class="spinner-container" v-if="loading">
-      <spinner></spinner>
-    </div>
-    <div v-else class="pages-container">
+    <div  class="pages-container">
       <home-page v-if="homePage"></home-page>
       <sale-page v-if="salesPage"></sale-page>
       <inputs-page v-if="inputPage"></inputs-page>
@@ -144,7 +141,6 @@ import stockPage from "../pages/stockPage.vue";
 import axios from "axios";
 import SimpleCrypto from "simple-crypto-js";
 import { secretKey } from "@/components/dashboard/Auth/registerComponent.vue";
-import spinner from "@/components/visuals/spinner.vue";
 
 export default {
   components: {
@@ -156,11 +152,10 @@ export default {
     informPage,
     notesPage,
     usersPage,
-    spinner,
   },
   data() {
     return {
-      homePage: false,
+      homePage: true,
       salesPage: false,
       outPage: false,
       stockPage: false,
@@ -171,7 +166,6 @@ export default {
       businessName: "",
       bussId: "",
       userRole: "",
-      loading: true,
     };
   },
   methods: {
@@ -187,8 +181,6 @@ export default {
         const id = business.businessId;
         this.bussId = businessId;
         this.businessName = name;
-        this.loading = false;
-        this.homePage = true;
       } catch (error) {
         throw error;
       }

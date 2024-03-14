@@ -232,15 +232,7 @@ export default {
         );
         const inputs = response.data;
         this.inputsArray = inputs;
-        console.log(this.inputsArray);
-        // for (let index = 0; index < inputs.length; index++) {
-        //   const element = inputs[index];
-        //   const date = new Date(element.createdAt);
-        //   const month = date.getMonth() + 1;
-        //   const formattedDate = date.toLocaleDateString();
-        //   console.log("Fecha:", formattedDate, "////", "Mes: ", month);
-        //   console.log("Fecha:", formattedDate, "////", "Mes: ", month);
-        // }
+       
       } catch (error) {
         console.log(error);
       }
@@ -274,7 +266,10 @@ export default {
           .format("YYYY-MM-DD");
         const totalWhitoutFormat = numeral(this.data.value).value();
         const businessId = localStorage.getItem("businessId");
-
+        if(!this.data.product || !this.data.description || !totalWhitoutFormat || !this.data.quantity){
+          window.alert('Todos los campos son obligatorios')
+          return
+        }
         const newSale = await axios.post(
           "http://localhost:3000/random-inputs",
           {
@@ -287,6 +282,10 @@ export default {
         );
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
+          this.data.product=''
+          this.data.description=''
+          this.data.value=null
+          this.data.quantity=null
           this.changeFormStatus();
           this.getAllInputs();
         } else {
@@ -313,6 +312,10 @@ export default {
     },
     async askGpt() {
       try {
+        if(this.question === ''){
+          window.alert('Tu pregunta no puede estar vacia')
+          return
+        }
         this.loading=true
         this.information = this.inputsArray;
         const response = await axios.post(`http://localhost:3000/chat-gpt`, {

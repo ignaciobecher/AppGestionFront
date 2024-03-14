@@ -276,6 +276,11 @@ export default {
         const totalWhitoutFormat = numeral(this.data.value).value();
         const businessId = localStorage.getItem("businessId");
 
+        if(!this.data.product || !this.data.description || !this.data.value){
+          window.alert('Todos los campos son obligatorios')
+          return
+        }
+
         const newSale = await axios.post("http://localhost:3000/outputs", {
           name: this.data.product,
           description: this.data.description,
@@ -327,6 +332,10 @@ export default {
     },
     async askGpt() {
       try {
+        if(this.question === ''){
+          window.alert('Tu pregunta no puede estar vacia')
+          return
+        }
         this.loading=true
         this.information = this.buysArray;
         const response = await axios.post(

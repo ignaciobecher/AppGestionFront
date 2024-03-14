@@ -45,7 +45,10 @@
         placeholder="Ingresa tu consulta sobre los egresos..."
       />
       <button @click="askGpt">Consultar</button>
-      <div v-if="loading === true" style="display: flex; justify-content: center; margin-top: 20px;">
+      <div
+        v-if="loading === true"
+        style="display: flex; justify-content: center; margin-top: 20px"
+      >
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
@@ -203,7 +206,6 @@
             v-for="(cheque, index) in filteredClients"
             :key="index"
             class="tableRow"
-           
           >
             <td>
               <span>{{ formatDate(cheque.createdAt) }}</span>
@@ -270,12 +272,13 @@
     <div v-if="editFormStatus" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
-          <h3 style="text-align: center">Nueva compra</h3>
+          <h3 style="text-align: center">Nuevo cheque</h3>
 
           <input
             v-model="data.identification"
             type="text"
-            placeholder="Identificacion... (opcional)"
+            placeholder="Identificacion..."
+
           />
 
           <select v-model="chequeOwner" name="" id="">
@@ -286,23 +289,26 @@
           <input
             v-model="data.description"
             type="text"
-            placeholder="Descripcion... (opcional)"
+
+            placeholder="Descripcion..."
           />
 
           <input
             v-model="data.chequeNumber"
             type="number"
             placeholder="N° cheque..."
+
           />
 
           <input
             v-model="data.total"
             type="text"
             placeholder="Monto..."
+
             @input="formatPriceInput"
           />
 
-          <input v-model="data.chequeDate" type="date" placeholder="Fecha..." />
+          <input v-model="data.chequeDate"  type="date" placeholder="Fecha..." />
 
           <button @click.prevent="changeFormStatus" class="btn-cancel">
             Cancelar
@@ -391,10 +397,7 @@ export default {
     },
     async createNewCheque() {
       try {
-        // const formattedExpirationDate = moment
-        //   .utc(this.data.expirationDate)
-        //   .add(1, "days")
-        //   .format("YYYY-MM-DD");
+
 
         const totalWhitoutFormat = numeral(this.data.total).value();
         const fechaCheque = moment(this.data.chequeDate);
@@ -452,6 +455,10 @@ export default {
     },
     async askGpt() {
       try {
+        if(this.question === ''){
+          window.alert('Tu pregunta no puede estar vacia')
+          return
+        }
         this.loading=true
         this.information = this.chequesArray;
         const response = await axios.post(`http://localhost:3000/chat-gpt`, {
@@ -474,7 +481,7 @@ export default {
         const data = response.data;
         this.filteredClients=[]
         for (const cheque of data) {
-          this.filteredClients.push(cheque)          
+          this.filteredClients.push(cheque)
         }
 
         if (data && data.length > 0) {

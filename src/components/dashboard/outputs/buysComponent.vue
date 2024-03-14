@@ -3,10 +3,27 @@
     <div
       style="display: flex; flex-direction: row; justify-content: space-between"
     >
-      <h1 style="margin-left: 10px">Compras</h1>
-      <button class="buttonCreate" style="margin-right: 10px" @click="changeFormStatus">Registrar factura</button>
+      <button
+        class="buttonCreate"
+        style="margin-right: 10px; margin-left: 10px"
+        @click="changeFormStatus"
+      >
+        Registrar factura
+      </button>
 
-      <button class="buttonCreate" style="margin-right: 10px" @click="changeSupplierFormStatus">Registrar proveedor</button>
+      <button
+        class="buttonCreate"
+        style="margin-right: 10px"
+        @click="changeSupplierFormStatus"
+      >
+        Registrar proveedor
+      </button>
+
+      <router-link to="/suppliers">
+        <button class="buttonCreate" style="margin-right: 10px">
+          Mis proveedores
+        </button>
+      </router-link>
     </div>
     <!-- MOSTRAR FACTURA -->
     <div v-if="mostrarFactura" class="receiptContainer">
@@ -159,6 +176,9 @@
             <th scope="col">Descripcion</th>
             <th scope="col">Monto</th>
             <th scope="col">Numero Factura</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody class="table-body">
@@ -177,7 +197,7 @@
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ buy.title }}</span>
+              <span v-if="!editStatus">{{ buy.description }}</span>
               <input v-else v-model="buy.description" type="text" />
             </td>
             <!-- <td>
@@ -264,7 +284,7 @@
           <button @click.prevent="changeFormStatus" class="btn-cancel">
             Cancelar
           </button>
-          <button @click.prevent="createNewBuy" class="btn-confirm">
+          <button @click.prevent="createManualBuy" class="btn-confirm">
             Confirmar
           </button>
         </div>
@@ -277,11 +297,14 @@
         <div class="form-group">
           <h3 style="text-align: center">Nuevo proveedor</h3>
 
+       
+
           <input
             v-model="supplierData.name"
             type="text"
             placeholder="Nombre..."
           />
+          
 
           <input
             v-model="supplierData.email"
@@ -443,6 +466,32 @@ export default {
         console.log("Error desde el catch", error);
       }
     },
+    async createManualBuy() {
+      try {
+        if(!this.providerId || !this.data.description || !this.data.receiptNumber || !this.data.total){
+          window.alert('Todos los campos son obligatorios')
+          return
+        }
+        const response = await axios.post(`http://localhost:3000/buys`, {
+          providerId: this.providerId,
+          businessId: businessId,
+          description: this.data.description,
+          receiptNumber: this.data.receiptNumber,
+          total: this.data.total,
+        });
+        if (response.data) {
+          window.alert("Factura cargada");
+          this.providerId=''
+          this.description=''
+          this.receiptNumber=null
+          this.total=null
+          this.getAllBuys();
+          this.changeFormStatus();
+        }
+      } catch (error) {
+        window.alert("Error al crear factura");
+      }
+    },
     async deleteBuy(id) {
       try {
         if (
@@ -492,6 +541,10 @@ export default {
     },
     async askGpt() {
       try {
+        if(this.question === ''){
+          window.alert('Tu pregunta no puede estar vacia')
+          return
+        }
         this.loading = true;
         this.information = this.buysArray;
         const response = await axios.post(`http://localhost:3000/chat-gpt`, {
@@ -719,7 +772,7 @@ export default {
   color: white;
 }
 
-.buttonCreate{
+.buttonCreate {
   width: 20vw;
   border: none;
   border-radius: 0%;

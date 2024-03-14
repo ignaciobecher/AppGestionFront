@@ -54,6 +54,10 @@ export default {
     },
     async askGpt() {
       try {
+        if(this.question === ''){
+          window.alert('Tu pregunta no puede estar vacia')
+          return
+        }
         this.loading=true
         this.information = await this.getBusinessData();
         const response = await axios.post(`http://localhost:3000/chat-gpt/`, {

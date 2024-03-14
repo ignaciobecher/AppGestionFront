@@ -8,7 +8,7 @@
         type="search"
         name=""
         @keyup.enter="searchProduct(productName)"
-        placeholder="Ingrese un producto..."
+        placeholder="Ingrese un nombre..."
         id=""
       />
       <div class="top-container">
@@ -51,7 +51,7 @@
         type="search"
         @keyup.enter="getProductFromGoUpc(productCode)"
         name=""
-        placeholder="Ingrese un codigo de barras y el asistente lo ayudara a completar..."
+        placeholder="Ingrese un codigo de barras y el asistente lo ayudara a crearlo..."
         id=""
       />
     </div>
@@ -671,6 +671,10 @@ export default {
     },
     async askGpt() {
       try {
+        if(this.question === ''){
+          window.alert('Tu pregunta no puede estar vacia')
+          return
+        }
         this.loading=true
         this.information = this.products;
         const response = await axios.post(`http://localhost:3000/chat-gpt`, {
