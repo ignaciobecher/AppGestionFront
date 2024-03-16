@@ -82,7 +82,8 @@ export default {
 
       for (const date in sales) {
         // const formateDate=this.formatDate(date)
-        labels.push(date);
+        const formatedDates=moment(date).format('DD-MM-YYYY')
+        labels.push(formatedDates);
 
         // Calcular el total en dinero para cada fecha
         const totalMoney = sales[date].reduce(

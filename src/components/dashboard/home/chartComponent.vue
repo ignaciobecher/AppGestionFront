@@ -21,7 +21,7 @@
       </button>
     </div>
 
-    <div style="margin-right: 10px;">
+    <div style="margin-right: 10px">
       <Bar id="my-chart-id" :options="chartOptions" :data="chartData" />
     </div>
   </div>
@@ -48,6 +48,7 @@ ChartJS.register(
   LinearScale
 );
 import registerComponent from "../Auth/registerComponent.vue";
+import moment from "moment";
 
 export default {
   name: "BarChart",
@@ -66,7 +67,7 @@ export default {
   methods: {
     async getSalesDay() {
       try {
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
         const sales = await axios.get(
           `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`
         );
@@ -76,6 +77,8 @@ export default {
         const salesData = []; // Array para almacenar las cantidades de ventas
 
         for (const date in data) {
+          const formatedDates = moment(date).format("DD-MM-YYYY");
+
           labels.push(date); // Agregar la fecha al array de etiquetas
           salesData.push(data[date].length); // Agregar la cantidad de ventas al array de datos
         }
@@ -97,7 +100,7 @@ export default {
 
     async getQuantityOfProductsSold() {
       try {
-      const businessId= localStorage.getItem('businessId')
+        const businessId = localStorage.getItem("businessId");
         const sales = await axios.get(
           `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`
         );
@@ -135,9 +138,8 @@ export default {
     },
 
     async getTotalOfSales(startDate, endDate) {
-      const businessId= localStorage.getItem('businessId')
-      let url =
-        `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`;
+      const businessId = localStorage.getItem("businessId");
+      let url = `https://api-gestion-ahil.onrender.com/business/salesByDay/${businessId}`;
 
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;
@@ -180,8 +182,8 @@ export default {
 </script>
 
 <style scoped>
-.mainContainer{
-  background-color:#ffffff ;
+.mainContainer {
+  background-color: #ffffff;
   box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
   margin: 10px;
 }
@@ -197,16 +199,15 @@ export default {
 }
 
 /* //RESPONSIVE PARA TELEFONO-****************************************************************** */
-@media screen and (max-width: 768px){
-  .mainContainer{
-  background-color:#ffffff ;
-  box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
-  margin-right: 10px;
-}
+@media screen and (max-width: 768px) {
+  .mainContainer {
+    background-color: #ffffff;
+    box-shadow: 5px 5px 5px -5px rgba(0, 0, 0, 0.75);
+    margin-right: 10px;
+  }
 
-
-#my-chart-id {
-  background-color: #ffffff;
-}
+  #my-chart-id {
+    background-color: #ffffff;
+  }
 }
 </style>
