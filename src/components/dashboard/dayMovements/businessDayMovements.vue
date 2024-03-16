@@ -42,10 +42,9 @@
       <h1>Compras</h1>
 
       <ul v-for="(buy, index) in movements.buys" :key="index">
-        <li>Nombre: {{ buy.name }}</li>
-        <li>Cantidad: {{ buy.quantity }}</li>
         <li>Descripción: {{ buy.description }}</li>
-        <li>Precio: {{ formatPrice(buy.price) }}</li>
+        <li>Descripción: {{ buy.seller }}</li>
+        <li>Precio: {{ formatPrice(buy.total) }}</li>
       </ul>
     </div>
 

@@ -379,7 +379,7 @@ export default {
         this.data.name = "";
         this.data.sellPrice = null;
         const response = await axios.get(
-          `http://localhost:3000/products/searchIn/${barcode}`
+          `https://api-gestion-ahil.onrender.com/products/searchIn/${barcode}`
         );
         const product = response.data;
         console.log('Producto desde BBDD: ',product);

@@ -472,7 +472,7 @@ export default {
           window.alert('Todos los campos son obligatorios')
           return
         }
-        const response = await axios.post(`http://localhost:3000/buys`, {
+        const response = await axios.post(`https://api-gestion-ahil.onrender.com/buys`, {
           providerId: this.providerId,
           businessId: businessId,
           description: this.data.description,
@@ -576,15 +576,13 @@ export default {
           formData
         );
 
-        if (response === undefined || response.length <= 0) {
-          window.alert("Error al analizar factura, intente nuevamente");
-        }
+        
 
         const prompt =
           "Formatealo en JSON y devuelvelo formateado en clave valor como description,date,total,tittle,buyer,seller,email,paymentMethod,from,to,receiptNumbera,products(en products debes poner los productos/servicios por los que se haya pagado, el products debe ser un objeto que contenga cada producto con su 'name','price' 'codebar' y 'cantidad') y lo que consideres relevante crear(si ese campo no tiene elementos, omitelo), siempre devuelvelo sin caracteres especiales, debe volver listo para ser consumido en el front.Devuelve la respuesta como un JSON listo para ser enviado al front end, sin caracteres especiales. No debe tener caracteres especiales, debe ser devuelto listo para ser consumido en el frontend.Siempre devuelve el JSON listo para ser consumido, nunca te olvides de formatearlo, que no tenga caracteres especiales. El json debe estar en el siguiente formato:{'clave':'valor'}.NUNCA LO DEVUELVA AL JSON ENVUELTO EN TEMPLATE STRINGS ";
 
         const promptExtension =
-          "el total debe ser formateado sin decimales, devuelveme el numero redondeado y sin decimales ni signos de dinero.Todos los campos deben estar compuestos de solamente un valor, excepto el products, que si puede tener varios.El title debe ser algo alusivo e identificatorio sobre la factura.El email debe ser el email del vendedor.Si la factura no tiene productos, deja el campo productos vacio.Seller sera el negocio que emite el comprobante, en seller solo debe ir el nombre del negocio que emite.El receipt number debe ser solamente un numero, sin espacios ni caracteres especiales. Dentro de productos, el codigo de barras y la cantidad siempre deben ser numeros enteros, en caso de no serlo, asignalo igual a 0";
+          "el total debe ser formateado sin decimales, devuelveme el numero redondeado y sin decimales ni signos de dinero.Todos los campos deben estar compuestos de solamente un valor, excepto el products, que si puede tener varios.El title debe ser algo alusivo e identificatorio sobre la factura.El email debe ser el email del vendedor.Si la factura no tiene productos, deja el campo productos vacio.Seller sera el negocio que emite el comprobante, en seller solo debe ir el nombre del negocio que emite.El receipt number debe ser solamente un numero, sin espacios ni caracteres especiales. Dentro de productos, el codigo de barras y la cantidad siempre deben ser numeros enteros, en caso de no serlo, asignalo igual a 0.ES DE SUMA IMPORTANCIA QUE HAGAS TODO COMO SE TE INDICA.";
         const formatTest = await axios.post(
           `https://api-gestion-ahil.onrender.com/chat-gpt/vision/format`,
           {
@@ -596,11 +594,16 @@ export default {
         const data = formatTest.data;
         this.receiptObject = data;
 
+        if (!data ) {
+          window.alert("Error al analizar factura, intente nuevamente");
+          return
+        }
+
         this.loadingOcr = false;
 
         this.crearFactura = true;
       } catch (error) {
-        throw error;
+        window.alert('Tuvimos problemas cargando tu factura, prueba de nuevo')
       }
     },
     async getOneBuy() {

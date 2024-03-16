@@ -81,15 +81,7 @@
                 v-model="client.phoneNumber"
               />
             </td>
-            <td>
-              <span v-if="!editorStatus">{{ formatPrice(client.debt) }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.debt"
-              />
-            </td>
+          
 
             <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
@@ -170,7 +162,7 @@ export default {
         const businessId = localStorage.getItem("businessId");
 
         const result = await axios.get(
-          `http://localhost:3000/providers/business/${businessId}`
+          `https://api-gestion-ahil.onrender.com/providers/business/${businessId}`
         );
         const sales = result.data;
         this.clientsArray = sales;
@@ -186,7 +178,7 @@ export default {
     },
     async updateClient(client, id) {
       try {
-        await axios.put(`http://localhost:3000/clients/${id}`, {
+        await axios.put(`https://api-gestion-ahil.onrender.com/clients/${id}`, {
           name: client.name,
           address: client.address,
           email: client.email,
@@ -205,7 +197,7 @@ export default {
         if (
           window.confirm("¿Estás seguro de que deseas realizar esta acción?")
         ) {
-          await axios.delete(`http://localhost:3000/providers/${id}`);
+          await axios.delete(`https://api-gestion-ahil.onrender.com/providers/${id}`);
           window.alert("Cliente eliminado");
           this.getAllClients();
         } else {
@@ -223,7 +215,7 @@ export default {
           const debtFormated = numeral(this.data.debt).value();
           const businessId = localStorage.getItem("businessId");
 
-          const newProduct = await axios.post("http://localhost:3000/clients", {
+          const newProduct = await axios.post("https://api-gestion-ahil.onrender.com/clients", {
             name: this.data.name,
             address: this.data.address,
             phoneNumber: this.data.phoneNumber,
@@ -251,7 +243,7 @@ export default {
         const businessId = localStorage.getItem("businessId");
 
         const client = await axios.get(
-          `http://localhost:3000/clients/search/${businessId}/${clientName}`
+          `https://api-gestion-ahil.onrender.com/clients/search/${businessId}/${clientName}`
         );
         const clienteEncontrado = client.data;
 
@@ -279,7 +271,7 @@ export default {
         this.loading = true;
         this.information = this.clientsArray;
 
-        const response = await axios.post(`http://localhost:3000/chat-gpt`, {
+        const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt`, {
           message: this.question,
           info: this.information,
         });

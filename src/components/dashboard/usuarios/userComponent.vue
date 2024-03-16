@@ -65,7 +65,7 @@ export default {
     async getAllUsers() {
       try {
         const response = await axios.get(
-          `http://localhost:3000/auth/business/${businessId}`
+          `https://api-gestion-ahil.onrender.com/auth/business/${businessId}`
         );
         const users = response.data;
         this.usersArray = users;
@@ -77,7 +77,7 @@ export default {
       try {
         if (window.confirm("¿Esta seguro?")) {
           const response = await axios.delete(
-            `http://localhost:3000/auth/business/${businessId}/user/${this.userId}`
+            `https://api-gestion-ahil.onrender.com/auth/business/${businessId}/user/${this.userId}`
           );
           window.alert("Usuario eliminado");
           this.getAllUsers()

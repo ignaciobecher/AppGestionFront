@@ -489,7 +489,7 @@ export default {
         this.paymentsIndArray = [];
         this.changeStatusOfDetails();
         const response = await axios.get(
-          `http://localhost:3000/clients/searcher/${id}`
+          `https://api-gestion-ahil.onrender.com/clients/searcher/${id}`
         );
         const data = response.data;
         this.paymentsIndArray = data;

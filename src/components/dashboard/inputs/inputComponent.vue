@@ -279,7 +279,7 @@ export default {
           window.alert('Todos los campos son obligatorios')
           return
         }
-        const newSale = await axios.post("http://localhost:3000/inputs", {
+        const newSale = await axios.post("https://api-gestion-ahil.onrender.com/inputs", {
           name: this.data.product,
           description: this.data.description,
           value: value,
