@@ -72,7 +72,7 @@
         >
           <spinner> </spinner>
         </div>
-        <p v-if="loading===false" v-html="formattedResponse()"></p>
+        <p v-if="loading === false" v-html="formattedResponse()"></p>
       </div>
 
       <div class="calculadora">
@@ -423,8 +423,8 @@ import spinner from "@/components/visuals/spinner.vue";
 const businessId = localStorage.getItem("businessId");
 
 export default {
-  components:{
-    spinner
+  components: {
+    spinner,
   },
   data() {
     return {
@@ -456,7 +456,7 @@ export default {
       information: [],
       valorBase: null,
       porcentaje: null,
-      loading:false
+      loading: false,
     };
   },
   methods: {
@@ -512,15 +512,20 @@ export default {
         if (!this.data.name || !this.data.sellPrice || !this.data.quantity) {
           window.alert("Los campos no deben estar vacíos");
         } else {
-          const formattedDate = moment(this.data.expirationDate).format(
-            "DD-MM-YYYY"
-          );
+          let formattedDate = moment();
+          if (this.data.expirationDate) {
+            formattedDate = moment(this.data.expirationDate).format(
+              "DD-MM-YYYY"
+            );
+          } else {
+            formattedDate = formattedDate.format("DD-MM-YYYY");
+          }
+
           const totalWhitoutFormat = numeral(this.data.sellPrice).value();
           const businessId = localStorage.getItem("businessId");
 
           const newProduct = await axios.post(
             `http://localhost:3000/products/${this.selectedCategoryId}`,
-
             {
               name: this.data.name,
               sellPrice: totalWhitoutFormat,
@@ -671,11 +676,11 @@ export default {
     },
     async askGpt() {
       try {
-        if(this.question === ''){
-          window.alert('Tu pregunta no puede estar vacia')
-          return
+        if (this.question === "") {
+          window.alert("Tu pregunta no puede estar vacia");
+          return;
         }
-        this.loading=true
+        this.loading = true;
         this.information = this.products;
         const response = await axios.post(`http://localhost:3000/chat-gpt`, {
           message: this.question,
@@ -684,7 +689,7 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
-        this.loading=false
+        this.loading = false;
       } catch (error) {
         throw error;
       }

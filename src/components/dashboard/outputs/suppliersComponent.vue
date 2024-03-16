@@ -81,15 +81,7 @@
                 v-model="client.phoneNumber"
               />
             </td>
-            <td>
-              <span v-if="!editorStatus">{{ formatPrice(client.debt) }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.debt"
-              />
-            </td>
+          
 
             <td v-if="!editorStatus">
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>

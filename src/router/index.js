@@ -13,6 +13,10 @@ const routes = [
     component: () => import("../pages/registerPage.vue"),
   },
   {
+    path:'/restore',
+    component:()=> import ("../components/dashboard/Auth/changePasswordComponent.vue")
+  },
+  {
     path: "/home",
     component: () => import("../views/dashboardView.vue"),
     meta: { requiresAuth: true },

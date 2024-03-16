@@ -87,9 +87,14 @@
             <spinner v-if="loading === true"></spinner>
           </button>
         </div>
-        <p style="margin-top: 20px">
+        <p style="margin-top: 20px;">¿Olvidaste tu contraseña? 
+          <router-link to="/restore">
+            <a href="">Hace click acá para recuperarla </a>
+          </router-link>
+        </p>
+        <p style="margin-top: 20px; ">
           <router-link to="/business">
-            <a href=""> Registrar nuevo negocio </a>
+            <a  href=""> Registrar nuevo negocio </a>
           </router-link>
         </p>
 
@@ -181,6 +186,8 @@ export default {
           localStorage.setItem("businessId", businessId);
           localStorage.setItem("role", cipherRole);
         } else {
+          this.loading=false
+
           window.alert(
             "Credenciales incorrectas, verifica tus datos e intenta de nuevo"
           );

@@ -6,39 +6,87 @@
       <form @submit.prevent="createNewBusiness" class="login-form">
         <div class="form-group">
           <label for="name">Nombre:</label>
-          <input v-model="data.name" type="text" required />
+          <input
+            v-model="data.name"
+            type="text"
+            placeholder="Ingresa el nombre de tu negocio"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="name">Rubro:</label>
-          <input v-model="data.rubro" type="text" required />
+          <input
+            v-model="data.rubro"
+            type="text"
+            placeholder="Ingresa tu rubro"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="name">Teléfono:</label>
-          <input v-model="data.phone" type="text" required />
+          <input
+            v-model="data.phone"
+            type="text"
+            placeholder="Ingresa tu número sin espacios ni guiones"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="address">Dirección:</label>
-          <input v-model="data.address" type="text" required />
+          <input
+            v-model="data.address"
+            type="text"
+            placeholder="Ingresa tu dirección"
+            required
+          />
         </div>
 
         <div class="form-group">
           <label for="email">Ciudad:</label>
-          <input v-model="data.city" type="text" required />
+          <input
+            v-model="data.city"
+            type="text"
+            placeholder="Ingresa tu ciudad"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="email">Correo electrónico:</label>
-          <input v-model="data.email" type="email" required />
+          <input
+            v-model="data.email"
+            type="email"
+            placeholder="Ingresa tu correo"
+            required
+          />
         </div>
 
         <div class="form-group">
           <label for="email">Usuario:</label>
-          <input v-model="data.username" type="text" required />
+          <input
+            v-model="data.username"
+            type="text"
+            placeholder="Ingresa tu nombre de usuario"
+            required
+          />
         </div>
         <div class="form-group">
           <label for="email">Contraseña:</label>
-          <input v-model="data.password" type="password" required />
+          <input
+            v-model="data.password"
+            type="password"
+            placeholder="Ingresa tu contraseña"
+            required
+          />
         </div>
-        <button type="submit">Crear negocio</button>
+        <button type="submit">
+          <p
+            v-if="loading === false"
+            style="margin-top: 10px; font-weight: 500; font-size: 20px"
+          >
+            Crear negocio
+          </p>
+          <spinner v-if="loading === true"></spinner>
+        </button>
       </form>
     </div>
   </div>
@@ -46,7 +94,12 @@
 
 <script>
 import axios from "axios";
+import spinner from "@/components/visuals/spinner.vue";
+
 export default {
+  components: {
+    spinner,
+  },
   data() {
     return {
       data: {
@@ -59,11 +112,13 @@ export default {
         username: "",
         password: "",
       },
+      loading: false,
     };
   },
   methods: {
     async createNewBusiness() {
       try {
+        this.loading = true;
         const newBusiness = await axios.post("http://localhost:3000/business", {
           name: this.data.name,
           address: this.data.address,
@@ -72,8 +127,10 @@ export default {
           rubro: this.data.rubro,
           city: this.data.city,
         });
+        console.log("Negocio creado: ", newBusiness);
 
         const businessId = newBusiness.data._id;
+        console.log("BusinessId: ", businessId);
         localStorage.setItem("businessId", businessId);
 
         const email = await axios.post(`http://localhost:3000/email`, {
@@ -81,17 +138,21 @@ export default {
           businessId: businessId,
         });
 
-        if (newBusiness) {
-          const user = await axios.post(
-            `http://localhost:3000/auth/register/${businessId}`,
-            {
-              username: this.data.username,
-              password: this.data.password,
-              email: this.data.email,
-              role: "manager",
-            }
-          );
-        }
+        console.log("Mail enviado: ", email);
+
+        const user = await axios.post(
+          `http://localhost:3000/auth/register/${businessId}`,
+          {
+            username: this.data.username,
+            password: this.data.password,
+            businessId: businessId,
+            email: this.data.email,
+            role: "manager",
+          }
+        );
+
+        console.log("Usuario creado: ", user);
+        this.loading = false;
         window.alert(
           "Gracias por registrar tu negocio en Adminia, en tu mail te indicamos el siguiente paso"
         );
@@ -101,7 +162,16 @@ export default {
         this.data.address = "";
         this.data.email = "";
         return businessId;
-      } catch (error) {}
+      } catch (error) {
+        this.loading = false;
+
+        window.alert("El email que estás intentando usar ya está registrado");
+        window.location.reload()
+        const businessId = localStorage.getItem("businessId");
+        if (businessId) {
+          await axios.delete(`http://localhost:3000/business/${businessId}`);
+        }
+      }
     },
   },
 };
@@ -140,7 +210,8 @@ h2 {
 }
 
 .login-form input[type="text"],
-.login-form input[type="email"] {
+.login-form input[type="email"],
+.login-form input[type="password"] {
   width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
@@ -148,16 +219,10 @@ h2 {
 }
 
 .login-form button {
-  padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #b28cc4;
   color: #fff;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
   width: 100%;
-}
-
-.login-form button:hover {
-  background-color: #0056b3;
 }
 </style>
