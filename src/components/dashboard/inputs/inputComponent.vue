@@ -229,11 +229,14 @@ export default {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllInputs() {
       try {
+        console.log(businessId);
         const response = await axios.get(
           `http://localhost:3000/inputs/${businessId}`
         );
         const inputs = response.data;
+        console.log(inputs);
         this.inputsArray = inputs;
+        console.log(inputs);
         for (let index = 0; index < inputs.length; index++) {
           const element = inputs[index];
           const date = new Date(element.createdAt);

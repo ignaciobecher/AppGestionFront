@@ -3,6 +3,7 @@
     <div class="searchbar-container">
       <p>Buscar producto:</p>
       <input
+        v-if="nameSearcherState"
         @input="checkInput"
         v-model="productName"
         type="search"
@@ -11,6 +12,33 @@
         placeholder="Ingrese un nombre..."
         id=""
       />
+      <input
+        v-if="barcodeSearcherState"
+        @input="checkInput"
+        v-model="code"
+        type="search"
+        name=""
+        @keyup.enter="getProductBybarCode()"
+        placeholder="Ingrese un codigo..."
+        id=""
+      />
+
+      <div>
+        <button
+          style="
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            border: 1px solid white;
+            padding: 10px;
+            background-color: #574f7a;
+            margin-left: 10px;
+          "
+          @click="changeSearchers"
+        >
+          <i class="bi bi-arrow-left-right"></i>
+        </button>
+      </div>
       <div class="top-container">
         <button @click="changeStatusOfForm">Registrar nuevo producto</button>
       </div>
@@ -457,17 +485,23 @@ export default {
       valorBase: null,
       porcentaje: null,
       loading: false,
+      barcodeSearcherState: false,
+      nameSearcherState: true,
+      code:''
     };
   },
   methods: {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllProducts() {
       try {
+        const businessIdd=localStorage.getItem('businessId')
         const result = await axios.get(
-          `http://localhost:3000/business/products/${businessId}`
+          `http://localhost:3000/business/products/${businessIdd}`
         );
+        console.log('Id:',businessId);
         const data = result.data;
         this.products = data;
+        console.log('Productos:',data);
       } catch (error) {
         console.log(error);
       }
@@ -536,6 +570,7 @@ export default {
               businessId: businessId,
             }
           );
+
           this.data.name = "";
           this.data.sellPrice = "";
           this.data.quantity = "";
@@ -597,6 +632,19 @@ export default {
         console.log("Error: ", error);
       }
     },
+    async getProductBybarCode() {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/products/cate/${businessId}/${this.code}`
+        );
+        const data = response.data;
+
+        this.selectedProduct = data;
+        this.foundProduct = false;
+      } catch (error) {
+        console.error("Error al obtener el producto:", error);
+      }
+    },
     async getCategoryesIds() {
       try {
         const businessId = localStorage.getItem("businessId");
@@ -649,26 +697,40 @@ export default {
     },
     async getProductFromGoUpc(barcode) {
       try {
-        console.log("El barcode es: ", barcode);
-
-        const result = await axios.get(
-          `http://localhost:3000/globalproducts/${barcode}`
+        const resultFromDb = await axios.get(
+          `http://localhost:3000/products/searchIn/${barcode}`
         );
-        if (!result && !result.data.product) {
-          window.alert(
-            "No pudimos encontrar el producto en nuestra base de datos"
-          );
-          this.barCode = "";
-        } else {
-          const productData = {
-            name: result.data.product.name,
-            description: result.data.product.description,
-            category: result.data.product.category,
-            code: result.data.product.ean,
-          };
+        const dataFromDb = resultFromDb.data;
+
+        if (dataFromDb.barCode && dataFromDb.name) {
+          console.log("Producto traido desde nuestra BBDD");
+
           this.changeStatusOfForm();
-          this.data.name = productData.name;
-          this.data.barCode = productData.code;
+
+          this.data.name = dataFromDb.name;
+          this.data.barCode = dataFromDb.barCode;
+        } else {
+          const result = await axios.get(
+            `http://localhost:3000/globalproducts/${barcode}`
+          );
+          if (!result && !result.data.product) {
+            window.alert(
+              "No pudimos encontrar el producto en nuestra base de datos"
+            );
+            this.barCode = "";
+          } else {
+            const productData = {
+              name: result.data.product.name,
+              description: result.data.product.description,
+              category: result.data.product.category,
+              code: result.data.product.ean,
+            };
+            console.log("Producto traido desde UPC");
+
+            this.changeStatusOfForm();
+            this.data.name = productData.name;
+            this.data.barCode = productData.code;
+          }
         }
       } catch (error) {
         throw error;
@@ -736,6 +798,15 @@ export default {
     },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
+    },
+    changeSearchers() {
+      if (this.nameSearcherState === true) {
+        this.barcodeSearcherState = true; // Cambiar a true en lugar de comparar
+        this.nameSearcherState = false; // Cambiar a false
+      } else {
+        this.nameSearcherState = true; // Cambiar a true
+        this.barcodeSearcherState = false; // Cambiar a false en lugar de comparar
+      }
     },
   },
   mounted() {

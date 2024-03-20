@@ -10,8 +10,7 @@ import { RouterView } from 'vue-router'
 <script>
 
 export default {
-  components:{
-  }
+
 }
 </script>
 

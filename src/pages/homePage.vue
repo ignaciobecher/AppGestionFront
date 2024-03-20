@@ -1,5 +1,6 @@
 <template>
   <div class="resume-container">
+    <firstLogin></firstLogin>
     <div class="title">
       <searchbar></searchbar>
     </div>
@@ -20,12 +21,14 @@ import searchbar from "../components/dashboard/home/searchBarComponent.vue";
 import resume from "../components/dashboard/home/resumeComponent.vue";
 import chart from "../components/dashboard/home/chartComponent.vue";
 import askHomeComponent from "@/components/dashboard/home/askHomeComponent.vue";
+import firstLogin from "@/components/visuals/firstLogin.vue";
 export default {
   components: {
     resume,
     searchbar,
     chart,
-    askHomeComponent
+    askHomeComponent,
+    firstLogin
   },
 };
 </script>

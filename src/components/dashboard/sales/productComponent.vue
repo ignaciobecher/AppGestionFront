@@ -182,12 +182,13 @@
             @keyup.enter="changeTotal"
             v-model="pay"
             type="number"
-            placeholder="Pago"
+            placeholder="Paga con..."
           />
           <input
             @keyup.enter="changeTotal"
             type="text"
-            v-model="totalForChange"
+            v-model="total"
+            placeholder="Total venta"
           />
           <label for="">Vuelto: ${{ change }}</label>
         </div>
@@ -323,7 +324,7 @@ export default {
         } else {
           if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
             const productFromDB = this.getProductFromDB(barcode);
-            if (!productFromDB || productFromDB.length <= 0) {
+            if (!productFromDB || !productFromDB.name) {
               await this.getProductFromGoUpc(barcode);
             }
 
@@ -382,12 +383,12 @@ export default {
           `http://localhost:3000/products/searchIn/${barcode}`
         );
         const product = response.data;
-        console.log('Producto desde BBDD: ',product);
+        console.log("Producto desde BBDD: ", product);
         if (product.length !== 0) {
           this.data.name = product.name;
           this.data.sellPrice = product.sellPrice;
         }
-        return product
+        return product;
       } catch (error) {
         throw error;
       }
@@ -411,6 +412,24 @@ export default {
               quantity: 10,
             }
           );
+
+          const searchInDb = await axios.get(
+            `http://localhost:3000/products/searchIn/${this.data.barCode}`
+          );
+          if (!searchInDb.data.name) {
+            await axios.post(
+              `http://localhost:3000/products/create/product/sendToDb`,
+              {
+                name: this.data.name,
+                sellPrice: sellPriceFormated,
+                barCode: this.data.barCode,
+                expirationDate: new Date(),
+                businessId: businessId,
+                quantity: 10,
+              }
+            );
+          }
+
           newProduct.data.sellQuantity = 1;
           this.productsIds.push(newProduct.data._id);
           this.total += newProduct.data.sellPrice;
@@ -483,6 +502,8 @@ export default {
           this.paymentMethod = "Efectivo";
           this.clientId = "General";
           this.multipleProductsArray = [];
+          this.pay=''
+          this.change=''
           this.showSuccesMessage();
           console.log("Cambio despues : ", this.totalForChange);
         } else {
@@ -528,7 +549,7 @@ export default {
         const result = await axios.get(
           `http://localhost:3000/globalproducts/${barcode}`
         );
-        console.log('Producto desde UPC:',result.data.product);
+        console.log("Producto desde UPC:", result.data.product);
         const productData = {
           name: result.data.product.name,
           description: result.data.product.description,
@@ -546,13 +567,9 @@ export default {
     },
     changeTotal() {
       try {
-        this.change = this.totalForChange - this.pay;
-        this.change = this.change * -1;
-        setTimeout(() => {
-          this.change = 0;
-          this.totalForChange = 0;
-          this.pay = 0;
-        }, 10000);
+        this.change = this.total - this.pay;
+        this.change = this.change * -1
+        
       } catch (error) {
         throw error;
       }
