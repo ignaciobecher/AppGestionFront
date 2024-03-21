@@ -27,7 +27,10 @@
         placeholder="Ingresa tu consulta sobre tus ventas..."
       />
       <button @click="askGpt">Consultar</button>
-      <div v-if="loading === true" style="display: flex; justify-content: center; margin-top: 20px;">
+      <div
+        v-if="loading === true"
+        style="display: flex; justify-content: center; margin-top: 20px"
+      >
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
@@ -77,7 +80,6 @@
                     )
                   }}
                 </td>
-               
               </tr>
             </template>
           </tbody>
@@ -91,6 +93,7 @@
           <tr class="tableRow">
             <th scope="col">Total</th>
             <th scope="col">Forma de pago</th>
+            <th scope="col">Vendedor</th>
             <th scope="col">Fecha</th>
           </tr>
         </thead>
@@ -165,6 +168,9 @@
               />
             </td>
             <td>
+              <span>{{ sale.cashier }}</span>
+            </td>
+            <td>
               <span>{{ formatDate(sale.createdAt) }}</span>
             </td>
 
@@ -204,8 +210,8 @@ import spinner from "@/components/visuals/spinner.vue";
 const businessId = localStorage.getItem("businessId");
 
 export default {
-  components:{
-    spinner
+  components: {
+    spinner,
   },
   data() {
     return {
@@ -234,11 +240,10 @@ export default {
       question: "",
       respuesta: "",
       information: [],
-      loading:false
-
+      loading: false,
     };
   },
- 
+
   methods: {
     // *****************************************LLAMADAS A LA API*******************************
     async getAllProducts() {
@@ -299,7 +304,6 @@ export default {
           !this.data.quantity
         ) {
           window.alert("Los campos no deben estar vacíos");
-
         } else {
           const businessId = localStorage.getItem("businessId");
 
@@ -357,18 +361,18 @@ export default {
       const businessId = localStorage.getItem("businessId");
 
       try {
-        if(this.startDate === this.endDate){
-          window.alert('Las fechas no deben ser iguales')
-          return
+        if (this.startDate === this.endDate) {
+          window.alert("Las fechas no deben ser iguales");
+          return;
         }
-        this.filteredSales=[]
+        this.filteredSales = [];
         const response = await axios.get(
           `http://localhost:3000/sales/getSales/business/${businessId}/${this.startDate}/${this.endDate}`
         );
         console.log(response.data);
         if (response.data.length === 0) {
-          window.alert('No hay ventas para esas fechas')
-          return
+          window.alert("No hay ventas para esas fechas");
+          return;
         }
         const salesData = response.data;
         this.filteredSales = salesData;
@@ -383,7 +387,7 @@ export default {
     },
     async getSalesDetails(id) {
       try {
-        this.salesDetailsArray=[]
+        this.salesDetailsArray = [];
         const res = await axios.get(`http://localhost:3000/sales/${id}`);
         const sale = res.data;
         this.salesDetailsArray = sale;
@@ -394,11 +398,11 @@ export default {
     },
     async askGpt() {
       try {
-        if(this.question === ''){
-          window.alert('Tu pregunta no puede estar vacia')
-          return
+        if (this.question === "") {
+          window.alert("Tu pregunta no puede estar vacia");
+          return;
         }
-        this.loading=true
+        this.loading = true;
         const sales = await axios.get(
           `http://localhost:3000/sales/products/sales/details/${businessId}`
         );
@@ -414,11 +418,12 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
-        this.loading=false
+        this.loading = false;
       } catch (error) {
         throw error;
       }
     },
+
     // *****************************************************************************************
     formattedResponse() {
       return this.respuesta.split("*").join("*<br/><br/>");
@@ -458,7 +463,6 @@ export default {
       this.showMessageBox = false;
       this.salesDetailsArray = [];
     },
-   
   },
   mounted() {
     this.getAllProducts();
@@ -556,7 +560,6 @@ input {
   border: 1px solid #574f7a;
   padding: 10px;
 }
-
 
 .table-responsive {
   margin: 10px;

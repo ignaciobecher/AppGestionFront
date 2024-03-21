@@ -62,31 +62,18 @@
             :key="index"
           >
             <td>
-              <span v-if="!editorStatus">{{ client.name }}</span>
-              <input name="name" v-else type="text" v-model="client.name" />
+              <span>{{ client.name }}</span>
             </td>
 
             <td>
-              <span v-if="!editorStatus">{{ client.address }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.address"
-              />
+              <span>{{ client.address }}</span>
             </td>
             <td>
-              <span v-if="!editorStatus">{{ client.email }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.email"
-              />
+              <span>{{ client.email }}</span>
             </td>
 
             <td>
-              <span v-if="!editorStatus">
+              <span>
                 <a
                   :href="
                     'https://api.whatsapp.com/send?phone=' +
@@ -97,23 +84,11 @@
                   >{{ client.phoneNumber }}</a
                 ></span
               >
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.phoneNumber"
-              />
             </td>
             <td>
-              <span v-if="!editorStatus">{{ formatPrice(client.debt) }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.debt"
-              />
+              <span>{{ formatPrice(client.debt) }}</span>
             </td>
-            <td v-if="!editorStatus">
+            <td>
               <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
               <a
                 style="margin-left: 20px"
@@ -122,16 +97,8 @@
                 <i class="bi bi-trash"></i
               ></a>
               <a style="margin-left: 20px">
-                <i class="bi bi-search" @click="changeStatusOfDetails"></i
+                <i class="bi bi-search" @click="getClientById(client._id)"></i
               ></a>
-            </td>
-            <td v-else>
-              <a @click.prevent="updateClient(client, client._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#" @click="changeStatusOfEditor">
-                <i style="color: #d02941" class="bi bi-x-circle"></i>
-              </a>
             </td>
           </tr>
 
@@ -143,31 +110,18 @@
             v-if="foundClient"
           >
             <td>
-              <span v-if="!editorStatus">{{ client.name }}</span>
-              <input name="name" v-else type="text" v-model="client.name" />
+              <span>{{ client.name }}</span>
             </td>
 
             <td>
-              <span v-if="!editorStatus">{{ client.address }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.address"
-              />
+              <span>{{ client.address }}</span>
             </td>
             <td>
-              <span v-if="!editorStatus">{{ client.email }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.email"
-              />
+              <span>{{ client.email }}</span>
             </td>
 
             <td>
-              <span v-if="!editorStatus"
+              <span
                 ><td>
                   <a
                     :href="
@@ -180,25 +134,15 @@
                   >
                 </td>
               </span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.phoneNumber"
-              />
             </td>
             <td>
-              <span v-if="!editorStatus">{{ formatPrice(client.debt) }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.debt"
-              />
+              <span>{{ formatPrice(client.debt) }}</span>
             </td>
 
-            <td v-if="!editorStatus">
-              <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a @click="getDataToUpdate(client._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
               <a
                 style="margin-left: 20px"
                 @click.prevent="deleteClient(client._id)"
@@ -208,14 +152,6 @@
               <a style="margin-left: 20px">
                 <i class="bi bi-search" @click="getClientById(client._id)"></i
               ></a>
-            </td>
-            <td v-else>
-              <a @click.prevent="updateClient(client, client._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#" @click="changeStatusOfEditor">
-                <i style="color: #d02941" class="bi bi-x-circle"></i>
-              </a>
             </td>
           </tr>
         </tbody>
@@ -253,6 +189,43 @@
             Cancelar
           </button>
           <button @click="createNewClient" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTUALIZAR CLIENTE  -->
+    <div v-if="editFormStatus" class="register-component">
+      <div class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Actualizar cliente</h3>
+          <input v-model="data.name" type="text" placeholder="Nombre..." />
+
+          <input
+            v-model="data.address"
+            type="text"
+            placeholder="Direccion..."
+          />
+
+          <input v-model="data.email" type="text" placeholder="Email..." />
+
+          <input
+            v-model="data.phoneNumber"
+            type="text"
+            placeholder="Telefono..."
+          />
+
+          <input
+            v-model="data.debt"
+            type="text"
+            placeholder="Deuda... (opcional)"
+            @input="formatPriceInput"
+          />
+          <button @click="changeEditFormStatus" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click="updateClient(this.client_id)" class="btn-confirm">
             Confirmar
           </button>
         </div>
@@ -335,7 +308,7 @@
               <td scope="col">
                 {{ paymentsIndArray.paymentsDescription[index] }}
               </td>
-              <td scope="col">{{formatPrice(payment)  }}</td>
+              <td scope="col">{{ formatPrice(payment) }}</td>
             </tr>
           </tbody>
         </table>
@@ -348,7 +321,6 @@
 import moment from "moment";
 import numeral from "numeral";
 import axios from "axios";
-import askHomeComponentVue from "../home/askHomeComponent.vue";
 import spinner from "@/components/visuals/spinner.vue";
 
 const businessId = localStorage.getItem("businessId");
@@ -363,6 +335,7 @@ export default {
       client_id: null,
       editorStatus: false,
       formStatus: false,
+      editFormStatus: false,
       data: {
         name: "",
         address: "",
@@ -422,18 +395,25 @@ export default {
         console.log(error);
       }
     },
-    async updateClient(client, id) {
+    async updateClient(id) {
       try {
+        const debtFormated = numeral(this.data.debt).value();
+
         await axios.put(`http://localhost:3000/clients/${id}`, {
-          name: client.name,
-          address: client.address,
-          email: client.email,
-          phoneNumber: client.phoneNumber,
-          debt: client.debt,
+          name: this.data.name,
+          address: this.data.address,
+          email: this.data.email,
+          phoneNumber: this.data.phoneNumber,
+          debt: debtFormated,
         });
 
+        this.data.name = "";
+        this.data.address = "";
+        this.data.phoneNumber = "";
+        this.data.email = "";
+        this.data.debt = "";
         this.getAllClients();
-        this.changeStatusOfEditor();
+        this.changeEditFormStatus()
       } catch (error) {
         console.log("Error al actualizar");
       }
@@ -476,9 +456,7 @@ export default {
           this.data.debt = "";
           this.getAllClients();
 
-          setTimeout(() => {
-            this.changeStatusOfForm();
-          }, 0);
+          this.changeStatusOfForm();
         }
       } catch (error) {
         console.log("Error: ", error);
@@ -563,6 +541,24 @@ export default {
         throw error;
       }
     },
+    async getDataToUpdate(id) {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/clients/searcher/${id}`
+        );
+        const user = response.data;
+
+        this.changeEditFormStatus();
+
+        this.data.name = user.name;
+        this.data.address = user.address;
+        this.data.phoneNumber = user.phoneNumber;
+        this.data.email = user.email;
+        this.data.debt = user.debt;
+      } catch (error) {
+        window.alert("Error al tratar de actualizar");
+      }
+    },
     // *****************************************************************************************
     formattedResponse() {
       return this.respuesta.split("*").join("*<br/><br/>");
@@ -590,8 +586,12 @@ export default {
       this.editorStatus = !this.editorStatus;
     },
     changeStatusOfForm() {
+      this.data.name = "";
+      this.data.address = "";
+      this.data.phoneNumber = "";
+      this.data.email = "";
+      this.data.debt = "";
       this.formStatus = !this.formStatus;
-      console.log("Formulario abierto/cerrado");
     },
     checkInput() {
       if (this.clientName === "") {
@@ -603,6 +603,9 @@ export default {
     },
     changeStatusOfDetails() {
       this.showMessageBox = !this.showMessageBox;
+    },
+    changeEditFormStatus() {
+      this.editFormStatus = !this.editFormStatus;
     },
   },
   mounted() {

@@ -234,6 +234,8 @@ export default {
           localStorage.removeItem("businessId");
           localStorage.removeItem("userId");
           localStorage.removeItem("role");
+          await this.$router.push("/register");
+
         }
       } catch (error) {
         console.error("Error al redirigir:", error);

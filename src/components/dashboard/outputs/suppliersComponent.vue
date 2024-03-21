@@ -46,22 +46,16 @@
             v-if="foundClient"
           >
             <td>
-              <span v-if="!editorStatus">{{ client.name }}</span>
-              <input name="name" v-else type="text" v-model="client.name" />
+              <span >{{ client.name }}</span>
             </td>
 
             <td>
-              <span v-if="!editorStatus">{{ client.email }}</span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.email"
-              />
+              <span>{{ client.email }}</span>
+           
             </td>
 
             <td>
-              <span v-if="!editorStatus"
+              <span 
                 ><td>
                   <a
                     :href="
@@ -74,17 +68,12 @@
                   >
                 </td>
               </span>
-              <input
-                name="description"
-                v-else
-                type="text"
-                v-model="client.phoneNumber"
-              />
+            
             </td>
           
 
-            <td v-if="!editorStatus">
-              <a @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
+            <td >
+              <a @click="getProviderData(client._id)"><i class="bi bi-pencil"></i></a>
               <a
                 style="margin-left: 20px"
                 @click.prevent="deleteClient(client._id)"
@@ -95,17 +84,44 @@
                 <i class="bi bi-search" @click="changeStatusOfDetails"></i
               ></a>
             </td>
-            <td v-else>
-              <a @click.prevent="updateClient(client, client._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#" @click="changeStatusOfEditor">
-                <i style="color: #d02941" class="bi bi-x-circle"></i>
-              </a>
-            </td>
+          
           </tr>
         </tbody>
       </table>
+    </div>
+
+     <!-- ACTUALIZAR PROVEEDOR -->
+     <div v-if="editForm" class="register-component">
+      <form action="" class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Actualizar proveedor</h3>
+
+          <input
+            type="text"
+            placeholder="Nombre..."
+            v-model="this.data.name"
+          />
+
+          <input
+            type="email"
+            placeholder="Email..."
+            v-model="this.data.email"
+          />
+
+          <input
+            type="number"
+            placeholder="Telefono..."
+            v-model="this.data.phoneNumber"
+          />
+
+          <button @click.prevent="changeEditForm" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click.prevent="updateClient" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
@@ -153,6 +169,7 @@ export default {
       globalPaymentsArray: [],
       globalDescriptionsArray: {},
       loading: false,
+      editForm:false
     };
   },
   methods: {
@@ -166,30 +183,35 @@ export default {
         );
         const sales = result.data;
         this.clientsArray = sales;
-        for (const item of this.clientsArray) {
-          for (const iterator of item.providers) {
-            this.clientsArray.push(iterator);
-            console.log(iterator.telephone);
-          }
+        
+        // for (const item of this.clientsArray) {
+        //   for (const iterator of item.providers) {
+        //     this.clientsArray.push(iterator);
+        //   }
+        // }
+        for (const iterator of this.clientsArray[0].providers) {
+          this.clientsArray.push(iterator)
         }
       } catch (error) {
         console.log(error);
       }
     },
-    async updateClient(client, id) {
+    async updateClient() {
       try {
-        await axios.put(`http://localhost:3000/clients/${id}`, {
-          name: client.name,
-          address: client.address,
-          email: client.email,
-          phoneNumber: client.phoneNumber,
-          debt: client.debt,
+        await axios.put(`http://localhost:3000/providers/${this.client_id}`, {
+          name: this.data.name,
+          email: this.data.email,
+          telephone: this.data.phoneNumber,
         });
 
+        this.data.name=''
+        this.data.email=''
+        this.data.phoneNumber=''
+
         this.getAllClients();
-        this.changeStatusOfEditor();
+        this.changeEditForm()
       } catch (error) {
-        console.log("Error al actualizar");
+        console.log("Error al actualizar",error);
       }
     },
     async deleteClient(id) {
@@ -283,6 +305,19 @@ export default {
         throw error;
       }
     },
+    async getProviderData(id){
+      try {
+        this.changeEditForm()
+        const response=await axios.get(`http://localhost:3000/providers/${id}`)
+        const data=response.data
+        this.data.name=data.name
+        this.data.email=data.email
+        this.data.phoneNumber=data.telephone
+
+      } catch (error) {
+        window.alert('Error al acceder al proveedor')
+      }
+    },
 
     // *****************************************************************************************
     formattedResponse() {
@@ -307,22 +342,20 @@ export default {
       this.client_id = id;
       console.log(this.client_id);
     },
-    changeStatusOfEditor() {
+    changeEditForm() {
       this.editorStatus = !this.editorStatus;
     },
     changeStatusOfForm() {
       this.formStatus = !this.formStatus;
       console.log("Formulario abierto/cerrado");
     },
-    checkInput() {
-      if (this.clientName === "") {
-        this.foundClient = true;
-      }
-    },
-
+  
     changeStatusOfDetails() {
       this.showMessageBox = !this.showMessageBox;
     },
+    changeEditForm(){
+      this.editForm=!this.editForm
+    }
   },
   mounted() {
     this.getAllClients();

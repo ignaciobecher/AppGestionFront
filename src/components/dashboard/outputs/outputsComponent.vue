@@ -2,7 +2,15 @@
   <div class="buys-container">
     <div class="searchbar-container">
       <p>Buscar egreso:</p>
-      <input type="search" name="" placeholder="Buscar egreso..." id="" />
+      <input
+        @input="checkInput"
+        v-model="name"
+        type="search"
+        name=""
+        @keyup.enter="getOutputByName"
+        placeholder="Buscar egreso..."
+        id=""
+      />
       <div class="top-container">
         <button @click.prevent="changeFormStatus">
           Registrar nuevo egreso
@@ -34,22 +42,26 @@
         placeholder="Ingresa tu consulta sobre los egresos..."
       />
       <button @click="askGpt">Consultar</button>
-      <div v-if="loading === true" style="display: flex; justify-content: center; margin-top: 20px;">
+      <div
+        v-if="loading === true"
+        style="display: flex; justify-content: center; margin-top: 20px"
+      >
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
     </div>
 
-    <div class="table-responsive">
+    <!-- TODOS LOS PRODUCTOS -->
+    <div v-if="isProductFound == false" class="table-responsive">
       <table class="table table-hover table-nowrap">
         <thead class="thead-light">
           <tr class="tableRow">
             <th scope="col">Fecha de egreso</th>
             <th scope="col">Referencia</th>
             <th scope="col">Descripcion</th>
-            <!-- <th scope="col">Cantidad</th> -->
             <th scope="col">Monto</th>
-            <!-- <th scope="col">Fecha de Vencimiento</th> -->
+            <th scope="col"></th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody class="table-body">
@@ -64,35 +76,21 @@
               <span>{{ formatDate(buy.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ buy.name }}</span>
-              <input v-else v-model="buy.name" />
+              <span>{{ buy.name }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ buy.description }}</span>
-              <input v-else v-model="buy.description" type="text" />
+              <span>{{ buy.description }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ formatPrice(buy.value) }}</span>
-              <input v-else v-model="buy.value" type="text" />
+              <span>{{ formatPrice(buy.value) }}</span>
             </td>
 
-            <td v-if="!editStatus">
-              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a @click="getOutPutData(buy._id)"><i class="bi bi-pencil"></i></a>
             </td>
-            <td v-else>
-              <a @click="updateOutput(buy, buy._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#">
-                <i
-                  style="color: #d02941"
-                  @click="changeEditStatus"
-                  class="bi bi-x-circle"
-                ></i>
-              </a>
-            </td>
+
             <td>
               <a @click="deleteOutput(buy._id)"> <i class="bi bi-trash"></i></a>
             </td>
@@ -110,43 +108,21 @@
               <span>{{ formatDate(buy.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ buy.name }}</span>
-              <input v-else v-model="buy.name" />
+              <span>{{ buy.name }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ buy.description }}</span>
-              <input v-else v-model="buy.description" type="text" />
+              <span>{{ buy.description }}</span>
             </td>
-            <!-- <td>
-              <span v-if="!editStatus">{{ buy.quantity }}</span>
-              <input v-else v-model="buy.quantity" type="text" />
-            </td> -->
+
             <td>
-              <span v-if="!editStatus">{{ formatPrice(buy.value) }}</span>
-              <input v-else v-model="buy.value" type="text" />
+              <span>{{ formatPrice(buy.value) }}</span>
             </td>
-            <!-- <td>
-              <span v-if="!editStatus">{{
-                formatDate(buy.expirationDate)
-              }}</span>
-              <input v-else v-model="buy.expirationDate" type="date" />
-            </td> -->
-            <td v-if="!editStatus">
-              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+
+            <td>
+              <a @click="getOutPutData(buy._id)"><i class="bi bi-pencil"></i></a>
             </td>
-            <td v-else>
-              <a @click="updateOutput(buy, buy._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#">
-                <i
-                  style="color: #d02941"
-                  @click="changeEditStatus"
-                  class="bi bi-x-circle"
-                ></i>
-              </a>
-            </td>
+
             <td>
               <a @click="deleteOutput(buy._id)"> <i class="bi bi-trash"></i></a>
             </td>
@@ -155,6 +131,55 @@
       </table>
     </div>
 
+    <!-- UN SOLO PRODUCTO BUSCADO -->
+    <div v-if="isProductFound == true" class="table-responsive">
+      <table class="table table-hover table-nowrap">
+        <thead class="thead-light">
+          <tr class="tableRow">
+            <th scope="col">Fecha de egreso</th>
+            <th scope="col">Referencia</th>
+            <th scope="col">Descripcion</th>
+            <th scope="col">Monto</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody class="table-body">
+          <!-- TODOS LOS EGRESOS -->
+          <tr
+            @click="setId(singleProductFoundArray._id)"
+          
+            class="tableRow"
+          >
+            <td>
+              <span>{{ formatDate(singleProductFoundArray.createdAt) }}</span>
+            </td>
+            <td>
+              <span>{{ singleProductFoundArray.name }}</span>
+            </td>
+
+            <td>
+              <span>{{ singleProductFoundArray.description }}</span>
+            </td>
+
+            <td>
+              <span>{{ formatPrice(singleProductFoundArray.value) }}</span>
+            </td>
+
+            <td>
+              <a @click="getOutPutData(singleProductFoundArray._id)"><i class="bi bi-pencil"></i></a>
+            </td>
+
+            <td>
+              <a @click="deleteOutput(singleProductFoundArray._id)"> <i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- REGISTRAR EGRESO -->
     <div v-if="editFormStatus" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
@@ -194,6 +219,44 @@
         </div>
       </form>
     </div>
+
+
+    <!-- ACTUALIZAR EGRESO -->
+    <div v-if="formStatus" class="register-component">
+      <form action="" class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Actualizar egreso</h3>
+          <input
+            v-model="data.product"
+            type="text"
+            placeholder="Ingrese una descripcion"
+          />
+          <input
+            v-model="data.description"
+            type="text"
+            placeholder="Ingrese una observacion (opcional)"
+          />
+          <!-- <input
+            v-model="data.quantity"
+            type="text"
+            placeholder="Ingrese una cantidad"
+          /> -->
+          <input
+            v-model="data.value"
+            type="text"
+            placeholder="Ingrese un monto"
+            @input="formatPriceInput"
+          />
+      
+          <button @click.prevent="changeEditForm" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click.prevent="updateOutput" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -204,8 +267,8 @@ import numeral from "numeral";
 import spinner from "@/components/visuals/spinner.vue";
 
 export default {
-  components:{
-    spinner
+  components: {
+    spinner,
   },
   data() {
     return {
@@ -227,7 +290,11 @@ export default {
       question: "",
       respuesta: "",
       information: [],
-      loading:false
+      loading: false,
+      formStatus: false,
+      name:'',
+      isProductFound:false,
+      singleProductFoundArray:null
     };
   },
   methods: {
@@ -245,25 +312,26 @@ export default {
         console.log(error);
       }
     },
-    async updateOutput(buy, id) {
+    async updateOutput() {
       try {
-        const formattedExpirationDate = moment
-          .utc(buy.expirationDate)
-          .add(1, "days")
-          .format("YYYY-MM-DD");
-
-        await axios.put(`http://localhost:3000/outputs/${id}`, {
-          name: buy.name,
-          description: buy.description,
-          quantity: buy.quantity,
-          value: buy.value,
-          expirationDate: formattedExpirationDate,
+        const formatedValue=numeral(this.data.value).value()
+        console.log('Id desde el update:',this.buy_id);
+        await axios.put(`http://localhost:3000/outputs/${this.buy_id}`, {
+          name: this.data.product,
+          description: this.data.description,
+          value: formatedValue,
         });
+
+        this.changeEditForm()
+
+        this.data.product=''
+        this.data.description=''
+        this.data.value=''
 
         this.getAllOutputs();
         this.changeEditStatus();
       } catch (error) {
-        console.log("Error al actualizar");
+        console.log("Error al actualizar",error);
       }
     },
     async createNewOutput() {
@@ -276,9 +344,9 @@ export default {
         const totalWhitoutFormat = numeral(this.data.value).value();
         const businessId = localStorage.getItem("businessId");
 
-        if(!this.data.product || !this.data.description || !this.data.value){
-          window.alert('Todos los campos son obligatorios')
-          return
+        if (!this.data.product || !this.data.description || !this.data.value) {
+          window.alert("Todos los campos son obligatorios");
+          return;
         }
 
         const newSale = await axios.post("http://localhost:3000/outputs", {
@@ -332,34 +400,56 @@ export default {
     },
     async askGpt() {
       try {
-        if(this.question === ''){
-          window.alert('Tu pregunta no puede estar vacia')
-          return
+        if (this.question === "") {
+          window.alert("Tu pregunta no puede estar vacia");
+          return;
         }
-        this.loading=true
+        this.loading = true;
         this.information = this.buysArray;
-        const response = await axios.post(
-          `http://localhost:3000/chat-gpt`,
-          {
-            message:this.question,
-            info: this.information,
-          }
-        );
+        const response = await axios.post(`http://localhost:3000/chat-gpt`, {
+          message: this.question,
+          info: this.information,
+        });
         const data = response.data;
 
         this.respuesta = data;
-        this.loading=false
+        this.loading = false;
       } catch (error) {
         throw error;
       }
     },
+    async getOutPutData(id) {
+      try {
+        this.changeEditForm()
+        const response= await axios.get(`http://localhost:3000/outputs/${id}`)
+        const data=response.data
 
+        this.data.product=data.name
+        this.data.description=data.description
+        this.data.value=data.value
+      } catch (error) {
+        window.alert('Error al acceder al egreso')
+      }
+    },
+    async getOutputByName(){
+      try {
+        const businessId = localStorage.getItem("businessId");
+        const response=await axios.get(`http://localhost:3000/outputs/search/${businessId}/${this.name}`)
+        const data=response.data
+        this.isProductFound=true
+        this.singleProductFoundArray=data
+        console.log('SingleProduct:',this.singleProductFoundArray)
+      } catch (error) {
+        window.alert('Error al acceder al egreso')
+      }
+    },
     // ********************************************----------------**************************************
     formattedResponse() {
       return this.respuesta.split("*").join("*<br/><br/>");
     },
     setId(id) {
       this.buy_id = id;
+      console.log(this.buy_id);
     },
     formatDate(date) {
       return moment(date).format("DD/MM/YYYY");
@@ -382,6 +472,14 @@ export default {
       this.endDate = "";
       this.filteredOutputs.length = 0;
       this.getAllOutputs();
+    },
+    changeEditForm() {
+      this.formStatus = !this.formStatus;
+    },
+    checkInput() {
+      if (this.name === "") {
+        this.isProductFound = false;
+      }
     },
   },
   created() {

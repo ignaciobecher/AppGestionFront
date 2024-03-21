@@ -292,6 +292,7 @@ export default {
       multipleProductsArray: [],
       editQuantityStatus: true,
       businessData: [],
+      cashierUsername:''
     };
   },
   methods: {
@@ -464,6 +465,7 @@ export default {
         productIds: arrayOfIds,
         paymentMethod: this.paymentMethod,
         productQuantity: arrayOfProductsQuantities,
+        cashier:this.cashierUsername
       };
 
       if (this.clientId && this.clientId !== "General") {
@@ -560,7 +562,16 @@ export default {
         throw error;
       }
     },
-
+    async getUserData(){
+      try {
+        const userId=localStorage.getItem('userId')
+        const response= await axios.get(`http://localhost:3000/auth/${userId}`)
+        const user=response.data
+        this.cashierUsername=user.username
+      } catch (error) {
+        throw error
+      }
+    },
     // **********************LLAMADAS A LA API******************************************************************
     changeStatusOfQuantity() {
       this.editQuantityStatus = !this.editQuantityStatus;
@@ -727,7 +738,8 @@ export default {
     this.getBusinessData();
     window.addEventListener("keydown", this.handleKeyDown),
       this.getCategoryesIds(),
-      this.getBusinessData();
+      this.getBusinessData(),
+      this.getUserData()
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.handleKeyDown);
