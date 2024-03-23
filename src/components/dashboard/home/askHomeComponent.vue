@@ -22,11 +22,15 @@
       <div class="inner" style="display: flex">
         <button @click="askGpt">Enviar</button>
       </div>
-      <div v-if="loading === true" style="display: flex; justify-content: center; margin-top: 20px;">
+      <div
+        v-if="loading === true"
+        style="display: flex; justify-content: center; margin-top: 20px"
+      >
         <spinner> </spinner>
       </div>
 
       <p v-if="loading === false" v-html="formattedResponse()"></p>
+      <button v-if="showPrint === true" @click="printResponse">Imprimir</button>
     </div>
   </div>
 </template>
@@ -46,6 +50,7 @@ export default {
       respuesta: "",
       information: [],
       loading: false,
+      showPrint: false,
     };
   },
   methods: {
@@ -54,11 +59,11 @@ export default {
     },
     async askGpt() {
       try {
-        if(this.question === ''){
-          window.alert('Tu pregunta no puede estar vacia')
-          return
+        if (this.question === "") {
+          window.alert("Tu pregunta no puede estar vacia");
+          return;
         }
-        this.loading=true
+        this.loading = true;
         this.information = await this.getBusinessData();
         const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt/`, {
           message: this.question,
@@ -67,14 +72,16 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
-        this.loading=false
-
+        this.loading = false;
+        this.showPrint = true;
       } catch (error) {
         throw error;
       }
     },
     async getBusinessData() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `https://api-gestion-ahil.onrender.com/business/${businessId}`
         );
@@ -83,6 +90,29 @@ export default {
       } catch (error) {
         throw error;
       }
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
     },
   },
   mounted() {

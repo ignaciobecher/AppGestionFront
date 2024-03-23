@@ -24,10 +24,14 @@
         placeholder="Ingresa tu consulta sobre los ingresos..."
       />
       <button @click="askGpt">Consultar</button>
-      <div v-if="loading === true" style="display: flex; justify-content: center; margin-top: 20px;">
+      <div
+        v-if="loading === true"
+        style="display: flex; justify-content: center; margin-top: 20px"
+      >
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
+      <button v-if="showPrint === true" @click="printResponse">Imprimir</button>
     </div>
 
     <div class="table-responsive">
@@ -54,38 +58,25 @@
               <span>{{ formatDate(input.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ input.reference }}</span>
-              <input v-else v-model="input.reference" />
+              <span>{{ input.reference }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ input.description }}</span>
-              <input v-else v-model="input.description" type="text" />
+              <span>{{ input.description }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ input.quantity }}</span>
-              <input v-else v-model="input.quantity" type="text" />
+              <span>{{ input.quantity }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ formatPrice(input.value) }}</span>
-              <input v-else v-model="input.value" type="text" />
+              <span>{{ formatPrice(input.value) }}</span>
             </td>
 
-            <td v-if="!editStatus">
-              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a @click="getInputData(input._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
-            <td v-else>
-              <a @click="updateInput(input, input._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#">
-                <i
-                  style="color: #d02941"
-                  @click="changeEditStatus"
-                  class="bi bi-x-circle"
-                ></i>
-              </a>
-            </td>
+
             <td>
               <a @click="deleteInput(input._id)">
                 <i class="bi bi-trash"></i
@@ -105,38 +96,25 @@
               <span>{{ formatDate(input.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ input.reference }}</span>
-              <input v-else v-model="input.reference" />
+              <span>{{ input.reference }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ input.description }}</span>
-              <input v-else v-model="input.description" type="text" />
+              <span>{{ input.description }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ input.quantity }}</span>
-              <input v-else v-model="input.quantity" type="text" />
+              <span>{{ input.quantity }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ formatPrice(input.value) }}</span>
-              <input v-else v-model="input.value" type="text" />
+              <span>{{ formatPrice(input.value) }}</span>
             </td>
 
-            <td v-if="!editStatus">
-              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a @click="getInputData(input._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
-            <td v-else>
-              <a @click="updateInput(input, input._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#">
-                <i
-                  style="color: #d02941"
-                  @click="changeEditStatus"
-                  class="bi bi-x-circle"
-                ></i>
-              </a>
-            </td>
+
             <td>
               <a @click="deleteInput(input._id)">
                 <i class="bi bi-trash"></i
@@ -186,6 +164,42 @@
         </div>
       </form>
     </div>
+
+    <div v-if="formStatus" class="register-component">
+      <form action="" class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Actualizar ingreso</h3>
+          <input
+            v-model="data.product"
+            type="text"
+            placeholder="Ingrese una referencia"
+          />
+          <input
+            v-model="data.description"
+            type="text"
+            placeholder="Ingrese una descripcion"
+          />
+          <input
+            v-model="data.quantity"
+            type="text"
+            placeholder="Ingrese una cantidad"
+          />
+          <input
+            v-model="data.value"
+            type="text"
+            placeholder="Ingrese un monto"
+            @input="formatPriceInput"
+          />
+
+          <button @click.prevent="changeEditFormStatus" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click.prevent="updateInput" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -198,8 +212,8 @@ import spinner from "@/components/visuals/spinner.vue";
 const businessId = localStorage.getItem("businessId");
 
 export default {
-  components:{
-    spinner
+  components: {
+    spinner,
   },
   data() {
     return {
@@ -220,39 +234,41 @@ export default {
       inputName: "",
       foundInput: false,
       filteredClients: [],
-      loading:false
+      loading: false,
+      formStatus: false,
+      showPrint: false,
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllInputs() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `https://api-gestion-ahil.onrender.com/random-inputs/${businessId}`
         );
         const inputs = response.data;
         this.inputsArray = inputs;
-       
       } catch (error) {
         console.log(error);
       }
     },
-    async updateInput(buy, id) {
+    async updateInput() {
       try {
-        const formattedExpirationDate = moment
-          .utc(buy.expirationDate)
-          .add(1, "days")
-          .format("YYYY-MM-DD");
-        await axios.put(`https://api-gestion-ahil.onrender.com/random-inputs/${id}`, {
-          reference: buy.reference,
-          description: buy.description,
-          quantity: buy.quantity,
-          value: buy.value,
-          expirationDate: formattedExpirationDate,
-        });
+        const formatedValue = numeral(this.data.value).value();
+        await axios.put(
+          `https://api-gestion-ahil.onrender.com/random-inputs/${this.input_Id}`,
+          {
+            reference: this.data.reference,
+            description: this.data.description,
+            quantity: this.data.quantity,
+            value: formatedValue,
+          }
+        );
 
+        this.changeEditFormStatus();
         this.getAllInputs();
-        this.changeEditStatus();
       } catch (error) {
         console.log("Error al actualizar");
       }
@@ -266,9 +282,14 @@ export default {
           .format("YYYY-MM-DD");
         const totalWhitoutFormat = numeral(this.data.value).value();
         const businessId = localStorage.getItem("businessId");
-        if(!this.data.product || !this.data.description || !totalWhitoutFormat || !this.data.quantity){
-          window.alert('Todos los campos son obligatorios')
-          return
+        if (
+          !this.data.product ||
+          !this.data.description ||
+          !totalWhitoutFormat ||
+          !this.data.quantity
+        ) {
+          window.alert("Todos los campos son obligatorios");
+          return;
         }
         const newSale = await axios.post(
           "https://api-gestion-ahil.onrender.com/random-inputs",
@@ -282,10 +303,10 @@ export default {
         );
         if (newSale) {
           console.log("Compra cargada con exito", newSale);
-          this.data.product=''
-          this.data.description=''
-          this.data.value=null
-          this.data.quantity=null
+          this.data.product = "";
+          this.data.description = "";
+          this.data.value = null;
+          this.data.quantity = null;
           this.changeFormStatus();
           this.getAllInputs();
         } else {
@@ -312,11 +333,11 @@ export default {
     },
     async askGpt() {
       try {
-        if(this.question === ''){
-          window.alert('Tu pregunta no puede estar vacia')
-          return
+        if (this.question === "") {
+          window.alert("Tu pregunta no puede estar vacia");
+          return;
         }
-        this.loading=true
+        this.loading = true;
         this.information = this.inputsArray;
         const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt`, {
           message: this.question,
@@ -325,7 +346,8 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
-        this.loading=false
+        this.loading = false;
+        this.showPrint = true;
       } catch (error) {
         throw error;
       }
@@ -343,6 +365,23 @@ export default {
         }
       } catch (error) {
         throw error;
+      }
+    },
+    async getInputData(id) {
+      try {
+        this.changeEditFormStatus();
+
+        const response = await axios.get(
+          `https://api-gestion-ahil.onrender.com/random-inputs/getById/${id}`
+        );
+        const data = response.data;
+
+        this.data.product = data.reference;
+        this.data.description = data.description;
+        this.data.quantity = data.quantity;
+        this.data.value = data.value;
+      } catch (error) {
+        window.alert("Error al acceder al ingreso");
       }
     },
     // ********************************************----------------**************************************
@@ -367,11 +406,34 @@ export default {
     formatPrice(price) {
       return numeral(price).format("$0,0.00");
     },
-    changeEditStatus() {
-      this.editStatus = !this.editStatus;
-    },
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
+    },
+    changeEditFormStatus() {
+      this.formStatus = !this.formStatus;
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
     },
   },
   created() {

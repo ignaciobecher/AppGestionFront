@@ -1,5 +1,11 @@
 <template>
   <div class="mainContainer">
+    <router-link to="/">
+      <i
+        style="font-size: 25px; margin-left: -10px"
+        class="bi bi-arrow-left"
+      ></i>
+    </router-link>
     <h1>Bienvenido a Adminia</h1>
     <div class="register-business">
       <h2>Nuevo negocio</h2>
@@ -166,7 +172,7 @@ export default {
         this.loading = false;
 
         window.alert("El email que estás intentando usar ya está registrado");
-        window.location.reload()
+        window.location.reload();
         const businessId = localStorage.getItem("businessId");
         if (businessId) {
           await axios.delete(`https://api-gestion-ahil.onrender.com/business/${businessId}`);

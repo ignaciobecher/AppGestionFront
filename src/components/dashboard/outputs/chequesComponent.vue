@@ -52,6 +52,7 @@
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
+      <button v-if="showPrint === true" @click="printResponse">Imprimir</button>
     </div>
 
     <div class="table-responsive">
@@ -64,8 +65,9 @@
             <th scope="col">N° cheque</th>
             <th scope="col">Fecha de cobro</th>
             <th scope="col">Propio/Tercero</th>
-
             <th scope="col">Total</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody v-if="foundInput === false" class="table-body">
@@ -80,51 +82,34 @@
               <span>{{ formatDate(cheque.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ cheque.identification }}</span>
-              <input v-else v-model="cheque.identification" />
+              <span>{{ cheque.identification }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ cheque.description }}</span>
-              <input v-else v-model="cheque.description" type="text" />
+              <span>{{ cheque.description }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ cheque.chequeNumber }}</span>
-              <input v-else v-model="cheque.chequeNumber" type="text" />
+              <span>{{ cheque.chequeNumber }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{
-                formatDate(cheque.chequeDate)
-              }}</span>
-              <input v-else v-model="cheque.chequeDate" type="date" />
+              <span>{{ formatDate(cheque.chequeDate) }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ cheque.chequeOwner }}</span>
-              <input v-else v-model="cheque.chequeOwner" type="number" />
+              <span>{{ cheque.chequeOwner }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ formatPrice(cheque.total) }}</span>
-              <input v-else v-model="cheque.total" type="number" />
+              <span>{{ formatPrice(cheque.total) }}</span>
             </td>
 
-            <td v-if="!editStatus">
-              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a @click="getChequeData(cheque._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
-            <td v-else>
-              <a @click="updateCheque(cheque, cheque._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#">
-                <i
-                  style="color: #d02941"
-                  @click="changeEditStatus"
-                  class="bi bi-x-circle"
-                ></i>
-              </a>
-            </td>
+
             <td>
               <a @click="deleteCheque(cheque._id)">
                 <i class="bi bi-trash"></i
@@ -143,54 +128,34 @@
               <span>{{ formatDate(cheque.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ cheque.identification }}</span>
-              <input v-else v-model="cheque.identification" />
+              <span>{{ cheque.identification }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ cheque.description }}</span>
-              <input v-else v-model="cheque.description" type="text" />
+              <span>{{ cheque.description }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ cheque.chequeNumber }}</span>
-              <input v-else v-model="cheque.chequeNumber" type="text" />
+              <span>{{ cheque.chequeNumber }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{
-                formatDate(cheque.chequeDate)
-              }}</span>
-              <input v-else v-model="cheque.chequeDate" type="date" />
+              <span>{{ formatDate(cheque.chequeDate) }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ cheque.chequeOwner }}</span>
-              <select v-else v-model="chequeOwner" name="" id="">
-                <option value="Propio">Propio</option>
-                <option value="Tercero">Tercero</option>
-              </select>
+              <span>{{ cheque.chequeOwner }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ formatPrice(cheque.total) }}</span>
-              <input v-else v-model="cheque.total" type="number" />
+              <span>{{ formatPrice(cheque.total) }}</span>
             </td>
 
-            <td v-if="!editStatus">
-              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a @click="getChequeData(cheque._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
-            <td v-else>
-              <a @click="updateCheque(cheque, cheque._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#">
-                <i
-                  style="color: #d02941"
-                  @click="changeEditStatus"
-                  class="bi bi-x-circle"
-                ></i>
-              </a>
-            </td>
+
             <td>
               <a @click="deleteCheque(cheque._id)">
                 <i class="bi bi-trash"></i
@@ -211,54 +176,32 @@
               <span>{{ formatDate(cheque.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ cheque.identification }}</span>
-              <input v-else v-model="cheque.identification" />
+              <span>{{ cheque.identification }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ cheque.description }}</span>
-              <input v-else v-model="cheque.description" type="text" />
+              <span>{{ cheque.description }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ cheque.chequeNumber }}</span>
-              <input v-else v-model="cheque.chequeNumber" type="text" />
+              <span>{{ cheque.chequeNumber }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{
-                formatDate(cheque.chequeDate)
-              }}</span>
-              <input v-else v-model="cheque.chequeDate" type="date" />
+              <span>{{ formatDate(cheque.chequeDate) }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ cheque.chequeOwner }}</span>
-              <select v-else v-model="chequeOwner" name="" id="">
-                <option value="Propio">Propio</option>
-                <option value="Tercero">Tercero</option>
-              </select>
+              <span>{{ cheque.chequeOwner }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ formatPrice(cheque.total) }}</span>
-              <input v-else v-model="cheque.total" type="number" />
+              <span>{{ formatPrice(cheque.total) }}</span>
             </td>
 
-            <td v-if="!editStatus">
-              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a @click="changeEditForm()"><i class="bi bi-pencil"></i></a>
             </td>
-            <td v-else>
-              <a @click="updateCheque(cheque, cheque._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#">
-                <i
-                  style="color: #d02941"
-                  @click="changeEditStatus"
-                  class="bi bi-x-circle"
-                ></i>
-              </a>
-            </td>
+
             <td>
               <a @click="deleteCheque(cheque._id)">
                 <i class="bi bi-trash"></i
@@ -278,7 +221,6 @@
             v-model="data.identification"
             type="text"
             placeholder="Identificacion..."
-
           />
 
           <select v-model="chequeOwner" name="" id="">
@@ -289,7 +231,6 @@
           <input
             v-model="data.description"
             type="text"
-
             placeholder="Descripcion..."
           />
 
@@ -297,23 +238,68 @@
             v-model="data.chequeNumber"
             type="number"
             placeholder="N° cheque..."
-
           />
 
           <input
             v-model="data.total"
             type="text"
             placeholder="Monto..."
-
             @input="formatPriceInput"
           />
 
-          <input v-model="data.chequeDate"  type="date" placeholder="Fecha..." />
+          <input v-model="data.chequeDate" type="date" placeholder="Fecha..." />
 
           <button @click.prevent="changeFormStatus" class="btn-cancel">
             Cancelar
           </button>
           <button @click.prevent="createNewCheque" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div v-if="formStatus" class="register-component">
+      <form action="" class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Actualizar cheque</h3>
+
+          <input
+            v-model="data.identification"
+            type="text"
+            placeholder="Identificacion..."
+          />
+
+          <select v-model="chequeOwner" name="" id="">
+            <option value="Propio">Propio</option>
+            <option value="Tercero">Tercero</option>
+          </select>
+
+          <input
+            v-model="data.description"
+            type="text"
+            placeholder="Descripcion..."
+          />
+
+          <input
+            v-model="data.chequeNumber"
+            type="number"
+            placeholder="N° cheque..."
+          />
+
+          <input
+            v-model="data.total"
+            type="text"
+            placeholder="Monto..."
+            @input="formatPriceInput"
+          />
+
+          <input v-model="data.chequeDate" type="date" placeholder="Fecha..." />
+
+          <button @click.prevent="changeEditForm" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click.prevent="updateCheque" class="btn-confirm">
             Confirmar
           </button>
         </div>
@@ -331,8 +317,8 @@ import spinner from "@/components/visuals/spinner.vue";
 const businessId = localStorage.getItem("businessId");
 
 export default {
-  components:{
-    spinner
+  components: {
+    spinner,
   },
   data() {
     return {
@@ -358,13 +344,17 @@ export default {
       inputName: "",
       foundInput: false,
       filteredClients: [],
-      loading:false
+      loading: false,
+      formStatus: false,
+      showPrint: false,
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllCheques() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `https://api-gestion-ahil.onrender.com/cheques/${businessId}`
         );
@@ -375,34 +365,48 @@ export default {
         console.log(error);
       }
     },
-    async updateCheque(cheque, id) {
+    async updateCheque() {
       try {
-        const fechaCheque = moment(cheque.chequeDate);
+        const fechaCheque = moment(this.data.chequeDate);
         const nuevaFecha = fechaCheque.add(1, "day");
         const formatedDate = nuevaFecha.format("YYYY-MM-DD");
-        await axios.put(`https://api-gestion-ahil.onrender.com/cheques/${id}`, {
-          identification: cheque.identification,
-          description: cheque.description,
-          chequeNumber: cheque.chequeNumber,
-          total: cheque.total,
+        const formatedTotal = numeral(this.data.total).value();
+        await axios.put(`https://api-gestion-ahil.onrender.com/cheques/${this.cheque_id}`, {
+          identification: this.data.identification,
+          description: this.data.description,
+          chequeNumber: this.data.chequeNumber,
+          total: formatedTotal,
           chequeDate: formatedDate,
-          chequeOwner: this.chequeOwner,
+          chequeOwner: this.data.chequeOwner,
         });
 
+        this.data.identification = "";
+        this.data.description = "";
+        this.data.chequeNumber = "";
+        this.data.total = "";
+        this.data.chequeOwner = "Propio";
+
         this.getAllCheques();
-        this.changeEditStatus();
+        this.changeEditForm();
       } catch (error) {
-        console.log("Error al actualizar");
+        console.log("Error al actualizar", error);
       }
     },
     async createNewCheque() {
       try {
-
-
         const totalWhitoutFormat = numeral(this.data.total).value();
         const fechaCheque = moment(this.data.chequeDate);
         const nuevaFecha = fechaCheque.add(1, "day");
-        const formatedDate = nuevaFecha.format("YYYY-MM-DD");
+        let formatedDate = nuevaFecha.format("YYYY-MM-DD");
+
+        if (formatedDate === "Invalid date") {
+          console.log("Problema de fecha");
+          const date = new Date();
+          const day = date.getDate();
+          const month = date.getMonth() + 1; // Se suma 1 porque los meses comienzan desde 0
+          const year = date.getFullYear();
+          formatedDate = `${year}-${month}-${day}`;
+        }
 
         const newCheque = await axios.post("https://api-gestion-ahil.onrender.com/cheques", {
           identification: this.data.identification,
@@ -420,6 +424,7 @@ export default {
           this.data.description = "";
           this.data.identification = "";
           this.data.chequeNumber = 0;
+          this.data.chequeDate = null;
           this.total = 0;
         } else {
           console.log("Error al cargar cheque");
@@ -455,11 +460,11 @@ export default {
     },
     async askGpt() {
       try {
-        if(this.question === ''){
-          window.alert('Tu pregunta no puede estar vacia')
-          return
+        if (this.question === "") {
+          window.alert("Tu pregunta no puede estar vacia");
+          return;
         }
-        this.loading=true
+        this.loading = true;
         this.information = this.chequesArray;
         const response = await axios.post(`https://api-gestion-ahil.onrender.com/chat-gpt`, {
           message: this.question,
@@ -468,7 +473,8 @@ export default {
         const data = response.data;
 
         this.respuesta = data;
-        this.loading=false
+        this.loading = false;
+        this.showPrint = true;
       } catch (error) {
         throw error;
       }
@@ -479,9 +485,9 @@ export default {
           `https://api-gestion-ahil.onrender.com/cheques/search/${businessId}/${this.inputName}`
         );
         const data = response.data;
-        this.filteredClients=[]
+        this.filteredClients = [];
         for (const cheque of data) {
-          this.filteredClients.push(cheque)
+          this.filteredClients.push(cheque);
         }
 
         if (data && data.length > 0) {
@@ -489,6 +495,23 @@ export default {
         }
       } catch (error) {
         throw error;
+      }
+    },
+    async getChequeData(id) {
+      try {
+        this.changeEditForm();
+        const response = await axios.get(
+          `https://api-gestion-ahil.onrender.com/cheques/search/${id}`
+        );
+        const data = response.data;
+
+        this.data.identification = data.identification;
+        this.data.description = data.description;
+        this.data.chequeNumber = data.chequeNumber;
+        this.data.total = data.total;
+        this.data.chequeOwner = data.chequeOwner;
+      } catch (error) {
+        window.alert("Error al acceder al cheque");
       }
     },
     // ********************************************----------------**************************************
@@ -520,11 +543,34 @@ export default {
       // Formatear el precio mientras se escribe
       this.data.total = numeral(this.data.total).format("$0,0");
     },
-    changeEditStatus() {
-      this.editStatus = !this.editStatus;
-    },
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
+    },
+    changeEditForm() {
+      this.formStatus = !this.formStatus;
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
     },
   },
   created() {

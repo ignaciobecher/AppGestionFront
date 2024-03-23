@@ -14,7 +14,7 @@
 
     <div class="info-container">
       <h4><i class="bi bi-bag"></i>Ventas de hoy</h4>
-      <h3>{{ todaySales }} ventas</h3>
+      <h3>{{ todaySales }} </h3>
       
     </div>
   </div>

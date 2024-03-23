@@ -142,6 +142,8 @@
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
+
+      <button v-if="showPrint === true" @click="printResponse">Imprimir</button>
     </div>
 
     <!-- CARGAR FOTO -->
@@ -192,47 +194,25 @@
               <span>{{ formatDate(buy.createdAt) }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ buy.providerId.name }}</span>
-              <input v-else v-model="buy.providerId.name" />
+              <span v-if="buy.providerId.name === 'General'">General</span>
+              <span v-else>{{ buy.providerId.name }}</span>
             </td>
 
             <td>
-              <span v-if="!editStatus">{{ buy.description }}</span>
-              <input v-else v-model="buy.description" type="text" />
+              <span>{{ buy.description }}</span>
             </td>
-            <!-- <td>
-              <span v-if="!editStatus">{{ buy.quantity }}</span>
-              <input v-else v-model="buy.quantity" type="text" />
-            </td> -->
+
             <td>
-              <span v-if="!editStatus">${{ buy.total }}</span>
-              <input v-else v-model="buy.total" type="text" />
+              <span>${{ buy.total }}</span>
             </td>
             <td>
-              <span v-if="!editStatus">{{ buy.receiptNumber }}</span>
-              <input v-else v-model="buy.receiptNumber" type="text" />
+              <span>{{ buy.receiptNumber }}</span>
             </td>
-            <!-- <td>
-              <span v-if="!editStatus">{{
-                formatDate(buy.expirationDate)
-              }}</span>
-              <input v-else v-model="buy.expirationDate" type="date" />
-            </td> -->
-            <td v-if="!editStatus">
-              <a @click="changeEditStatus()"><i class="bi bi-pencil"></i></a>
+
+            <td>
+              <a @click="getBuyData(buy._id)"><i class="bi bi-pencil"></i></a>
             </td>
-            <td v-else>
-              <a @click="updateBuy(buy, buy._id)" href="#">
-                <i style="color: #149c68" class="bi bi-check-circle-fill"></i>
-              </a>
-              <a href="#">
-                <i
-                  style="color: #d02941"
-                  @click="changeEditStatus"
-                  class="bi bi-x-circle"
-                ></i>
-              </a>
-            </td>
+
             <td>
               <a @click="deleteBuy(buy._id)"> <i class="bi bi-trash"></i></a>
             </td>
@@ -291,20 +271,62 @@
       </form>
     </div>
 
+    <!-- ACTUALIZAR COMPRA -->
+    <div v-if="editForm" class="register-component">
+      <form action="" class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Actualizar compra</h3>
+          <p>Proveedor:</p>
+          <select v-model="providerId" name="" id="">
+            <option
+              v-for="(provider, index) in providersArray"
+              :key="index"
+              :value="provider._id"
+            >
+              {{ provider.name }}
+            </option>
+          </select>
+
+          <input
+            v-model="data.description"
+            type="text"
+            placeholder="Decripcion... (opcional)"
+          />
+
+          <input
+            v-model="data.receiptNumber"
+            type="text"
+            placeholder="Nro factura... (opcional)"
+          />
+
+          <input
+            v-model="data.total"
+            type="text"
+            placeholder="Monto total..."
+            @input="formatPriceInput"
+          />
+
+          <button @click.prevent="changeEditForm" class="btn-cancel">
+            Cancelar
+          </button>
+          <button @click.prevent="updateBuy" class="btn-confirm">
+            Confirmar
+          </button>
+        </div>
+      </form>
+    </div>
+
     <!-- REGISTRAR PROVEEDOR -->
     <div v-if="supplierForm" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
           <h3 style="text-align: center">Nuevo proveedor</h3>
 
-       
-
           <input
             v-model="supplierData.name"
             type="text"
             placeholder="Nombre..."
           />
-          
 
           <input
             v-model="supplierData.email"
@@ -378,6 +400,8 @@ export default {
       porcentaje: null,
       loading: false,
       loadingOcr: false,
+      editForm: false,
+      showPrint: false,
     };
   },
   methods: {
@@ -385,36 +409,37 @@ export default {
 
     async getAllBuys() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `https://api-gestion-ahil.onrender.com/business/buys/${businessId}`
         );
         const buys = response.data;
         this.buysArray = buys;
+        for (const iterator of this.buysArray) {
+          if (iterator.providerId === null) {
+            iterator.providerId = "General";
+          }
+        }
       } catch (error) {
         console.log(error);
       }
     },
-    async updateBuy(buy, id) {
+    async updateBuy() {
       try {
-        const formattedExpirationDate = moment
-          .utc(buy.expirationDate)
-          .add(1, "days")
-          .format("YYYY-MM-DD");
+        const formatedTotal = numeral(this.data.total).value;
 
-        await axios.put(`https://api-gestion-ahil.onrender.com/buys/${id}`, {
-          name: buy.name,
-
-          description: buy.description,
-          // quantity: buy.quantity,
-          total: buy.total,
-          receiptNumber: buy.receiptNumber,
-          // expirationDate: formattedExpirationDate,
+        await axios.put(`https://api-gestion-ahil.onrender.com/buys/${this.buy_id}`, {
+          providerId: this.providerId,
+          name: this.data.name,
+          description: this.data.description,
+          total: formatedTotal,
+          receiptNumber: this.data.receiptNumber,
         });
-
+        this.changeEditForm();
         this.getAllBuys();
-        this.changeEditStatus();
       } catch (error) {
-        console.log("Error al actualizar");
+        console.log("Error al actualizar", error);
       }
     },
     async createNewBuy() {
@@ -468,9 +493,14 @@ export default {
     },
     async createManualBuy() {
       try {
-        if(!this.providerId || !this.data.description || !this.data.receiptNumber || !this.data.total){
-          window.alert('Todos los campos son obligatorios')
-          return
+        if (
+          !this.providerId ||
+          !this.data.description ||
+          !this.data.receiptNumber ||
+          !this.data.total
+        ) {
+          window.alert("Todos los campos son obligatorios");
+          return;
         }
         const response = await axios.post(`https://api-gestion-ahil.onrender.com/buys`, {
           providerId: this.providerId,
@@ -481,10 +511,10 @@ export default {
         });
         if (response.data) {
           window.alert("Factura cargada");
-          this.providerId=''
-          this.description=''
-          this.receiptNumber=null
-          this.total=null
+          this.providerId = "";
+          this.description = "";
+          this.receiptNumber = null;
+          this.total = null;
           this.getAllBuys();
           this.changeFormStatus();
         }
@@ -525,6 +555,8 @@ export default {
     },
     async createProvider() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const provider = await axios.post("https://api-gestion-ahil.onrender.com/providers", {
           name: this.supplierData.name,
           telephone: this.supplierData.phone,
@@ -541,9 +573,9 @@ export default {
     },
     async askGpt() {
       try {
-        if(this.question === ''){
-          window.alert('Tu pregunta no puede estar vacia')
-          return
+        if (this.question === "") {
+          window.alert("Tu pregunta no puede estar vacia");
+          return;
         }
         this.loading = true;
         this.information = this.buysArray;
@@ -555,6 +587,7 @@ export default {
 
         this.respuesta = data;
         this.loading = false;
+        this.showPrint = true;
       } catch (error) {
         throw error;
       }
@@ -576,8 +609,6 @@ export default {
           formData
         );
 
-        
-
         const prompt =
           "Formatealo en JSON y devuelvelo formateado en clave valor como description,date,total,tittle,buyer,seller,email,paymentMethod,from,to,receiptNumbera,products(en products debes poner los productos/servicios por los que se haya pagado, el products debe ser un objeto que contenga cada producto con su 'name','price' 'codebar' y 'cantidad') y lo que consideres relevante crear(si ese campo no tiene elementos, omitelo), siempre devuelvelo sin caracteres especiales, debe volver listo para ser consumido en el front.Devuelve la respuesta como un JSON listo para ser enviado al front end, sin caracteres especiales. No debe tener caracteres especiales, debe ser devuelto listo para ser consumido en el frontend.Siempre devuelve el JSON listo para ser consumido, nunca te olvides de formatearlo, que no tenga caracteres especiales. El json debe estar en el siguiente formato:{'clave':'valor'}.NUNCA LO DEVUELVA AL JSON ENVUELTO EN TEMPLATE STRINGS ";
 
@@ -594,16 +625,16 @@ export default {
         const data = formatTest.data;
         this.receiptObject = data;
 
-        if (!data ) {
+        if (!data) {
           window.alert("Error al analizar factura, intente nuevamente");
-          return
+          return;
         }
 
         this.loadingOcr = false;
 
         this.crearFactura = true;
       } catch (error) {
-        window.alert('Tuvimos problemas cargando tu factura, prueba de nuevo')
+        window.alert("Tuvimos problemas cargando tu factura, prueba de nuevo");
       }
     },
     async getOneBuy() {
@@ -624,7 +655,18 @@ export default {
         throw error;
       }
     },
-
+    async getBuyData(id) {
+      try {
+        this.changeEditForm();
+        const response = await axios.get(`https://api-gestion-ahil.onrender.com/buys/${id}`);
+        const data = response.data;
+        this.data.description = data.description;
+        this.data.receiptNumber = data.receiptNumber;
+        this.data.total = data.total;
+      } catch (error) {
+        window.alert("Error al acceder a compra");
+      }
+    },
     // ********************************************----------------**************************************
     formattedResponse() {
       return this.respuesta.split("*").join("*<br/><br/>");
@@ -705,6 +747,32 @@ export default {
     `;
       const newTab = window.open();
       newTab.document.write(facturaHTML);
+    },
+    changeEditForm() {
+      this.editForm = !this.editForm;
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
     },
   },
   created() {

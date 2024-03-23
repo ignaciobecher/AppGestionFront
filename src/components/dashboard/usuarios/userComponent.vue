@@ -69,6 +69,7 @@ export default {
         );
         const users = response.data;
         this.usersArray = users;
+        console.log(users);
       } catch (error) {
         window.alert("Error al obtener tus usuarios, reintenta nuevamente");
       }

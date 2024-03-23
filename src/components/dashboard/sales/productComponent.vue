@@ -104,7 +104,7 @@
         </select>
       </div>
 
-      <div class="productSale">
+      <div  class="productSale">
         <div>
           <div class="products-titles">
             <p>Productos</p>
@@ -112,7 +112,7 @@
             <p>Precio unitario</p>
             <p>Precio total</p>
           </div>
-          <div class="product-container-wrapper">
+          <div  class="product-container-wrapper">
             <div
               class="product-container"
               v-for="(product, index) in carrito"
@@ -182,12 +182,13 @@
             @keyup.enter="changeTotal"
             v-model="pay"
             type="number"
-            placeholder="Pago"
+            placeholder="Paga con..."
           />
           <input
             @keyup.enter="changeTotal"
             type="text"
-            v-model="totalForChange"
+            v-model="total"
+            placeholder="Total venta"
           />
           <label for="">Vuelto: ${{ change }}</label>
         </div>
@@ -247,15 +248,23 @@
         Hiciste una venta, podes ver sus estadisticas en el sitio de resumen
       </p>
     </div>
+    <div v-if="loading" class="spinner-overlay">
+      <spinner class="spinner"></spinner>
+    </div>
+
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import numeral from "numeral";
+import spinner from "@/components/visuals/spinner.vue";
 const businessId = localStorage.getItem("businessId");
 
 export default {
+  components:{
+    spinner
+  },
   data() {
     return {
       totalQuantity: 1,
@@ -291,11 +300,15 @@ export default {
       multipleProductsArray: [],
       editQuantityStatus: true,
       businessData: [],
+      cashierUsername: "",
+      loading:false,
     };
   },
   methods: {
     async getProductBybarCode(barcode) {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `https://api-gestion-ahil.onrender.com/products/cate/${businessId}/${barcode}`
         );
@@ -323,10 +336,13 @@ export default {
         } else {
           if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
             const productFromDB = this.getProductFromDB(barcode);
-            if (!productFromDB || productFromDB.length <= 0) {
-              await this.getProductFromGoUpc(barcode);
-            }
+            if (!productFromDB || !productFromDB.name) {
+             const productFromUPC= this.getProductFromGoUpc(barcode);
+            }else if(!productFromUPC || !productFromUPC.name){
+              this.data.barCode=barcode
+            this.changeStatusOfForm();
 
+            }
             this.data.barCode = barcode;
             this.changeStatusOfForm();
           }
@@ -382,12 +398,12 @@ export default {
           `https://api-gestion-ahil.onrender.com/products/searchIn/${barcode}`
         );
         const product = response.data;
-        console.log('Producto desde BBDD: ',product);
+        console.log("Producto desde BBDD: ", product);
         if (product.length !== 0) {
           this.data.name = product.name;
           this.data.sellPrice = product.sellPrice;
         }
-        return product
+        return product;
       } catch (error) {
         throw error;
       }
@@ -411,6 +427,24 @@ export default {
               quantity: 10,
             }
           );
+
+          const searchInDb = await axios.get(
+            `http://localhost:3000/products/searchIn/${this.data.barCode}`
+          );
+          if (!searchInDb.data.name) {
+            await axios.post(
+              `http://localhost:3000/products/create/product/sendToDb`,
+              {
+                name: this.data.name,
+                sellPrice: sellPriceFormated,
+                barCode: this.data.barCode,
+                expirationDate: new Date(),
+                businessId: businessId,
+                quantity: 10,
+              }
+            );
+          }
+
           newProduct.data.sellQuantity = 1;
           this.productsIds.push(newProduct.data._id);
           this.total += newProduct.data.sellPrice;
@@ -428,6 +462,7 @@ export default {
       }
     },
     async createSale() {
+      this.loading=true
       let arrayOfIds = [];
       let arrayOfProductsQuantities = [];
       for (const product of this.productsIds) {
@@ -445,6 +480,7 @@ export default {
         productIds: arrayOfIds,
         paymentMethod: this.paymentMethod,
         productQuantity: arrayOfProductsQuantities,
+        cashier: this.cashierUsername,
       };
 
       if (this.clientId && this.clientId !== "General") {
@@ -483,13 +519,17 @@ export default {
           this.paymentMethod = "Efectivo";
           this.clientId = "General";
           this.multipleProductsArray = [];
+          this.pay = "";
+          this.change = "";
+          this.loading=false
           this.showSuccesMessage();
           console.log("Cambio despues : ", this.totalForChange);
         } else {
           console.log("Error al realizar la venta");
         }
       } catch (error) {
-        console.error("Error al realizar la venta:", error);
+        window.alert("Error al realizar la venta:");
+        console.log(error);
       }
     },
     async getBusinessData() {
@@ -528,31 +568,39 @@ export default {
         const result = await axios.get(
           `https://api-gestion-ahil.onrender.com/globalproducts/${barcode}`
         );
-        console.log('Producto desde UPC:',result.data.product);
+        console.log("Producto desde UPC:", result.data.product);
+        const product=result.data
         const productData = {
           name: result.data.product.name,
           description: result.data.product.description,
           category: result.data.product.category,
         };
+        return product
         this.data.name = productData.name;
       } catch (error) {
         throw error;
       }
     },
-
+    async getUserData() {
+      try {
+        const userId = localStorage.getItem("userId");
+        const response = await axios.get(
+          `http://localhost:3000/auth/${userId}`
+        );
+        const user = response.data;
+        this.cashierUsername = user.username;
+      } catch (error) {
+        throw error;
+      }
+    },
     // **********************LLAMADAS A LA API******************************************************************
     changeStatusOfQuantity() {
       this.editQuantityStatus = !this.editQuantityStatus;
     },
     changeTotal() {
       try {
-        this.change = this.totalForChange - this.pay;
+        this.change = this.total - this.pay;
         this.change = this.change * -1;
-        setTimeout(() => {
-          this.change = 0;
-          this.totalForChange = 0;
-          this.pay = 0;
-        }, 10000);
       } catch (error) {
         throw error;
       }
@@ -710,7 +758,8 @@ export default {
     this.getBusinessData();
     window.addEventListener("keydown", this.handleKeyDown),
       this.getCategoryesIds(),
-      this.getBusinessData();
+      this.getBusinessData(),
+      this.getUserData();
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.handleKeyDown);
@@ -719,6 +768,23 @@ export default {
 </script>
 
 <style scoped>
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Asegura que esté por encima de otros elementos */
+}
+
+.spinner{
+  width: 50px;
+  height: 50px
+}
+
 .inputQuantity {
   display: flex;
   flex-direction: row;

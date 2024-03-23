@@ -53,6 +53,12 @@
     </div>
 
     <div v-if="loginState" class="register-user">
+      <router-link to="/">
+        <i
+          style="font-size: 25px; margin-left: -10px"
+          class="bi bi-arrow-left"
+        ></i>
+      </router-link>
       <h2>Iniciar sesion</h2>
       <form @submit.prevent="loginUser">
         <div class="form-group">
@@ -76,29 +82,25 @@
           />
         </div>
 
-        <p>
-          ¿Todavia no te registraste?
-          <a href="#" @click="showRegister">Hace click acá para registrarte </a>
-        </p>
-
         <div class="btn-container">
           <button type="submit">
-            <p v-if="loading === false" style="margin: 0; padding: 5px;">Iniciar sesion</p>
+            <p v-if="loading === false" style="margin: 0; padding: 5px">
+              Iniciar sesion
+            </p>
             <spinner v-if="loading === true"></spinner>
           </button>
         </div>
-        <p style="margin-top: 20px;">¿Olvidaste tu contraseña? 
+        <p style="margin-top: 20px">
+          ¿Olvidaste tu contraseña?
           <router-link to="/restore">
             <a href="">Hace click acá para recuperarla </a>
           </router-link>
         </p>
-        <p style="margin-top: 20px; ">
+        <p style="margin-top: 20px">
           <router-link to="/business">
-            <a  href=""> Registrar nuevo negocio </a>
+            <a href=""> Registrar nuevo negocio </a>
           </router-link>
         </p>
-
-     
       </form>
       <p v-if="error" class="error">{{ error }}</p>
     </div>
@@ -158,7 +160,7 @@ export default {
     },
     async loginUser() {
       try {
-        this.loading=true
+        this.loading = true;
         const simpleCrypto = new SimpleCrypto(secretKey);
         localStorage.removeItem("userToken");
         localStorage.removeItem("businessId");
@@ -173,7 +175,7 @@ export default {
         const userData = user.data;
 
         if (userData.token) {
-          this.loading=false
+          this.loading = false;
 
           localStorage.setItem("userToken", userData.token);
           this.$router.push("/home");
@@ -186,7 +188,7 @@ export default {
           localStorage.setItem("businessId", businessId);
           localStorage.setItem("role", cipherRole);
         } else {
-          this.loading=false
+          this.loading = false;
 
           window.alert(
             "Credenciales incorrectas, verifica tus datos e intenta de nuevo"
