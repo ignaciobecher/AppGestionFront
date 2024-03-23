@@ -142,6 +142,8 @@
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
+
+      <button v-if="showPrint === true" @click="printResponse">Imprimir</button>
     </div>
 
     <!-- CARGAR FOTO -->
@@ -193,24 +195,24 @@
             </td>
             <td>
               <span v-if="buy.providerId.name === 'General'">General</span>
-              <span v-else >{{buy.providerId.name  }}</span>
+              <span v-else>{{ buy.providerId.name }}</span>
             </td>
 
             <td>
-              <span >{{ buy.description }}</span>
+              <span>{{ buy.description }}</span>
             </td>
-     
+
             <td>
-              <span >${{ buy.total }}</span>
+              <span>${{ buy.total }}</span>
             </td>
             <td>
-              <span >{{ buy.receiptNumber }}</span>
+              <span>{{ buy.receiptNumber }}</span>
             </td>
-       
-            <td >
+
+            <td>
               <a @click="getBuyData(buy._id)"><i class="bi bi-pencil"></i></a>
             </td>
-      
+
             <td>
               <a @click="deleteBuy(buy._id)"> <i class="bi bi-trash"></i></a>
             </td>
@@ -269,8 +271,8 @@
       </form>
     </div>
 
-      <!-- ACTUALIZAR COMPRA -->
-      <div v-if="editForm" class="register-component">
+    <!-- ACTUALIZAR COMPRA -->
+    <div v-if="editForm" class="register-component">
       <form action="" class="expenses-form">
         <div class="form-group">
           <h3 style="text-align: center">Actualizar compra</h3>
@@ -398,7 +400,8 @@ export default {
       porcentaje: null,
       loading: false,
       loadingOcr: false,
-      editForm:false
+      editForm: false,
+      showPrint: false,
     };
   },
   methods: {
@@ -406,16 +409,17 @@ export default {
 
     async getAllBuys() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `http://localhost:3000/business/buys/${businessId}`
         );
         const buys = response.data;
         this.buysArray = buys;
         for (const iterator of this.buysArray) {
-            if(iterator.providerId === null ){
-              iterator.providerId='General'
-            }
-
+          if (iterator.providerId === null) {
+            iterator.providerId = "General";
+          }
         }
       } catch (error) {
         console.log(error);
@@ -423,20 +427,19 @@ export default {
     },
     async updateBuy() {
       try {
-        
-        const formatedTotal=numeral(this.data.total).value
+        const formatedTotal = numeral(this.data.total).value;
 
         await axios.put(`http://localhost:3000/buys/${this.buy_id}`, {
-          providerId:this.providerId,
+          providerId: this.providerId,
           name: this.data.name,
           description: this.data.description,
           total: formatedTotal,
           receiptNumber: this.data.receiptNumber,
         });
-        this.changeEditForm()
+        this.changeEditForm();
         this.getAllBuys();
       } catch (error) {
-        console.log("Error al actualizar",error);
+        console.log("Error al actualizar", error);
       }
     },
     async createNewBuy() {
@@ -552,6 +555,8 @@ export default {
     },
     async createProvider() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const provider = await axios.post("http://localhost:3000/providers", {
           name: this.supplierData.name,
           telephone: this.supplierData.phone,
@@ -582,6 +587,7 @@ export default {
 
         this.respuesta = data;
         this.loading = false;
+        this.showPrint = true;
       } catch (error) {
         throw error;
       }
@@ -651,12 +657,12 @@ export default {
     },
     async getBuyData(id) {
       try {
-        this.changeEditForm()
-        const response= await axios.get(`http://localhost:3000/buys/${id}`)
-        const data=response.data
-        this.data.description=data.description
-        this.data.receiptNumber=data.receiptNumber
-        this.data.total=data.total
+        this.changeEditForm();
+        const response = await axios.get(`http://localhost:3000/buys/${id}`);
+        const data = response.data;
+        this.data.description = data.description;
+        this.data.receiptNumber = data.receiptNumber;
+        this.data.total = data.total;
       } catch (error) {
         window.alert("Error al acceder a compra");
       }
@@ -742,9 +748,32 @@ export default {
       const newTab = window.open();
       newTab.document.write(facturaHTML);
     },
-    changeEditForm(){
-      this.editForm=!this.editForm
-    }
+    changeEditForm() {
+      this.editForm = !this.editForm;
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
+    },
   },
   created() {
     this.getAllBuys(), this.getAllProviders();

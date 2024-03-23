@@ -292,12 +292,14 @@ export default {
       multipleProductsArray: [],
       editQuantityStatus: true,
       businessData: [],
-      cashierUsername:''
+      cashierUsername: "",
     };
   },
   methods: {
     async getProductBybarCode(barcode) {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `http://localhost:3000/products/cate/${businessId}/${barcode}`
         );
@@ -326,9 +328,12 @@ export default {
           if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
             const productFromDB = this.getProductFromDB(barcode);
             if (!productFromDB || !productFromDB.name) {
-              await this.getProductFromGoUpc(barcode);
-            }
+             const productFromUPC= this.getProductFromGoUpc(barcode);
+            }else if(!productFromUPC || !productFromUPC.name){
+              this.data.barCode=barcode
+            this.changeStatusOfForm();
 
+            }
             this.data.barCode = barcode;
             this.changeStatusOfForm();
           }
@@ -465,7 +470,7 @@ export default {
         productIds: arrayOfIds,
         paymentMethod: this.paymentMethod,
         productQuantity: arrayOfProductsQuantities,
-        cashier:this.cashierUsername
+        cashier: this.cashierUsername,
       };
 
       if (this.clientId && this.clientId !== "General") {
@@ -504,8 +509,8 @@ export default {
           this.paymentMethod = "Efectivo";
           this.clientId = "General";
           this.multipleProductsArray = [];
-          this.pay=''
-          this.change=''
+          this.pay = "";
+          this.change = "";
           this.showSuccesMessage();
           console.log("Cambio despues : ", this.totalForChange);
         } else {
@@ -552,24 +557,28 @@ export default {
           `http://localhost:3000/globalproducts/${barcode}`
         );
         console.log("Producto desde UPC:", result.data.product);
+        const product=result.data
         const productData = {
           name: result.data.product.name,
           description: result.data.product.description,
           category: result.data.product.category,
         };
+        return product
         this.data.name = productData.name;
       } catch (error) {
         throw error;
       }
     },
-    async getUserData(){
+    async getUserData() {
       try {
-        const userId=localStorage.getItem('userId')
-        const response= await axios.get(`http://localhost:3000/auth/${userId}`)
-        const user=response.data
-        this.cashierUsername=user.username
+        const userId = localStorage.getItem("userId");
+        const response = await axios.get(
+          `http://localhost:3000/auth/${userId}`
+        );
+        const user = response.data;
+        this.cashierUsername = user.username;
       } catch (error) {
-        throw error
+        throw error;
       }
     },
     // **********************LLAMADAS A LA API******************************************************************
@@ -579,8 +588,7 @@ export default {
     changeTotal() {
       try {
         this.change = this.total - this.pay;
-        this.change = this.change * -1
-        
+        this.change = this.change * -1;
       } catch (error) {
         throw error;
       }
@@ -739,7 +747,7 @@ export default {
     window.addEventListener("keydown", this.handleKeyDown),
       this.getCategoryesIds(),
       this.getBusinessData(),
-      this.getUserData()
+      this.getUserData();
   },
   beforeDestroy() {
     window.removeEventListener("keydown", this.handleKeyDown);

@@ -33,6 +33,7 @@
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
+      <button v-if="showPrint === true" @click="printResponse">Imprimir</button>
     </div>
 
     <div class="table-responsive">
@@ -233,13 +234,15 @@ export default {
       foundInput: false,
       filteredClients: [],
       loading: false,
+      showPrint: false,
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllInputs() {
       try {
-        console.log(businessId);
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `http://localhost:3000/inputs/${businessId}`
         );
@@ -260,7 +263,7 @@ export default {
     },
     async updateInput() {
       try {
-        const valueFormated=numeral(this.data.value).value()
+        const valueFormated = numeral(this.data.value).value();
         await axios.put(`http://localhost:3000/inputs/${this.input_Id}`, {
           name: this.data.product,
           description: this.data.description,
@@ -343,6 +346,7 @@ export default {
 
         this.respuesta = data;
         this.loading = false;
+        this.showPrint = true;
       } catch (error) {
         throw error;
       }
@@ -407,6 +411,29 @@ export default {
     },
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
     },
   },
   created() {

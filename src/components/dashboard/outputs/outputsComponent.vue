@@ -49,6 +49,7 @@
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
+      <button v-if="showPrint === true" @click="printResponse">Imprimir</button>
     </div>
 
     <!-- TODOS LOS PRODUCTOS -->
@@ -88,7 +89,9 @@
             </td>
 
             <td>
-              <a @click="getOutPutData(buy._id)"><i class="bi bi-pencil"></i></a>
+              <a @click="getOutPutData(buy._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
 
             <td>
@@ -120,7 +123,9 @@
             </td>
 
             <td>
-              <a @click="getOutPutData(buy._id)"><i class="bi bi-pencil"></i></a>
+              <a @click="getOutPutData(buy._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
 
             <td>
@@ -146,11 +151,7 @@
         </thead>
         <tbody class="table-body">
           <!-- TODOS LOS EGRESOS -->
-          <tr
-            @click="setId(singleProductFoundArray._id)"
-          
-            class="tableRow"
-          >
+          <tr @click="setId(singleProductFoundArray._id)" class="tableRow">
             <td>
               <span>{{ formatDate(singleProductFoundArray.createdAt) }}</span>
             </td>
@@ -167,17 +168,20 @@
             </td>
 
             <td>
-              <a @click="getOutPutData(singleProductFoundArray._id)"><i class="bi bi-pencil"></i></a>
+              <a @click="getOutPutData(singleProductFoundArray._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
 
             <td>
-              <a @click="deleteOutput(singleProductFoundArray._id)"> <i class="bi bi-trash"></i></a>
+              <a @click="deleteOutput(singleProductFoundArray._id)">
+                <i class="bi bi-trash"></i
+              ></a>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
 
     <!-- REGISTRAR EGRESO -->
     <div v-if="editFormStatus" class="register-component">
@@ -220,7 +224,6 @@
       </form>
     </div>
 
-
     <!-- ACTUALIZAR EGRESO -->
     <div v-if="formStatus" class="register-component">
       <form action="" class="expenses-form">
@@ -247,7 +250,7 @@
             placeholder="Ingrese un monto"
             @input="formatPriceInput"
           />
-      
+
           <button @click.prevent="changeEditForm" class="btn-cancel">
             Cancelar
           </button>
@@ -292,9 +295,10 @@ export default {
       information: [],
       loading: false,
       formStatus: false,
-      name:'',
-      isProductFound:false,
-      singleProductFoundArray:null
+      name: "",
+      isProductFound: false,
+      singleProductFoundArray: null,
+      showPrint: false,
     };
   },
   methods: {
@@ -314,24 +318,24 @@ export default {
     },
     async updateOutput() {
       try {
-        const formatedValue=numeral(this.data.value).value()
-        console.log('Id desde el update:',this.buy_id);
+        const formatedValue = numeral(this.data.value).value();
+        console.log("Id desde el update:", this.buy_id);
         await axios.put(`http://localhost:3000/outputs/${this.buy_id}`, {
           name: this.data.product,
           description: this.data.description,
           value: formatedValue,
         });
 
-        this.changeEditForm()
+        this.changeEditForm();
 
-        this.data.product=''
-        this.data.description=''
-        this.data.value=''
+        this.data.product = "";
+        this.data.description = "";
+        this.data.value = "";
 
         this.getAllOutputs();
         this.changeEditStatus();
       } catch (error) {
-        console.log("Error al actualizar",error);
+        console.log("Error al actualizar", error);
       }
     },
     async createNewOutput() {
@@ -414,33 +418,36 @@ export default {
 
         this.respuesta = data;
         this.loading = false;
+        this.showPrint=true
       } catch (error) {
         throw error;
       }
     },
     async getOutPutData(id) {
       try {
-        this.changeEditForm()
-        const response= await axios.get(`http://localhost:3000/outputs/${id}`)
-        const data=response.data
+        this.changeEditForm();
+        const response = await axios.get(`http://localhost:3000/outputs/${id}`);
+        const data = response.data;
 
-        this.data.product=data.name
-        this.data.description=data.description
-        this.data.value=data.value
+        this.data.product = data.name;
+        this.data.description = data.description;
+        this.data.value = data.value;
       } catch (error) {
-        window.alert('Error al acceder al egreso')
+        window.alert("Error al acceder al egreso");
       }
     },
-    async getOutputByName(){
+    async getOutputByName() {
       try {
         const businessId = localStorage.getItem("businessId");
-        const response=await axios.get(`http://localhost:3000/outputs/search/${businessId}/${this.name}`)
-        const data=response.data
-        this.isProductFound=true
-        this.singleProductFoundArray=data
-        console.log('SingleProduct:',this.singleProductFoundArray)
+        const response = await axios.get(
+          `http://localhost:3000/outputs/search/${businessId}/${this.name}`
+        );
+        const data = response.data;
+        this.isProductFound = true;
+        this.singleProductFoundArray = data;
+        console.log("SingleProduct:", this.singleProductFoundArray);
       } catch (error) {
-        window.alert('Error al acceder al egreso')
+        window.alert("Error al acceder al egreso");
       }
     },
     // ********************************************----------------**************************************
@@ -480,6 +487,29 @@ export default {
       if (this.name === "") {
         this.isProductFound = false;
       }
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
     },
   },
   created() {

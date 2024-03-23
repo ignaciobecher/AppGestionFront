@@ -31,6 +31,7 @@
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
+      <button v-if="showPrint === true" @click="printResponse">Imprimir</button>
     </div>
 
     <div class="table-responsive">
@@ -235,12 +236,15 @@ export default {
       filteredClients: [],
       loading: false,
       formStatus: false,
+      showPrint: false,
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllInputs() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `http://localhost:3000/random-inputs/${businessId}`
         );
@@ -253,12 +257,15 @@ export default {
     async updateInput() {
       try {
         const formatedValue = numeral(this.data.value).value();
-        await axios.put(`http://localhost:3000/random-inputs/${this.input_Id}`, {
-          reference: this.data.reference,
-          description: this.data.description,
-          quantity: this.data.quantity,
-          value: formatedValue,
-        });
+        await axios.put(
+          `http://localhost:3000/random-inputs/${this.input_Id}`,
+          {
+            reference: this.data.reference,
+            description: this.data.description,
+            quantity: this.data.quantity,
+            value: formatedValue,
+          }
+        );
 
         this.changeEditFormStatus();
         this.getAllInputs();
@@ -340,6 +347,7 @@ export default {
 
         this.respuesta = data;
         this.loading = false;
+        this.showPrint = true;
       } catch (error) {
         throw error;
       }
@@ -403,6 +411,29 @@ export default {
     },
     changeEditFormStatus() {
       this.formStatus = !this.formStatus;
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
     },
   },
   created() {

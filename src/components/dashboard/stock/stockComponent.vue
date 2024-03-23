@@ -101,6 +101,9 @@
           <spinner> </spinner>
         </div>
         <p v-if="loading === false" v-html="formattedResponse()"></p>
+        <button v-if="showPrint === true" @click="printResponse">
+          Imprimir
+        </button>
       </div>
       <div class="calculadora">
         <h5>Porcentajes</h5>
@@ -146,41 +149,31 @@
             :key="index"
           >
             <td>
-              <span >{{ product.name }}</span>
-          
+              <span>{{ product.name }}</span>
             </td>
 
             <td>
-              <span >{{
-                formatPrice(product.sellPrice)
-              }}</span>
-             
+              <span>{{ formatPrice(product.sellPrice) }}</span>
             </td>
             <td>
-              <span >{{ product.quantity }}</span>
-            
+              <span>{{ product.quantity }}</span>
             </td>
 
             <td>
-              <span >{{ product.barCode }}</span>
-              
+              <span>{{ product.barCode }}</span>
             </td>
             <td>
-              <span >{{ product.minimumStock }}</span>
-             
+              <span>{{ product.minimumStock }}</span>
             </td>
 
-            <td >
-              <a  @click="getProductData(product._id)"
+            <td>
+              <a @click="getProductData(product._id)"
                 ><i class="bi bi-pencil"></i
               ></a>
             </td>
-          
+
             <td>
-              <a
-        
-                @click.prevent="deleteProduct(selectedProduct._id)"
-              >
+              <a @click.prevent="deleteProduct(selectedProduct._id)">
                 <i class="bi bi-trash"></i
               ></a>
             </td>
@@ -194,45 +187,35 @@
             v-if="foundProduct"
           >
             <td>
-              <span >{{ product.name }}</span>
+              <span>{{ product.name }}</span>
             </td>
 
             <td>
-              <span >{{
-                formatPrice(product.sellPrice)
-              }}</span>
-              
+              <span>{{ formatPrice(product.sellPrice) }}</span>
             </td>
             <td>
-              <span >{{ product.quantity }}</span>
-              
+              <span>{{ product.quantity }}</span>
             </td>
             <td>
-              <span >{{ product.barCode }}</span>
-            
+              <span>{{ product.barCode }}</span>
             </td>
 
             <td>
-              <span >{{ product.minimumStock }}</span>
-             
+              <span>{{ product.minimumStock }}</span>
             </td>
 
             <td>
               <span>{{ formatDate(product.expirationDate) }}</span>
             </td>
 
-            <td >
-              <a  id="editBtn" @click="getProductData(product._id)"
+            <td>
+              <a id="editBtn" @click="getProductData(product._id)"
                 ><i class="bi bi-pencil"></i
               ></a>
             </td>
-         
+
             <td>
-              <a
-      
-                id="editBtn"
-                @click.prevent="deleteProduct(product._id)"
-              >
+              <a id="editBtn" @click.prevent="deleteProduct(product._id)">
                 <i class="bi bi-trash"></i
               ></a>
             </td>
@@ -262,33 +245,29 @@
             v-if="foundProduct"
           >
             <td>
-              <span >{{ product.name }}</span>
+              <span>{{ product.name }}</span>
             </td>
 
             <td>
-              <span >{{
-                formatPrice(product.sellPrice)
-              }}</span>
-             
+              <span>{{ formatPrice(product.sellPrice) }}</span>
             </td>
             <td>
-              <span >{{ product.quantity }}</span>
-            
+              <span>{{ product.quantity }}</span>
             </td>
             <td>
-              <span >{{ product.barCode }}</span>
-              
+              <span>{{ product.barCode }}</span>
             </td>
 
             <td>
-              <span >{{ product.minimumStock }}</span>
-              
+              <span>{{ product.minimumStock }}</span>
             </td>
 
-            <td >
-              <a v-if="displayNone" @click="changeStatusOfEditor"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a v-if="displayNone" @click="changeStatusOfEditor"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
-            
+
             <td>
               <a v-if="displayNone" @click.prevent="deleteProduct(product._id)">
                 <i class="bi bi-trash"></i
@@ -353,7 +332,6 @@
       </div>
     </div>
 
-
     <!-- ACTUALIZAR PRODUCTO -->
     <div v-if="editForm" class="register-component">
       <div class="expenses-form">
@@ -403,16 +381,13 @@
             type="date"
             placeholder="Fecha de vencimiento..."
           />
-          <button @click="changeEditForm" class="btn-cancel">
-            Cancelar
-          </button>
+          <button @click="changeEditForm" class="btn-cancel">Cancelar</button>
           <button @click.prevent="updateProduct" class="btn-confirm">
             Confirmar
           </button>
         </div>
       </div>
     </div>
-
 
     <!--*/*********** */ CREAR CATEGORIA ************-->
     <div v-if="categoryStatus" class="register-component">
@@ -484,7 +459,8 @@ export default {
       code: "",
       remarcado: null,
       displayNone: true,
-      editForm:false
+      editForm: false,
+      showPrint: false,
     };
   },
   methods: {
@@ -505,7 +481,7 @@ export default {
     },
     async updateProduct() {
       try {
-        const formatedTotal=numeral(this.data.sellPrice).value()
+        const formatedTotal = numeral(this.data.sellPrice).value();
 
         await axios.put(`http://localhost:3000/products/${this.product_id}`, {
           name: this.data.name,
@@ -518,7 +494,7 @@ export default {
         this.getAllProducts();
         this.changeEditForm();
       } catch (error) {
-        console.log("Error al actualizar",error);
+        console.log("Error al actualizar", error);
       }
     },
     async deleteProduct(id) {
@@ -637,7 +613,7 @@ export default {
         this.selectedProduct = data;
         this.foundProduct = false;
       } catch (error) {
-        console.error("Error al obtener el producto:", error);
+        console.error("Error al obtener el producto desde codigo de barra:", error);
       }
     },
     async getCategoryesIds() {
@@ -747,22 +723,25 @@ export default {
 
         this.respuesta = data;
         this.loading = false;
+        this.showPrint = true;
       } catch (error) {
         throw error;
       }
     },
-    async getProductData(id){
+    async getProductData(id) {
       try {
-        this.changeEditForm()
-        const response=await axios.get(`http://localhost:3000/products/${id}`)
-        const data=response.data
-        this.data.name=data.name
-        this.data.quantity=data.quantity
-        this.data.barCode=data.barCode
-        this.data.sellPrice=data.sellPrice
-        this.data.minimumStock=data.minimumStock
+        this.changeEditForm();
+        const response = await axios.get(
+          `http://localhost:3000/products/${id}`
+        );
+        const data = response.data;
+        this.data.name = data.name;
+        this.data.quantity = data.quantity;
+        this.data.barCode = data.barCode;
+        this.data.sellPrice = data.sellPrice;
+        this.data.minimumStock = data.minimumStock;
       } catch (error) {
-        window.alert('Error al acceder al producto')
+        window.alert("Error al acceder al producto");
       }
     },
     // *****************************************************************************************
@@ -791,8 +770,8 @@ export default {
       this.product_id = id;
       console.log(this.product_id);
     },
-    changeEditForm(){
-      this.editForm=!this.editForm
+    changeEditForm() {
+      this.editForm = !this.editForm;
     },
     changeStatusOfForm() {
       this.formStatus = !this.formStatus;
@@ -832,6 +811,29 @@ export default {
       } catch (error) {
         throw error;
       }
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
     },
   },
   mounted() {

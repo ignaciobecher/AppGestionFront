@@ -52,6 +52,7 @@
         <spinner> </spinner>
       </div>
       <p v-if="loading === false" v-html="formattedResponse()"></p>
+      <button v-if="showPrint === true" @click="printResponse">Imprimir</button>
     </div>
 
     <div class="table-responsive">
@@ -81,34 +82,34 @@
               <span>{{ formatDate(cheque.createdAt) }}</span>
             </td>
             <td>
-              <span >{{ cheque.identification }}</span>
+              <span>{{ cheque.identification }}</span>
             </td>
 
             <td>
-              <span >{{ cheque.description }}</span>
+              <span>{{ cheque.description }}</span>
             </td>
 
             <td>
-              <span >{{ cheque.chequeNumber }}</span>
+              <span>{{ cheque.chequeNumber }}</span>
             </td>
             <td>
-              <span >{{
-                formatDate(cheque.chequeDate)
-              }}</span>
+              <span>{{ formatDate(cheque.chequeDate) }}</span>
             </td>
 
             <td>
-              <span >{{ cheque.chequeOwner }}</span>
+              <span>{{ cheque.chequeOwner }}</span>
             </td>
 
             <td>
-              <span >{{ formatPrice(cheque.total) }}</span>
+              <span>{{ formatPrice(cheque.total) }}</span>
             </td>
 
-            <td >
-              <a @click="getChequeData(cheque._id)"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a @click="getChequeData(cheque._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
-           
+
             <td>
               <a @click="deleteCheque(cheque._id)">
                 <i class="bi bi-trash"></i
@@ -127,35 +128,34 @@
               <span>{{ formatDate(cheque.createdAt) }}</span>
             </td>
             <td>
-              <span >{{ cheque.identification }}</span>
+              <span>{{ cheque.identification }}</span>
             </td>
 
             <td>
-              <span >{{ cheque.description }}</span>
+              <span>{{ cheque.description }}</span>
             </td>
 
             <td>
-              <span >{{ cheque.chequeNumber }}</span>
+              <span>{{ cheque.chequeNumber }}</span>
             </td>
             <td>
-              <span >{{
-                formatDate(cheque.chequeDate)
-              }}</span>
+              <span>{{ formatDate(cheque.chequeDate) }}</span>
             </td>
 
             <td>
-              <span >{{ cheque.chequeOwner }}</span>
-             
+              <span>{{ cheque.chequeOwner }}</span>
             </td>
 
             <td>
-              <span >{{ formatPrice(cheque.total) }}</span>
+              <span>{{ formatPrice(cheque.total) }}</span>
             </td>
 
-            <td >
-              <a @click="getChequeData(cheque._id)"><i class="bi bi-pencil"></i></a>
+            <td>
+              <a @click="getChequeData(cheque._id)"
+                ><i class="bi bi-pencil"></i
+              ></a>
             </td>
-            
+
             <td>
               <a @click="deleteCheque(cheque._id)">
                 <i class="bi bi-trash"></i
@@ -176,35 +176,32 @@
               <span>{{ formatDate(cheque.createdAt) }}</span>
             </td>
             <td>
-              <span >{{ cheque.identification }}</span>
+              <span>{{ cheque.identification }}</span>
             </td>
 
             <td>
-              <span >{{ cheque.description }}</span>
+              <span>{{ cheque.description }}</span>
             </td>
 
             <td>
-              <span >{{ cheque.chequeNumber }}</span>
+              <span>{{ cheque.chequeNumber }}</span>
             </td>
             <td>
-              <span >{{
-                formatDate(cheque.chequeDate)
-              }}</span>
+              <span>{{ formatDate(cheque.chequeDate) }}</span>
             </td>
 
             <td>
-              <span >{{ cheque.chequeOwner }}</span>
-             
+              <span>{{ cheque.chequeOwner }}</span>
             </td>
 
             <td>
-              <span >{{ formatPrice(cheque.total) }}</span>
+              <span>{{ formatPrice(cheque.total) }}</span>
             </td>
 
-            <td >
+            <td>
               <a @click="changeEditForm()"><i class="bi bi-pencil"></i></a>
             </td>
-            
+
             <td>
               <a @click="deleteCheque(cheque._id)">
                 <i class="bi bi-trash"></i
@@ -348,13 +345,16 @@ export default {
       foundInput: false,
       filteredClients: [],
       loading: false,
-      formStatus:false
+      formStatus: false,
+      showPrint: false,
     };
   },
   methods: {
     // ********************************************LLAMADAS A LA API**************************************
     async getAllCheques() {
       try {
+        const businessId = localStorage.getItem("businessId");
+
         const response = await axios.get(
           `http://localhost:3000/cheques/${businessId}`
         );
@@ -370,7 +370,7 @@ export default {
         const fechaCheque = moment(this.data.chequeDate);
         const nuevaFecha = fechaCheque.add(1, "day");
         const formatedDate = nuevaFecha.format("YYYY-MM-DD");
-        const formatedTotal=numeral(this.data.total).value()
+        const formatedTotal = numeral(this.data.total).value();
         await axios.put(`http://localhost:3000/cheques/${this.cheque_id}`, {
           identification: this.data.identification,
           description: this.data.description,
@@ -380,16 +380,16 @@ export default {
           chequeOwner: this.data.chequeOwner,
         });
 
-        this.data.identification=''
-        this.data.description=''
-        this.data.chequeNumber=''
-        this.data.total=''
-        this.data.chequeOwner='Propio'
+        this.data.identification = "";
+        this.data.description = "";
+        this.data.chequeNumber = "";
+        this.data.total = "";
+        this.data.chequeOwner = "Propio";
 
         this.getAllCheques();
         this.changeEditForm();
       } catch (error) {
-        console.log("Error al actualizar",error);
+        console.log("Error al actualizar", error);
       }
     },
     async createNewCheque() {
@@ -399,14 +399,14 @@ export default {
         const nuevaFecha = fechaCheque.add(1, "day");
         let formatedDate = nuevaFecha.format("YYYY-MM-DD");
 
-          if (formatedDate === "Invalid date") {
-            console.log("Problema de fecha");
-            const date = new Date();
-            const day = date.getDate();
-            const month = date.getMonth() + 1; // Se suma 1 porque los meses comienzan desde 0
-            const year = date.getFullYear();
-            formatedDate = `${year}-${month}-${day}`;
-          }
+        if (formatedDate === "Invalid date") {
+          console.log("Problema de fecha");
+          const date = new Date();
+          const day = date.getDate();
+          const month = date.getMonth() + 1; // Se suma 1 porque los meses comienzan desde 0
+          const year = date.getFullYear();
+          formatedDate = `${year}-${month}-${day}`;
+        }
 
         const newCheque = await axios.post("http://localhost:3000/cheques", {
           identification: this.data.identification,
@@ -424,7 +424,7 @@ export default {
           this.data.description = "";
           this.data.identification = "";
           this.data.chequeNumber = 0;
-          this.data.chequeDate=null
+          this.data.chequeDate = null;
           this.total = 0;
         } else {
           console.log("Error al cargar cheque");
@@ -474,6 +474,7 @@ export default {
 
         this.respuesta = data;
         this.loading = false;
+        this.showPrint = true;
       } catch (error) {
         throw error;
       }
@@ -496,20 +497,21 @@ export default {
         throw error;
       }
     },
-    async getChequeData(id){
+    async getChequeData(id) {
       try {
-        this.changeEditForm()
-        const response=await axios.get(`http://localhost:3000/cheques/search/${id}`)
-        const data=response.data
+        this.changeEditForm();
+        const response = await axios.get(
+          `http://localhost:3000/cheques/search/${id}`
+        );
+        const data = response.data;
 
-        this.data.identification=data.identification
-        this.data.description=data.description
-        this.data.chequeNumber=data.chequeNumber
-        this.data.total=data.total
-        this.data.chequeOwner=data.chequeOwner
-
+        this.data.identification = data.identification;
+        this.data.description = data.description;
+        this.data.chequeNumber = data.chequeNumber;
+        this.data.total = data.total;
+        this.data.chequeOwner = data.chequeOwner;
       } catch (error) {
-        window.alert('Error al acceder al cheque')
+        window.alert("Error al acceder al cheque");
       }
     },
     // ********************************************----------------**************************************
@@ -544,9 +546,32 @@ export default {
     changeFormStatus() {
       this.editFormStatus = !this.editFormStatus;
     },
-    changeEditForm(){
-      this.formStatus=!this.formStatus
-    }
+    changeEditForm() {
+      this.formStatus = !this.formStatus;
+    },
+    generateResponseContent() {
+      const currentDate = new Date();
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`;
+      let contentHTML = `
+    <h2>Consulta al asistente</h2>
+    <h5>Fecha: ${formattedDate}</h5>
+
+  `;
+      const responseContent = this.respuesta;
+      contentHTML += responseContent;
+      return contentHTML;
+    },
+    printResponse() {
+      const responseContent = this.generateResponseContent();
+
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(responseContent);
+      printWindow.document.close();
+      printWindow.print();
+    },
   },
   created() {
     this.getAllCheques();
