@@ -104,7 +104,7 @@
         </select>
       </div>
 
-      <div class="productSale">
+      <div  class="productSale">
         <div>
           <div class="products-titles">
             <p>Productos</p>
@@ -112,7 +112,7 @@
             <p>Precio unitario</p>
             <p>Precio total</p>
           </div>
-          <div class="product-container-wrapper">
+          <div  class="product-container-wrapper">
             <div
               class="product-container"
               v-for="(product, index) in carrito"
@@ -248,15 +248,23 @@
         Hiciste una venta, podes ver sus estadisticas en el sitio de resumen
       </p>
     </div>
+    <div v-if="loading" class="spinner-overlay">
+      <spinner class="spinner"></spinner>
+    </div>
+
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import numeral from "numeral";
+import spinner from "@/components/visuals/spinner.vue";
 const businessId = localStorage.getItem("businessId");
 
 export default {
+  components:{
+    spinner
+  },
   data() {
     return {
       totalQuantity: 1,
@@ -293,6 +301,7 @@ export default {
       editQuantityStatus: true,
       businessData: [],
       cashierUsername: "",
+      loading:false,
     };
   },
   methods: {
@@ -453,6 +462,7 @@ export default {
       }
     },
     async createSale() {
+      this.loading=true
       let arrayOfIds = [];
       let arrayOfProductsQuantities = [];
       for (const product of this.productsIds) {
@@ -511,13 +521,15 @@ export default {
           this.multipleProductsArray = [];
           this.pay = "";
           this.change = "";
+          this.loading=false
           this.showSuccesMessage();
           console.log("Cambio despues : ", this.totalForChange);
         } else {
           console.log("Error al realizar la venta");
         }
       } catch (error) {
-        console.error("Error al realizar la venta:", error);
+        window.alert("Error al realizar la venta:");
+        console.log(error);
       }
     },
     async getBusinessData() {
@@ -756,6 +768,23 @@ export default {
 </script>
 
 <style scoped>
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Asegura que esté por encima de otros elementos */
+}
+
+.spinner{
+  width: 50px;
+  height: 50px
+}
+
 .inputQuantity {
   display: flex;
   flex-direction: row;
