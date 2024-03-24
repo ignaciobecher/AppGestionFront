@@ -1,0 +1,59 @@
+<template>
+    <div class="main">
+        <div class="textDiv">
+            <h4>Nuestros asistente con inteligencia artificial hace que todo sea más facil</h4>
+            <p>Somos el unico sistema de gestion en el mercado que cuenta con inteligencia artificial para ayudarte en tus tareas de todos los días, permitiendote tus tareas a Adminia</p>
+            <button>Prueba gratuita</button>
+            <p>Proba gratis, sin tarjeta</p>
+        </div>
+
+        <div class="imgDiv">
+            <img src="../../assets/assistant.png" alt="" srcset="">
+        </div>
+    </div>    
+</template>
+
+<style scoped>
+
+.main{
+    padding-top: 50px;
+    background-color: #ebe3ec !important;
+    display: flex;
+    flex-direction: row;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.main .textDiv{
+    width: 50%;
+}
+.main .textDiv h4{
+    font-weight: bold;
+}
+
+.main p{
+    font-weight: 600;
+}
+
+.main .textDiv button{
+  background-color: #312551;
+  color: white;
+  border-radius: 25px;
+  padding: 5px;
+  font-weight: bold;
+  font-size: 20px;
+  width: 100%;
+  transition: background-color 0.5s ease;
+  border: none;
+}
+
+.main .textDiv button:hover{
+  background-color: #9a3990;
+}
+
+.main .imgDiv{
+    margin: 0 auto;
+    width: 200px;
+}
+
+
+</style>
