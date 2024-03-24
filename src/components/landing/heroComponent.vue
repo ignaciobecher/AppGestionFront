@@ -44,6 +44,7 @@ export default {
 };
 </script>
 <style scoped>
+/*************************************  PANTALLAS GRANDES******************************************************** */
 .main {
   background-color: #ebe3ec;
   display: grid;
@@ -81,5 +82,14 @@ export default {
 
 .typing-demo {
   border-right: 3px solid;
+}
+
+/* *************************************************CELULARES/TABLETS*********************************** */
+
+@media (max-width: 768px){
+  .main{
+    display: flex;
+    flex-direction: column;
+  }
 }
 </style>

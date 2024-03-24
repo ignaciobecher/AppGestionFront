@@ -67,10 +67,27 @@
   border: none;
 }
 
-.bottom c
-
 .bottom p{
     font-weight: bold;
+}
+
+/* *************************************************CELULARES/TABLETS*********************************** */
+
+@media (max-width: 768px){
+  .main{
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px
+  }
+
+  .main .bottom{
+    display: flex;
+    flex-direction: column
+  }
+
+  .bottom img{
+    width: 100%;
+  }
 }
 
 </style>

@@ -20,7 +20,7 @@
             </div>
         </div>
 
-        <div style="text-align: center;">
+        <div style="text-align: center; padding-left: 10px; padding-right: 10px;">
             <button>Probar Adminia gratis</button>
         </div>
     </div>
@@ -86,5 +86,27 @@ button {
 
 button:hover {
     background-color: #312551;
+}
+
+/*********************************************CELULARES********************************************************* */ 
+@media (max-width: 768px){
+  .main{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bottom{
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .listDiv{
+    margin: 20px;
+  }
+
+  button{
+    width: 100%;
+  }
+ 
 }
 </style>

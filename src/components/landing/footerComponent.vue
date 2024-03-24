@@ -73,4 +73,21 @@ button:hover {
     font-weight: bold;
     margin-top: 10px;
 }
+
+/*********************************************CELULARES********************************************************* */ 
+@media (max-width: 768px){
+  .main{
+    display: flex;
+    flex-direction: column;
+  }
+
+ .main .center{
+    margin-left: 20px;
+ }
+
+ .main .right{
+    margin-left: 20px;
+ }
+ 
+}
 </style>

@@ -215,4 +215,32 @@ button:hover {
     align-self: center;
     margin-left: 10px;
 }
+
+/*********************************************CELULARES********************************************************* */ 
+@media (max-width: 768px){
+  .main{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bottom{
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px
+  }
+
+  button{
+    width: 100%;
+  }
+
+  .box{
+    display: flex;
+    flex-direction: column
+  }
+
+  .box a{
+    margin: 0;
+  }
+ 
+}
 </style>

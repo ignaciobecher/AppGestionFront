@@ -56,4 +56,24 @@
 }
 
 
+/* *************************************************CELULARES/TABLETS*********************************** */
+
+@media (max-width: 768px){
+  .main{
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px
+  }
+
+ .main .textDiv{
+    width: 100%;
+ }
+
+ .main .imgDiv img{
+    width: 100%;
+ }
+ 
+}
+
+
 </style>
