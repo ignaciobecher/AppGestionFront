@@ -4,7 +4,7 @@
       <div class="wrapper">
         <h1>
           El unico sistema de <span>gestión</span> con
-          <span class="typing-demo"> inteligencia artificial</span>
+          <span class="typing-demo"> </span>
         </h1>
         <h4>
           Administra tu negocio, controla tu inventario y accede con un click a
