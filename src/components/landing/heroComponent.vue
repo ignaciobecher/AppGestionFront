@@ -3,8 +3,8 @@
     <div class="left">
       <div class="wrapper">
         <h1>
-          El único sistema de <span>gestión</span> con
-          <span class="typing-demo"> </span>
+          El unico sistema de <span>gestión</span> con
+          <span class="typing-demo"> inteligencia artificial</span>
         </h1>
         <h4>
           Administra tu negocio, controla tu inventario y accede con un click a
@@ -53,8 +53,7 @@ export default {
 }
 
 .main .left{
-  margin-right: 100px;
-  margin-left:20px;
+  margin-right: 20px
 }
 
 .main .left h1 {
@@ -70,20 +69,9 @@ export default {
   background-color: #312551;
   color: white;
   border-radius: 25px;
-  padding: 5px;
-  font-weight: bold;
-  font-size: 20px;
+  padding: 10px;
+  font-weight: 500;
   width: 100%;
-  transition: background-color 0.5s ease;
-  border: none;
-}
-
-.left button:hover{
-  background-color: #9a3990;
-}
-
-.main .right{
-  margin-right: 10px;
 }
 
 .main .right img {
