@@ -4,7 +4,7 @@
       <div class="wrapper">
         <h1>
           El unico sistema de <span>gestión</span> con
-          <span class="typing-demo"> inteligencia artificial</span>
+          <span class="typing-demo"> </span>
         </h1>
         <h4>
           Administra tu negocio, controla tu inventario y accede con un click a
@@ -24,10 +24,27 @@
 </template>
 
 <script>
-export default {};
-</script>
+export default {
+  mounted() {
+    const typingDemo = document.querySelector('.typing-demo');
+    const text = 'inteligencia artificial';
+    let index = 0;
+    const typingSpeed = 50; // Ajusta la velocidad de escritura aquí (en milisegundos)
 
+    function type() {
+      if (index < text.length) {
+        typingDemo.textContent += text.charAt(index);
+        index++;
+        setTimeout(type, typingSpeed);
+      }
+    }
+
+    type();
+  }
+};
+</script>
 <style scoped>
+/*************************************  PANTALLAS GRANDES******************************************************** */
 .main {
   background-color: #ebe3ec;
   display: grid;
@@ -60,22 +77,19 @@ export default {};
 
 .main .right img {
   width: 100%;
+  box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.5);
 }
 
 .typing-demo {
-  animation: typing 2s steps(22), blink 0.5s step-end infinite alternate;
   border-right: 3px solid;
 }
 
-@keyframes typing {
-  from {
-    width: 0;
-  }
-}
+/* *************************************************CELULARES/TABLETS*********************************** */
 
-@keyframes blink {
-  50% {
-    border-color: transparent;
+@media (max-width: 768px){
+  .main{
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>
