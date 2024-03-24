@@ -27,29 +27,57 @@
             <a class="nav-link" href="#">INICIO</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">FUNCIONALIDADES</a>
+            <a @click="scrollToFunctionalities" class="nav-link" href="#"
+              >FUNCIONALIDADES</a
+            >
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="#">PLANES</a>
+            <a @click="scrollToPlanes" class="nav-link" href="#">PLANES</a>
+          </li>
+
+          <li class="nav-item">
+            <router-link to="/register">
+              <a class="nav-link" href="#">INGRESAR</a>
+            </router-link>
+          </li>
+
+          <li class="nav-item">
+            <router-link to="/business">
+              <a class="nav-link" href="#">REGISTRARSE</a>
+            </router-link>
           </li>
         </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <router-link to="/register">
-            <a href="#" class="nav-link">INGRESAR</a>
-          </router-link>
-          <a href="#" class="nav-link">|</a>
-          <router-link to="/business">
-            <a href="#" class="nav-link">REGISTRARSE</a>
-          </router-link>
-        </form>
       </div>
     </nav>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  methods: {
+    scrollToFunctionalities() {
+      // Verificar si estamos en la parte superior de la página
+      if (window.scrollY === 0) {
+        const yOffset = 1300;
+        window.scrollTo({
+          top: yOffset,
+          behavior: "smooth", // smooth scrolling animation
+        });
+      }
+    },
+    scrollToPlanes() {
+      if (window.scrollY === 0) {
+        const yOffset = 1900;
+        window.scrollTo({
+          top: yOffset,
+          behavior: "smooth", 
+        });
+      }
+    },
+    
+  },
+};
 </script>
 
 <style scoped>
