@@ -16,36 +16,36 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="#" @click="togglePage('home')">Inicio </a>
+          <a id="homeIdNav" class="nav-link" href="#" @click="togglePage('home')">Inicio </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" @click="togglePage('sales')">Ventas</a>
+          <a id="saleIdNav" class="nav-link" href="#" @click="togglePage('sales')">Ventas</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#" @click="togglePage('inputs')"
+          <a id="inputIdNav" class="nav-link" href="#" @click="togglePage('inputs')"
             >Ingresos</a
           >
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#" @click="togglePage('buys')">Gastos</a>
+          <a id="outputIdNav" class="nav-link" href="#" @click="togglePage('buys')">Gastos</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#" @click="togglePage('stock')"
+          <a id="productIdNav" class="nav-link" href="#" @click="togglePage('stock')"
             >Productos</a
           >
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#" @click="togglePage('inform')">Informe</a>
+          <a id="informIdNav" class="nav-link" href="#" @click="togglePage('inform')">Informe</a>
         </li>
         <li>
-          <a class="nav-link" href="#" @click="togglePage('notes')"> Notas</a>
+          <a id="noteIdNav" class="nav-link" href="#" @click="togglePage('notes')"> Notas</a>
         </li>
         <li>
-          <a class="nav-link" href="#" @click="togglePage('user')"> Usuarios</a>
+          <a id="userIdNav" class="nav-link" href="#" @click="togglePage('user')"> Usuarios</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#" @click="logoutUser">Cerrar sesión</a>
@@ -106,7 +106,7 @@
           <a id="noteId" class="nav-link" href="#" @click="togglePage('note')">
             <i class="bi bi-card-checklist"></i> Notas</a
           >
-          <a id="noteId" class="nav-link" href="#" @click="togglePage('user')">
+          <a id="userId" class="nav-link" href="#" @click="togglePage('user')">
             <i class="bi bi-people"></i> Usuarios</a
           >
           <a @click="logoutUser" href="#"
@@ -193,6 +193,7 @@ export default {
         console.log("Role:", decipherRole);
         this.userRole = decipherRole;
 
+        //Sidebar
         const informBtn = document.querySelector("#informId");
         const salesBtn = document.querySelector("#saleId");
         const outputsBtn = document.querySelector("#outputId");
@@ -200,16 +201,39 @@ export default {
         const productsBtn = document.querySelector("#productId");
         const notesBtn = document.querySelector("#noteId");
         const homeBtn = document.querySelector("#homeId");
+        const userBtn=document.querySelector('#userId')
+
+
+        //Navbar
+        const informBtnNav = document.querySelector("#informIdNav");
+        const salesBtnNav = document.querySelector("#saleIdNav");
+        const outputsBtnNav = document.querySelector("#outputIdNav");
+        const inputsBtnNav = document.querySelector("#inputIdNav");
+        const productsBtnNav = document.querySelector("#productIdNav");
+        const notesBtnNav = document.querySelector("#noteIdNav");
+        const homeBtnNav = document.querySelector("#homeIdNav");
+        const userBtnNav=document.querySelector('#userIdNav')
 
         if (decipherRole === "administrador") {
           informBtn.classList.add("disabled");
+          informBtnNav.classList.add("disabled");
         } else if (decipherRole === "user") {
+          //Sidebar
           homeBtn.classList.add("disabled");
           outputsBtn.classList.add("disabled");
           inputsBtn.classList.add("disabled");
           informBtn.classList.add("disabled");
           notesBtn.classList.add("disabled");
           informBtn.classList.add("disabled");
+          userBtn.classList.add("disabled")
+          //Navbar
+          homeBtnNav.classList.add("disabled");
+          outputsBtnNav.classList.add("disabled");
+          inputsBtnNav.classList.add("disabled");
+          informBtnNav.classList.add("disabled");
+          notesBtnNav.classList.add("disabled");
+          informBtnNav.classList.add("disabled");
+          userBtnNav.classList.add("disabled")
           this.homePage = false;
         }
       } catch (error) {

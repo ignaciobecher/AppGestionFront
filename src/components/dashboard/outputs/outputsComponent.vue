@@ -196,7 +196,7 @@
           <input
             v-model="data.description"
             type="text"
-            placeholder="Ingrese una observacion (opcional)"
+            placeholder="Ingrese una observacion "
           />
           <!-- <input
             v-model="data.quantity"
@@ -237,7 +237,7 @@
           <input
             v-model="data.description"
             type="text"
-            placeholder="Ingrese una observacion (opcional)"
+            placeholder="Ingrese una observacion "
           />
           <!-- <input
             v-model="data.quantity"

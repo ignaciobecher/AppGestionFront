@@ -2,8 +2,8 @@
   <div class="main">
     <div class="left">
       <ul>
-        <li><a href="#" @click="scrollToTop">Inicio</a></li>
-        <li><a href="#" @click="scrollToFunc">Funcionalidades</a></li>
+        <li><a href="#" >Inicio</a></li>
+        <li><a href="#">Funcionalidades</a></li>
         <li><a href="#">Planes</a></li>
         <li>
           <router-link to="/register">
@@ -45,12 +45,7 @@
 <script>
 export default {
   methods: {
-    scrollToTop() {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    },
+    
   },
 };
 </script>

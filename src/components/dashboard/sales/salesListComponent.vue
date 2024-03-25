@@ -121,6 +121,9 @@
               />
             </td>
             <td>
+              <span>{{ sale.cashier }}</span>
+            </td>
+            <td>
               <span>{{ formatDate(sale.createdAt) }}</span>
             </td>
 

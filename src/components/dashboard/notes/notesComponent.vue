@@ -36,11 +36,7 @@
             <td>
               <span>{{ formatDate(notes.expirationDate) }}</span>
             </td>
-            <td>
-              <a>
-                <i style="color: black" class="bi bi-search"></i>
-              </a>
-            </td>
+           
             <td>
               <a @click="deleteNote(notes._id)">
                 <i  class="bi bi-trash"></i>
@@ -66,7 +62,7 @@
           <input
             v-model="noteData.description"
             type="text"
-            placeholder="Descripcion... (opcional)"
+            placeholder="Descripcion..."
           />
 
           <input

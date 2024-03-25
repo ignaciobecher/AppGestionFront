@@ -562,6 +562,10 @@ export default {
       try {
         const businessId = localStorage.getItem("businessId");
 
+        if(this.newCategoryName === ''){
+          window.alert('La categoria no puede estar vacia')
+          return
+        }
         const newCategory = await axios.post(
           "http://localhost:3000/categoryes",
           {
@@ -573,6 +577,7 @@ export default {
           window.alert("Categoria creada");
           this.changeStatusOfCategoryForm();
           this.getCategoryesIds();
+          this.newCategoryName = "";
         }
       } catch (error) {
         throw error;
@@ -613,7 +618,10 @@ export default {
         this.selectedProduct = data;
         this.foundProduct = false;
       } catch (error) {
-        console.error("Error al obtener el producto desde codigo de barra:", error);
+        console.error(
+          "Error al obtener el producto desde codigo de barra:",
+          error
+        );
       }
     },
     async getCategoryesIds() {
@@ -709,12 +717,14 @@ export default {
     },
     async askGpt() {
       try {
+        this.showPrint = false;
         if (this.question === "") {
           window.alert("Tu pregunta no puede estar vacia");
           return;
         }
         this.loading = true;
         this.information = this.products;
+       
         const response = await axios.post(`http://localhost:3000/chat-gpt`, {
           message: this.question,
           info: this.information,

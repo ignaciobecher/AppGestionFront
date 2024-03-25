@@ -1,6 +1,7 @@
 <template>
   <div class="resume-container">
-    <firstLogin></firstLogin>
+    <!-- Condición para mostrar firstLogin solo si no ha iniciado sesión antes -->
+    <firstLogin v-if="!loggedBefore"></firstLogin>
     <div class="title">
       <searchbar></searchbar>
     </div>
@@ -30,6 +31,31 @@ export default {
     askHomeComponent,
     firstLogin
   },
+  data() {
+    return {
+      loggedBefore: false // Inicialmente, se asume que el usuario no ha iniciado sesión antes
+    };
+  },
+  created() {
+    this.hasLoggedBefore();
+  },
+  methods: {
+    hasLoggedBefore() {
+      try {
+        // Verificar si el indicador está en localStorage
+        const loggedBefore = localStorage.getItem('loggedBefore');
+        if (loggedBefore) {
+          // Si el indicador existe, establecer la variable de datos correspondiente
+          this.loggedBefore = true;
+        } else {
+          // Si el indicador no existe, marcarlo en localStorage
+          localStorage.setItem('loggedBefore', 'true');
+        }
+      } catch (error) {
+        console.error('Error al acceder al almacenamiento local:', error);
+      }
+    }
+  }
 };
 </script>
 
