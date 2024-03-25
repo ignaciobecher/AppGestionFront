@@ -245,13 +245,13 @@
           <input
             v-model="data.description"
             type="text"
-            placeholder="Decripcion... (opcional)"
+            placeholder="Decripcion..."
           />
 
           <input
             v-model="data.receiptNumber"
             type="text"
-            placeholder="Nro factura... (opcional)"
+            placeholder="Nro factura... "
           />
 
           <input
@@ -290,13 +290,13 @@
           <input
             v-model="data.description"
             type="text"
-            placeholder="Decripcion... (opcional)"
+            placeholder="Decripcion... "
           />
 
           <input
             v-model="data.receiptNumber"
             type="text"
-            placeholder="Nro factura... (opcional)"
+            placeholder="Nro factura..."
           />
 
           <input
@@ -502,12 +502,13 @@ export default {
           window.alert("Todos los campos son obligatorios");
           return;
         }
+        const formatedTotal=numeral(this.data.total).value()
         const response = await axios.post(`https://api-gestion-ahil.onrender.com/buys`, {
           providerId: this.providerId,
           businessId: businessId,
           description: this.data.description,
           receiptNumber: this.data.receiptNumber,
-          total: this.data.total,
+          total: formatedTotal,
         });
         if (response.data) {
           window.alert("Factura cargada");
@@ -564,6 +565,7 @@ export default {
           businessId: businessId,
         });
         this.changeSupplierFormStatus();
+        this.getAllProviders()
         this.supplierData.name = "";
         this.supplierData.email = "";
         this.supplierData.phone = "";
@@ -688,8 +690,7 @@ export default {
       return numeral(price).format("$0,0.00");
     },
     formatPriceInput() {
-      // Formatear el precio mientras se escribe
-      this.data.price = numeral(this.data.price).format("$0,0");
+      this.data.total= numeral(this.data.total).format("$0,0");
     },
     changeEditStatus() {
       this.editStatus = !this.editStatus;

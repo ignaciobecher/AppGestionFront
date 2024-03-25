@@ -183,7 +183,7 @@
           <input
             v-model="data.debt"
             type="text"
-            placeholder="Deuda... (opcional)"
+            placeholder="Deuda... "
             @input="formatPriceInput"
           />
           <button @click="changeStatusOfForm" class="btn-cancel">
@@ -220,7 +220,7 @@
           <input
             v-model="data.debt"
             type="text"
-            placeholder="Deuda... (opcional)"
+            placeholder="Deuda... "
             @input="formatPriceInput"
           />
           <button @click="changeEditFormStatus" class="btn-cancel">

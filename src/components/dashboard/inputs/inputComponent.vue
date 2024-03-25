@@ -135,17 +135,17 @@
           <input
             v-model="data.description"
             type="text"
-            placeholder="Descripcion... (opcional)"
+            placeholder="Descripcion... "
           />
           <input
             v-model="data.quantity"
             type="text"
-            placeholder="Cantidad... (opcional)"
+            placeholder="Cantidad... "
           />
           <input
             v-model="data.value"
             type="text"
-            placeholder="Monto... (opcional)"
+            placeholder="Monto... "
             @input="formatPriceInput"
           />
           <!-- <input
@@ -172,17 +172,17 @@
           <input
             v-model="data.description"
             type="text"
-            placeholder="Descripcion... (opcional)"
+            placeholder="Descripcion... "
           />
           <input
             v-model="data.quantity"
             type="text"
-            placeholder="Cantidad... (opcional)"
+            placeholder="Cantidad..."
           />
           <input
             v-model="data.value"
             type="text"
-            placeholder="Monto... (opcional)"
+            placeholder="Monto..."
             @input="formatPriceInput"
           />
           <!-- <input

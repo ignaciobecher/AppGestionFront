@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="my-template">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <a class="navbar-brand" href="#" style="font-weight: 500">
         <img
@@ -24,16 +24,20 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="#">INICIO</a>
+            <router-link to="/">
+              <a class="nav-link" href="#">INICIO</a>
+            </router-link>
           </li>
           <li class="nav-item">
-            <a @click="scrollToFunctionalities" class="nav-link" href="#"
-              >FUNCIONALIDADES</a
-            >
+            <router-link to="/funcionalidades">
+              <a class="nav-link" href="#">FUNCIONALIDADES</a>
+            </router-link>
           </li>
 
           <li class="nav-item">
-            <a @click="scrollToPlanes" class="nav-link" href="#">PLANES</a>
+            <router-link to="/precios">
+              <a class="nav-link" href="#">PLANES</a>
+            </router-link>
           </li>
 
           <li class="nav-item">
@@ -55,28 +59,7 @@
 
 <script>
 export default {
-  methods: {
-    scrollToFunctionalities() {
-      // Verificar si estamos en la parte superior de la página
-      if (window.scrollY === 0) {
-        const yOffset = 1300;
-        window.scrollTo({
-          top: yOffset,
-          behavior: "smooth", // smooth scrolling animation
-        });
-      }
-    },
-    scrollToPlanes() {
-      if (window.scrollY === 0) {
-        const yOffset = 1900;
-        window.scrollTo({
-          top: yOffset,
-          behavior: "smooth", 
-        });
-      }
-    },
-    
-  },
+  methods: {},
 };
 </script>
 

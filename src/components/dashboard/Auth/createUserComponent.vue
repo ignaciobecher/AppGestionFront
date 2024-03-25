@@ -55,7 +55,6 @@
           <button type="submit">Crear usuario</button>
         </div>
       </form>
-      <p v-if="error" class="error">{{ error }}</p>
     </div>
   </div>
 </template>
@@ -94,6 +93,10 @@ export default {
             role:this.formData.role,
           }
         );
+        console.log(user);
+        if(!user){
+          window.alert('¡Usuario o email en uso, prueba con otros!')
+        }
 
         console.log("businessId", businessId);
         console.log(this.formData.role);
@@ -104,7 +107,8 @@ export default {
         alert("Usuario registrado correctamente");
         this.$router.push("/home");
       } catch (error) {
-        this.error = error.message;
+        window.alert('¡Usuario o email en uso, prueba con otros!')
+
       }
     },
 

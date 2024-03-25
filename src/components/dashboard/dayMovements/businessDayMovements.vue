@@ -132,6 +132,7 @@ export default {
       const allMovements = result.data;
       this.movements = allMovements;
     },
+
     async getProducts() {
       try {
         const businessId = localStorage.getItem("businessId");

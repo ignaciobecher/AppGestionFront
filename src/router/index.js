@@ -8,6 +8,14 @@ const routes = [
     component: ()=>import ('../pages/landing/landingPage.vue'),
   },
   {
+    path:'/precios',
+    component:()=> import ('../pages/landing/planesPage.vue')
+  },
+  {
+    path:'/funcionalidades',
+    component:()=>import ('../pages/landing/functionsPage.vue')
+  },
+  {
     path: "/register",
     component: () => import("../pages/registerPage.vue"),
   },

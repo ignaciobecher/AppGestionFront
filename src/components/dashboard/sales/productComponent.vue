@@ -431,7 +431,7 @@ export default {
           const searchInDb = await axios.get(
             `http://localhost:3000/products/searchIn/${this.data.barCode}`
           );
-          if (!searchInDb.data.name) {
+          if (!searchInDb.data || this.data.barCode.length > 6) {
             await axios.post(
               `http://localhost:3000/products/create/product/sendToDb`,
               {
