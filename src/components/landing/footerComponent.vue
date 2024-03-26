@@ -7,7 +7,7 @@
         <li><a href="#">Planes</a></li>
         <li>
           <router-link to="/register">
-            <a href="#">Iniciar sesiòn</a>
+            <a href="#">Iniciar sesión</a>
           </router-link>
         </li>
         <li>
@@ -20,17 +20,22 @@
     <div class="center">
       <div style="display: flex">
         <img style="width: 100px" src="../../assets/logoNav.png" alt="" />
-        <h4 style="align-self: center">Adminia</h4>
+        <h4 style="align-self: center">Adminiad</h4>
       </div>
       <p>
-        Adminia es tu software de gestion personal que te ayuda en las tareas de
-        tu negocio, con Adminia deja el papel y las horas perdidas en el pasado.
+        Adminiad es tu software de gestion personal que te ayuda en las tareas de
+        tu negocio, con Adminiad deja el papel y las horas perdidas en el pasado.
       </p>
     </div>
 
     <div class="right">
       <p>Comunicate con nosotros</p>
-      <button>Enviar</button>
+      <button>
+        <a href="mailto:cuyosoftware@gmail.com">Comunicate</a>
+      </button>
+      <a href="mailto:">clientes@adminiad.com</a>
+      <br>
+      <a href="mailto:">ventas@adminiad.com</a>
       <p>Desarrollado por:</p>
       <img style="width: 100px" src="../../assets/logoCuyo.png" alt="" /><a
         style="font-weight: bold"
@@ -78,15 +83,19 @@ export default {
   border-radius: 25px;
   padding: 5px;
   font-weight: bold;
-  font-size: 20px;
-  width: 30%;
+  font-size: 15px;
+  width: 50%;
   transition: background-color 0.5s ease;
   border: none;
   margin: 0 auto;
 }
 
+.right a{
+  color: white;
+}
 button:hover {
   background-color: #312551;
+  border: 1px solid white
 }
 
 .left li a {

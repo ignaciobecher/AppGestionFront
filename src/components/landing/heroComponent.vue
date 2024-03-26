@@ -7,12 +7,14 @@
           <span class="typing-demo"> </span>
         </h1>
         <h4>
-          Administra tu negocio, controla tu inventario y accede con un click a
-          reportes inteligentes de tu negocios
+          Administra tu negocio, controla tu inventario y accedé con un click a
+          reportes inteligentes de tu negocio.
         </h4>
-        <button>Prueba gratuita</button>
+        <button>
+          <router-link style="color: white;" to="/register"> Prueba gratuita </router-link>
+        </button>
         <p>
-          Accede a todas las funciones de Adminia sin limitaciones. Más de 500
+          Accedé a todas las funciones de Adminiad sin limitaciones. Más de 500
           negocios ya utilizan nuestros servicios.
         </p>
       </div>
@@ -26,8 +28,8 @@
 <script>
 export default {
   mounted() {
-    const typingDemo = document.querySelector('.typing-demo');
-    const text = 'inteligencia artificial';
+    const typingDemo = document.querySelector(".typing-demo");
+    const text = "inteligencia artificial";
     let index = 0;
     const typingSpeed = 50; // Ajusta la velocidad de escritura aquí (en milisegundos)
 
@@ -40,7 +42,7 @@ export default {
     }
 
     type();
-  }
+  },
 };
 </script>
 <style scoped>
@@ -53,8 +55,8 @@ export default {
   padding-top: 50px;
 }
 
-.main .left{
-  margin-right: 20px
+.main .left {
+  margin-right: 20px;
 }
 
 .main .left h1 {
@@ -86,8 +88,8 @@ export default {
 
 /* *************************************************CELULARES/TABLETS*********************************** */
 
-@media (max-width: 768px){
-  .main{
+@media (max-width: 768px) {
+  .main {
     display: flex;
     flex-direction: column;
   }

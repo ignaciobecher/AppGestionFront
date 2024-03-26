@@ -104,7 +104,7 @@
         </select>
       </div>
 
-      <div  class="productSale">
+      <div class="productSale">
         <div>
           <div class="products-titles">
             <p>Productos</p>
@@ -112,7 +112,7 @@
             <p>Precio unitario</p>
             <p>Precio total</p>
           </div>
-          <div  class="product-container-wrapper">
+          <div class="product-container-wrapper">
             <div
               class="product-container"
               v-for="(product, index) in carrito"
@@ -251,7 +251,6 @@
     <div v-if="loading" class="spinner-overlay">
       <spinner class="spinner"></spinner>
     </div>
-
   </div>
 </template>
 
@@ -262,8 +261,8 @@ import spinner from "@/components/visuals/spinner.vue";
 const businessId = localStorage.getItem("businessId");
 
 export default {
-  components:{
-    spinner
+  components: {
+    spinner,
   },
   data() {
     return {
@@ -301,7 +300,7 @@ export default {
       editQuantityStatus: true,
       businessData: [],
       cashierUsername: "",
-      loading:false,
+      loading: false,
     };
   },
   methods: {
@@ -334,18 +333,22 @@ export default {
             }
           }
         } else {
+          let productFromUPC;
+
           if (window.confirm("Producto no encontrado ¿Desea añadirlo?")) {
             const productFromDB = this.getProductFromDB(barcode);
-            if (!productFromDB || !productFromDB.name) {
-             const productFromUPC= this.getProductFromGoUpc(barcode);
-            }else if(!productFromUPC || !productFromUPC.name){
-              this.data.barCode=barcode
-            this.changeStatusOfForm();
 
+            console.log("No esta en base de datos");
+            if (!productFromDB || !productFromDB.name) {
+              productFromUPC = this.getProductFromGoUpc(barcode);
+            } else if (!productFromUPC || !productFromUPC.name) {
+              this.data.barCode = barcode;
+              console.log("A crearlo");
+              this.changeStatusOfForm();
             }
-            this.data.barCode = barcode;
-            this.changeStatusOfForm();
           }
+          this.changeStatusOfForm();
+          this.data.barCode = barcode;
         }
       } catch (error) {
         console.error("Error al obtener el producto:", error);
@@ -431,7 +434,7 @@ export default {
           const searchInDb = await axios.get(
             `http://localhost:3000/products/searchIn/${this.data.barCode}`
           );
-          if (!searchInDb.data || this.data.barCode.length > 6) {
+          if (!searchInDb.data || this.data.barCode.length > 8) {
             await axios.post(
               `http://localhost:3000/products/create/product/sendToDb`,
               {
@@ -444,6 +447,7 @@ export default {
               }
             );
           }
+          this.changeStatusOfForm();
 
           newProduct.data.sellQuantity = 1;
           this.productsIds.push(newProduct.data._id);
@@ -452,17 +456,13 @@ export default {
           this.data.name = "";
           this.data.sellPrice = "";
           this.data.barCode = "";
-
-          setTimeout(() => {
-            this.changeStatusOfForm();
-          }, 0);
         }
       } catch (error) {
         console.log("Error: ", error);
       }
     },
     async createSale() {
-      this.loading=true
+      this.loading = true;
       let arrayOfIds = [];
       let arrayOfProductsQuantities = [];
       for (const product of this.productsIds) {
@@ -521,7 +521,7 @@ export default {
           this.multipleProductsArray = [];
           this.pay = "";
           this.change = "";
-          this.loading=false
+          this.loading = false;
           this.showSuccesMessage();
           console.log("Cambio despues : ", this.totalForChange);
         } else {
@@ -569,14 +569,15 @@ export default {
           `https://api-gestion-ahil.onrender.com/globalproducts/${barcode}`
         );
         console.log("Producto desde UPC:", result.data.product);
-        const product=result.data
+        const product = result.data;
         const productData = {
           name: result.data.product.name,
           description: result.data.product.description,
           category: result.data.product.category,
         };
-        return product
         this.data.name = productData.name;
+
+        return product;
       } catch (error) {
         throw error;
       }
@@ -780,9 +781,9 @@ export default {
   z-index: 9999; /* Asegura que esté por encima de otros elementos */
 }
 
-.spinner{
+.spinner {
   width: 50px;
-  height: 50px
+  height: 50px;
 }
 
 .inputQuantity {

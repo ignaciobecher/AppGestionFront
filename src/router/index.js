@@ -20,6 +20,10 @@ const routes = [
     component: () => import("../pages/registerPage.vue"),
   },
   {
+    path:'/pagar',
+    component:()=> import ('../pages/pricesPage.vue')
+  },
+  {
     path: "/restore",
     component: () =>
       import("../components/dashboard/Auth/changePasswordComponent.vue"),

@@ -84,7 +84,7 @@
             required
           />
         </div>
-        <button type="submit">
+        <button  type="submit">
           <p
             v-if="loading === false"
             style="margin-top: 10px; font-weight: 500; font-size: 20px"
@@ -170,7 +170,6 @@ export default {
         return businessId;
       } catch (error) {
         this.loading = false;
-
         window.alert("El email que estás intentando usar ya está registrado");
         window.location.reload();
         const businessId = localStorage.getItem("businessId");
@@ -178,6 +177,9 @@ export default {
           await axios.delete(`https://api-gestion-ahil.onrender.com/business/${businessId}`);
         }
       }
+    },
+    goToPay() {
+      this.$router.push("/pagar");
     },
   },
 };

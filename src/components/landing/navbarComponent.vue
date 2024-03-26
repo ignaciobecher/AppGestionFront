@@ -7,7 +7,7 @@
           width="50"
           height="50"
           alt=""
-        />Adminia
+        />Adminiad
       </a>
       <button
         class="navbar-toggler"
