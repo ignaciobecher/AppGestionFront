@@ -1,62 +1,68 @@
 <template>
-    <div class="main">
-        <div class="top">
-            <h1>Soluciones para <span style="color: #9a3990;">todo tipo de empresas</span></h1>
-            <p>Usalo cuando quieras, donde quieras y en cualquier dispositivo.</p>
-        </div>
-
-        <div class="bottom">
-            <div class="imageDiv">
-                <img src="../../assets/solution.png" alt="">
-            </div>
-
-            <div class="textDiv">
-                <h4>Nuestro sistema de gestion se adapta a las necesidades de todo tipo de empresas, desde emprendimientos hasta grandes empresas</h4>
-                <button>Prueba gratuita</button>
-                <p>Sin necesidad de tarjeta de crédito</p>
-            </div>
-        </div>
+  <div class="main">
+    <div class="top">
+      <h1>
+        Soluciones para
+        <span style="color: #9a3990">todo tipo de empresas.</span>
+      </h1>
+      <p>Usalo cuando quieras, donde quieras y en cualquier dispositivo.</p>
     </div>
+
+    <div class="bottom">
+      <div class="imageDiv">
+        <img src="../../assets/solution.png" alt="" />
+      </div>
+
+      <div class="textDiv">
+        <h4>
+          Nuestro sistema de gestión se adapta a las necesidades de todo tipo de
+          negocios, desde emprendimientos hasta grandes empresas.
+        </h4>
+        <button>
+          <router-link style="color: white" to="/register">
+            Prueba gratuita
+          </router-link>
+        </button>
+        <p>Sin necesidad de tarjeta de crédito.</p>
+      </div>
+    </div>
+  </div>
 </template>
 
-
-
-
 <style scoped>
-
-.main{
-    padding-top: 50px;
-    background-color: #ebe3ec !important;
+.main {
+  padding-top: 50px;
+  background-color: #ebe3ec !important;
 }
-.main .top{
-    text-align: center;
-}
-
-.main .top h1{
-    font-weight: bold;
-    color: black;
+.main .top {
+  text-align: center;
 }
 
-.top p{
-    font-weight: bold;
+.main .top h1 {
+  font-weight: bold;
+  color: black;
 }
 
-.bottom{
-    display: flex;
-    flex-direction: row;
-    margin-right: 10px;
+.top p {
+  font-weight: bold;
 }
 
-.bottom .textDiv{
-    align-self: center;
+.bottom {
+  display: flex;
+  flex-direction: row;
+  margin-right: 10px;
 }
 
-.bottom h4{
-    font-weight: bold;
+.bottom .textDiv {
+  align-self: center;
 }
 
-.bottom button{
-    background-color: #312551;
+.bottom h4 {
+  font-weight: bold;
+}
+
+.bottom button {
+  background-color: #312551;
   color: white;
   border-radius: 25px;
   padding: 5px;
@@ -67,30 +73,26 @@
   border: none;
 }
 
-.bottom p{
-    font-weight: bold;
+.bottom p {
+  font-weight: bold;
 }
 
 /* *************************************************CELULARES/TABLETS*********************************** */
 
-@media (max-width: 768px){
-  .main{
+@media (max-width: 768px) {
+  .main {
     display: flex;
     flex-direction: column;
-    padding-left: 20px
+    padding-left: 20px;
   }
 
-  .main .bottom{
+  .main .bottom {
     display: flex;
-    flex-direction: column
+    flex-direction: column;
   }
 
-  .bottom img{
+  .bottom img {
     width: 100%;
   }
 }
-
 </style>
-
-
-

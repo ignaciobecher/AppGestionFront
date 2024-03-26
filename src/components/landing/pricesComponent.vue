@@ -1,24 +1,24 @@
 <template>
     <div class="main">
         <div class="top">
-            <h2>Planes pensados para tu negocio</h2>
+            <h2>Planes pensados para tu negocio.</h2>
         </div>
 
         <div class="bottom">
             <div class="card">
                 <h3>EMPRENDEDOR</h3>
-                <p>$5.000 <br>MENSUAL</p>
+                <p>$10.000 <br>MENSUAL</p>
 
 
                 <ul>
                     <li>
                         <i class="bi bi-check-lg"></i>
-                        20 productos en stock
+                        100 productos en stock
                     </li>
 
                     <li>
                         <i class="bi bi-check-lg"></i>
-                        50 ventas
+                        300 ventas
                     </li>
 
                     <li>
@@ -35,39 +35,39 @@
 
             <div class="card">
                 <h3>PYME</h3>
-                <p>$15.000 <br>MENSUAL</p>
+                <p>$20.000 <br>MENSUAL</p>
 
                 <ul>
                     <li>
                         <i class="bi bi-check-lg"></i>
-                        50 productos en stock
+                        500 productos en stock
                     </li>
 
                     <li>
                         <i class="bi bi-check-lg"></i>
-                        400 ventas
+                        1000 ventas
                     </li>
 
                     <li>
                         <i class="bi bi-check-lg"></i>
-                        3 usuario
+                        3 usuarios
                     </li>
 
                     <li>
                         <i class="bi bi-check-lg"></i>
-                        Soporte por emaily WhatsApp
+                        Soporte por email y WhatsApp
                     </li>
                 </ul>
             </div>
 
             <div class="card">
                 <h3>EMPRESA</h3>
-                <p>$35.000<br>MENSUAL</p>
+                <p>$40.000<br>MENSUAL</p>
 
                 <ul>
                     <li>
                         <i class="bi bi-check-lg"></i>
-                        1000 productos en stock
+                        5000 productos en stock
                     </li>
 
                     <li>
@@ -89,7 +89,8 @@
 
             <div class="card">
                 <h3>PERSONALIZADO</h3>
-                <p>Consultar con ventas</p>
+                <p><a href="https://wa.link/oitb38"><i class="bi bi-whatsapp"></i> Comunicarme con ventas</a><br>MENSUAL</p>
+
 
                 <ul>
                     <li>
@@ -117,13 +118,17 @@
         </div>
 
         <div style="text-align: center; margin-top: 30px;">
-            <button>Proba Adminia gratis por 7 dìas</button>
+            <button>
+          <router-link style="color: white" to="/register">
+            Proba Adminiad gratis por 7 días
+          </router-link>
+        </button>
         </div>
 
         <div class="box">
             <img src="../../assets/logoNav.png" alt="">
             <h3>¿Necesitas ayuda antes de iniciar?</h3>
-            <a href="#"> Ponete en contacto con nosotros y te ayudamos.</a>
+            <a href="https://wa.link/wvil4d"> Ponete en contacto con nosotros y te ayudamos.</a>
         </div>
     </div>
 </template>
