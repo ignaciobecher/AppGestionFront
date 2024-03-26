@@ -96,11 +96,11 @@
             <a href="">Hace click acá para recuperarla </a>
           </router-link>
         </p>
-        <p style="margin-top: 20px">
+        <!-- <p style="margin-top: 20px">
           <router-link to="/business">
             <a href=""> Registrar nuevo negocio </a>
           </router-link>
-        </p>
+        </p> -->
       </form>
       <p v-if="error" class="error">{{ error }}</p>
     </div>
@@ -171,7 +171,6 @@ export default {
           email: this.formData.email,
           password: this.formData.password,
         });
-
         const userData = user.data;
 
         if (userData.token) {

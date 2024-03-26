@@ -84,7 +84,7 @@
             required
           />
         </div>
-        <button  type="submit">
+        <button type="submit">
           <p
             v-if="loading === false"
             style="margin-top: 10px; font-weight: 500; font-size: 20px"
@@ -163,23 +163,21 @@ export default {
           "Gracias por registrar tu negocio en Adminia, en tu mail te indicamos el siguiente paso"
         );
 
-        this.$router.push("/register");
+        this.$router.push("/pagar");
         this.data.name = "";
         this.data.address = "";
         this.data.email = "";
         return businessId;
       } catch (error) {
         this.loading = false;
+
         window.alert("El email que estás intentando usar ya está registrado");
-        window.location.reload();
+        // window.location.reload();
         const businessId = localStorage.getItem("businessId");
         if (businessId) {
           await axios.delete(`http://localhost:3000/business/${businessId}`);
         }
       }
-    },
-    goToPay() {
-      this.$router.push("/pagar");
     },
   },
 };

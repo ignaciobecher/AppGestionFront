@@ -67,7 +67,7 @@
                 <ul>
                     <li>
                         <i class="bi bi-check-lg"></i>
-                        5000 productos en stock
+                        Productos ilimitados
                     </li>
 
                     <li>

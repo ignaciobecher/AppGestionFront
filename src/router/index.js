@@ -5,29 +5,35 @@ import roleGuard from "@/guards/roleGuard";
 const routes = [
   {
     path: "/",
-    component: ()=>import ('../pages/landing/landingPage.vue'),
+    component: () => import("../pages/landing/landingPage.vue"),
   },
   {
-    path:'/precios',
-    component:()=> import ('../pages/landing/planesPage.vue')
+    path: "/precios",
+    component: () => import("../pages/landing/planesPage.vue"),
   },
   {
-    path:'/funcionalidades',
-    component:()=>import ('../pages/landing/functionsPage.vue')
+    path: "/funcionalidades",
+    component: () => import("../pages/landing/functionsPage.vue"),
   },
   {
     path: "/register",
     component: () => import("../pages/registerPage.vue"),
   },
   {
-    path:'/pagar',
-    component:()=> import ('../pages/pricesPage.vue')
+    path: "/pagar",
+    component: () => import("../pages/pricesPage.vue"),
+  },
+  {
+    path: "/pagar/registrar",
+    component: () =>
+      import("../components/dashboard/Auth/addPaymentIdComponent.vue"),
   },
   {
     path: "/restore",
     component: () =>
       import("../components/dashboard/Auth/changePasswordComponent.vue"),
   },
+ 
   {
     path: "/home",
     component: () => import("../views/dashboardView.vue"),

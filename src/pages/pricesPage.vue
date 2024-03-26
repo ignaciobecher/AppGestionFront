@@ -1,4 +1,10 @@
 <template>
+  <div style="background-color: #ebe3ec !important">
+    <router-link to="/">
+      <i style="font-size: 30px; margin-left: 10px" class="bi bi-arrow-left">
+      </i>
+    </router-link>
+  </div>
   <div class="main">
     <div class="top">
       <h2>Planes pensados para tu negocio.</h2>
@@ -30,8 +36,13 @@
             Soporte por email
           </li>
         </ul>
-        <button @click="generateLinkEmprendedor">
-          Seleccionar plan Emprendedor
+        <button>
+          <a
+            target="_blank"
+            href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=2c9380848e681d84018e7b53f2c60ad4"
+          >
+            Seleccionar plan Emprendedor
+          </a>
         </button>
       </div>
 
@@ -60,7 +71,13 @@
             Soporte por email y WhatsApp
           </li>
         </ul>
-        <button @click="generateLinkPyme">Seleccionar plan Pyme</button>
+        <button>
+          <a
+            target="_blank"
+            href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=2c9380848e681d84018e7b52ff880ad3"
+            >Seleccionar plan Pyme</a
+          >
+        </button>
       </div>
 
       <div class="card">
@@ -88,8 +105,19 @@
             Soporte por email y WhatsApp 24/7
           </li>
         </ul>
-        <button @click="generateLinkEmpresa">Seleecionar plan Empresa</button>
+        <button>
+          <a
+            target="_blank"
+            href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=2c9380848e681dc3018e7b502f760b34"
+            >Seleccionar plan Empresa</a
+          >
+        </button>
       </div>
+    </div>
+    <div style="text-align: center; margin-top: 40px">
+      <router-link to="/pagar/registrar">
+        <button style="width: 30%">Ya pague!</button>
+      </router-link>
     </div>
   </div>
 </template>
@@ -106,60 +134,7 @@ export default {
       link: "",
     };
   },
-  methods: {
-    async generateLinkEmprendedor() {
-      try {
-        const data = {
-          price: 100,
-          name: "Plan Emprendedor Adminiad",
-          redirectSucces: "https://www.google.com/search?q=success",
-          redirectFail: "https://www.google.com/search?q=failed",
-        };
-
-        const response = await axios.post("http://localhost:3000/uala", data);
-        console.log(response.data.links.checkoutLink);
-        const link = response.data.links.checkoutLink;
-        window.location.href = link;
-      } catch (error) {
-        console.error(error);
-        window.alert("Error al generar el enlace");
-      }
-    },
-    async generateLinkPyme() {
-      try {
-        const data = {
-          price: 50,
-          name: "Plan Pyme Adminiad",
-          redirectSucces: "https://www.google.com/search?q=success",
-          redirectFail: "https://www.google.com/search?q=failed",
-        };
-
-        const response = await axios.post("http://localhost:3000/uala", data);
-        const link = response.data.links.checkoutLink;
-        window.location.href = link;
-      } catch (error) {
-        console.error(error);
-        window.alert("Error al generar el enlace");
-      }
-    },
-    async generateLinkEmpresa() {
-      try {
-        const data = {
-          price: 15,
-          name: "Plan Empresa Adminiad",
-          redirectSucces: "https://www.google.com/search?q=success",
-          redirectFail: "https://www.google.com/search?q=failed",
-        };
-
-        const response = await axios.post("http://localhost:3000/uala", data);
-        const link = response.data.links.checkoutLink;
-        window.location.href = link;
-      } catch (error) {
-        console.error(error);
-        window.alert("Error al generar el enlace");
-      }
-    },
-  },
+  methods: {},
 };
 </script>
 
@@ -221,6 +196,10 @@ button {
   font-size: 15px;
   transition: background-color 0.5s ease;
   border: none;
+}
+
+button a {
+  color: white;
 }
 
 button:hover {
