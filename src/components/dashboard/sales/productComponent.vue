@@ -432,11 +432,11 @@ export default {
           );
 
           const searchInDb = await axios.get(
-            `http://localhost:3000/products/searchIn/${this.data.barCode}`
+            `https://api-gestion-ahil.onrender.com/products/searchIn/${this.data.barCode}`
           );
           if (!searchInDb.data || this.data.barCode.length > 8) {
             await axios.post(
-              `http://localhost:3000/products/create/product/sendToDb`,
+              `https://api-gestion-ahil.onrender.com/products/create/product/sendToDb`,
               {
                 name: this.data.name,
                 sellPrice: sellPriceFormated,
@@ -586,7 +586,7 @@ export default {
       try {
         const userId = localStorage.getItem("userId");
         const response = await axios.get(
-          `http://localhost:3000/auth/${userId}`
+          `https://api-gestion-ahil.onrender.com/auth/${userId}`
         );
         const user = response.data;
         this.cashierUsername = user.username;

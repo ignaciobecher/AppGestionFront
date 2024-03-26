@@ -116,7 +116,7 @@ export default {
           redirectFail: "https://www.google.com/search?q=failed",
         };
 
-        const response = await axios.post("http://localhost:3000/uala", data);
+        const response = await axios.post("https://api-gestion-ahil.onrender.com/uala", data);
         console.log(response.data.links.checkoutLink);
         const link = response.data.links.checkoutLink;
         window.location.href = link;
@@ -134,7 +134,7 @@ export default {
           redirectFail: "https://www.google.com/search?q=failed",
         };
 
-        const response = await axios.post("http://localhost:3000/uala", data);
+        const response = await axios.post("https://api-gestion-ahil.onrender.com/uala", data);
         const link = response.data.links.checkoutLink;
         window.location.href = link;
       } catch (error) {
@@ -151,7 +151,7 @@ export default {
           redirectFail: "https://www.google.com/search?q=failed",
         };
 
-        const response = await axios.post("http://localhost:3000/uala", data);
+        const response = await axios.post("https://api-gestion-ahil.onrender.com/uala", data);
         const link = response.data.links.checkoutLink;
         window.location.href = link;
       } catch (error) {
