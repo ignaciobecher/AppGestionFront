@@ -1,6 +1,7 @@
 <template>
   <div class="main-container">
     <informContainer class="resume"></informContainer>
+
     <div class="assistentComponent">
       <h4>Asistente virtual</h4>
       <input
@@ -28,6 +29,11 @@
         </button>
       </div>
     </div>
+
+    <div class="turnAndSales">
+      <turnsComponent></turnsComponent>
+      <daysTotalComponent></daysTotalComponent>
+    </div>
   </div>
 </template>
 
@@ -36,6 +42,10 @@ import monthSalesChart from "@/components/dashboard/inform/monthSalesChartcompon
 import columnChart from "@/components/dashboard/inform/columnChartComponent.vue";
 import pieChart from "@/components/dashboard/inform/pieChartComponent.vue";
 import informContainer from "../components/dashboard/inform/informComponent.vue";
+import turnsComponent from '../components/dashboard/sales/turnsComponent.vue'
+import daysTotalComponent from '../components/dashboard/inform/dayTotalsComponent.vue'
+
+
 import axios from "axios";
 import spinner from "@/components/visuals/spinner.vue";
 
@@ -48,7 +58,9 @@ export default {
     pieChart,
     columnChart,
     monthSalesChart,
-    spinner
+    turnsComponent,
+    spinner,
+    daysTotalComponent
   },
   data() {
     return {
@@ -148,6 +160,8 @@ export default {
   color: white;
   margin-top: 10px;
 }
+
+
 
 /* //RESPONSIVE PARA TELEFONO-****************************************************************** */
 @media screen and (max-width: 768px) {

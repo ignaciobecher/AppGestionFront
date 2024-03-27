@@ -1,5 +1,8 @@
 <template>
   <div class="mainContainer">
+    <div class="closeTurn">
+      <button @click="changeStateOfTurnForm">Finalizar turno</button>
+    </div>
     <!-- BUSCADOR POR CODIGO DE BARRAS -->
     <div class="searchbar-container">
       <p>Buscar producto:</p>
@@ -195,6 +198,7 @@
       </div>
     </div>
 
+    <!-- REGISTRAR NUEVO PRODUCTO -->
     <div v-if="formStatus" class="register-component">
       <div class="expenses-form">
         <div class="form-group">
@@ -240,6 +244,7 @@
       </div>
     </div>
 
+    <!-- MENSAJE DE EXITO -->
     <div v-if="succesMessageVisible" class="alert alert-success" role="alert">
       <h4 class="alert-heading">
         VENTA EXITOSA <i class="bi bi-check-circle-fill"></i>
@@ -248,8 +253,52 @@
         Hiciste una venta, podes ver sus estadisticas en el sitio de resumen
       </p>
     </div>
+
+    <!-- SPINNER -->
     <div v-if="loading" class="spinner-overlay">
       <spinner class="spinner"></spinner>
+    </div>
+
+    <!-- CERRAR TURNO -->
+    <div v-if="turnStatus" class="turnForm">
+      <div class="expenses-form">
+        <div class="form-group">
+          <h3 style="text-align: center">Cerra tu turno</h3>
+          <input
+            type="text"
+            placeholder="Identificación"
+            v-model="turnData.description"
+          />
+          <input
+            type="number"
+            placeholder="Total efectivo"
+            v-model="turnData.totalCashOfUser"
+            @input="formatPriceInput"
+          />
+          <input
+            type="number"
+            v-model="turnData.hours"
+            placeholder="Duración del turno en horas"
+          />
+
+          <input
+            type="text"
+            :value="cashierUsername"
+            disabled
+            style="background-color: white"
+          />
+
+          <button @click="changeStateOfTurnForm" class="btn-cancel">
+            Cancelar
+          </button>
+          <button class="btn-confirm" @click="getTurnData">
+            <p v-if="turnSpinnerStatus === false" style="margin: 0">
+              Confirmar
+            </p>
+            <spinner v-if="turnSpinnerStatus === true"></spinner>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -301,6 +350,18 @@ export default {
       businessData: [],
       cashierUsername: "",
       loading: false,
+      turnStatus: false,
+      turnData: {
+        description: "",
+        hours: null,
+        totalCashOfUser: null,
+        totalSales: 0,
+        totalCash: 0,
+        totalDebit: 0,
+        todalCredit: 0,
+        totalCuentaCorriente: 0,
+      },
+      turnSpinnerStatus: false,
     };
   },
   methods: {
@@ -594,6 +655,58 @@ export default {
         throw error;
       }
     },
+    async closeTurn() {
+      try {
+        const businessId = localStorage.getItem("businessId");
+        const response = await axios.post(
+          `http://localhost:3000/turns/${businessId}`,
+          {
+            description: this.turnData.description,
+            cashTotal: this.turnData.totalCashOfUser,
+            salesTotal: this.turnData.totalSales,
+            cashSalesTotal: this.turnData.totalCash,
+            debitSalesTotal: this.turnData.totalDebit,
+            cuentaCorrienteTotal: this.turnData.totalCuentaCorriente,
+            creditTotal: this.turnData.todalCredit,
+            user: this.cashierUsername,
+          }
+        );
+        const data = response.data;
+        console.log("Turno cerrado");
+      } catch (error) {
+        throw error;
+      }
+    },
+    async getTurnData() {
+      try {
+        this.turnSpinnerStatus = true;
+        const businessId = localStorage.getItem("businessId");
+        const response = await axios.get(
+          `http://localhost:3000/turns/sales/${businessId}/${this.turnData.hours}`
+        );
+        const data = response.data;
+        console.log(data);
+
+        this.turnData.totalCash = data.cashTotal;
+        this.turnData.todalCredit = data.creditTotal;
+        this.turnData.totalCuentaCorriente = data.cuentaCorrienteTotal;
+        this.turnData.totalDebit = data.debitTotal;
+        this.turnData.totalSales = data.totalOfSales;
+
+        setTimeout(() => {
+          this.closeTurn();
+          this.turnSpinnerStatus = false;
+
+          this.changeStateOfTurnForm();
+          this.turnData.totalCashOfUser = 0;
+          this.turnData.description = "";
+          this.turnData.hours = 0;
+          window.alert("Turno cerrado con exito");
+        }, 2000);
+      } catch (error) {
+        throw error;
+      }
+    },
     // **********************LLAMADAS A LA API******************************************************************
     changeStatusOfQuantity() {
       this.editQuantityStatus = !this.editQuantityStatus;
@@ -735,6 +848,9 @@ export default {
         this.total += product.sellPrice;
       }
     },
+    changeStateOfTurnForm() {
+      this.turnStatus = !this.turnStatus;
+    },
   },
   watch: {
     // Observador para cambios en la propiedad sellQuantity de los productos en el carrito
@@ -769,6 +885,25 @@ export default {
 </script>
 
 <style scoped>
+.closeTurn {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 10px;
+}
+
+.closeTurn button {
+  background-color: #574f7a;
+  border: none;
+  padding: 5px;
+  font-weight: 500;
+  color: white;
+  transition: background-color 0.5s ease;
+}
+
+.closeTurn button:hover {
+  background-color: rgb(40, 23, 116);
+}
+
 .spinner-overlay {
   position: fixed;
   top: 0;

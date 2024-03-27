@@ -259,6 +259,7 @@ export default {
           `http://localhost:3000/business/sales/${businessId}`
         );
         const sales = result.data;
+        console.log(sales)
         this.salesArray = sales;
       } catch (error) {
         console.log(error);
